@@ -56,6 +56,10 @@ public class RufusService {
     @Inject
     @Property
     private String version;
+    
+    @Inject
+    @Property
+    private String pathNfsDirectory;
 
     private HttpClient httpClient;
 
@@ -167,7 +171,7 @@ public class RufusService {
 
     public List<File> myFileList() {
 
-        File raiz = new File("/var/files/ubuntu/");
+        File raiz = new File(pathNfsDirectory);
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();

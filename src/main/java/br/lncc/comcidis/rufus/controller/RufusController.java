@@ -52,6 +52,10 @@ public class RufusController {
     private RufusService rufusService;
     private Validator validator;
 
+    @Inject
+    @Property
+    private String pathNfsDirectory;
+
     @Deprecated
     public RufusController() {
 
@@ -104,26 +108,50 @@ public class RufusController {
     public void upload() {
 
     }
-    
+
     @Get("/files")
-    public void fileList(){
-       result.include("fileList", rufusService.myFileList());
+    public void fileList() {
+        result.include("fileList", rufusService.myFileList());
     }
 
-    public void saveFile(List<UploadedFile> file) {
-        for (UploadedFile newFile : file) {
-            File destino = new File("/var/files/ubuntu/" + newFile.getFileName() + "");
-            try {
-                destino.createNewFile();
-                InputStream stream = newFile.getFile();
-                IOUtils.copy(stream, new FileOutputStream(destino));
+    public void saveFile(UploadedFile file) {
+        File destino = new File("" + pathNfsDirectory + file.getFileName());
+        try {
+            destino.createNewFile();
+            InputStream stream = file.getFile();
+            IOUtils.copy(stream, new FileOutputStream(destino));
 
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         result.use(Results.status()).ok();
+
     }
+
+    //**********
+    //TESTES
+    //*************
+    public void testes() {
+
+    }
+
+    public void saveFileTest(UploadedFile file) {
+
+        logger.debug(file.getFileName());
+        logger.debug("**********************************");
+        File destino = new File("" + pathNfsDirectory + file.getFileName());
+        try {
+            destino.createNewFile();
+            InputStream stream = file.getFile();
+            IOUtils.copy(stream, new FileOutputStream(destino));
+
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        result.use(Results.status()).ok();
+
+    }
+
 }
