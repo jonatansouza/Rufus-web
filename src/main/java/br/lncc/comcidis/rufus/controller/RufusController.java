@@ -12,6 +12,7 @@ import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
+import br.com.caelum.vraptor.observer.upload.UploadSizeLimit;
 import br.com.caelum.vraptor.observer.upload.UploadedFile;
 
 import br.com.caelum.vraptor.validator.SimpleMessage;
@@ -20,6 +21,7 @@ import br.com.caelum.vraptor.view.Results;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import br.lncc.comcidis.rufus.service.RufusService;
 import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.File;
@@ -112,8 +114,10 @@ public class RufusController {
     @Get("/files")
     public void fileList() {
         result.include("fileList", rufusService.myFileList());
+        
     }
-
+    
+    @UploadSizeLimit(sizeLimit=1024 * 1024 * 1024, fileSizeLimit=1024 * 1024 * 1024)
     public void saveFile(UploadedFile file) {
         File destino = new File("" + pathNfsDirectory + file.getFileName());
         try {
@@ -128,8 +132,15 @@ public class RufusController {
         result.use(Results.status()).ok();
 
     }
+    @Get("/rufus/{name}/deleteFile")
+    public void deleteFile(String name){
+        File tmpFile = new File(pathNfsDirectory+name);
+        tmpFile.delete();
+        result.include("file-info", "File Deleted!");
+        result.redirectTo(this).fileList();
+    }
 
-    //**********
+    //*************
     //TESTES
     //*************
     public void testes() {

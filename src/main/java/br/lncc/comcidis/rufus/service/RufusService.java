@@ -7,6 +7,7 @@ package br.lncc.comcidis.rufus.service;
 
 import br.com.caelum.vraptor.environment.Property;
 import br.lncc.comcidis.rufus.controller.RufusController;
+import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -169,7 +171,9 @@ public class RufusService {
         }
     }
 
-    public List<File> myFileList() {
+    public List<FileModel> myFileList() {
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
         File raiz = new File(pathNfsDirectory);
         FilenameFilter filter = new FileFileFilter() {
@@ -182,9 +186,13 @@ public class RufusService {
                 }
             }
         };
-        List<File> list = new ArrayList<>();
+        List<FileModel> list = new ArrayList<>();
+        
         for(File file : raiz.listFiles(filter)){
-            list.add(file);
+            FileModel fm = new FileModel();
+            fm.setName(file.getName());
+            fm.setDate(sdf.format(file.lastModified()));
+            list.add(fm);
         }
         
         return list;
