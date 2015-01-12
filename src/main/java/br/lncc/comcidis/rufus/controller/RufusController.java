@@ -69,7 +69,7 @@ public class RufusController {
         this.rufusService = rufusService;
         this.validator = validator;
     }
-
+       
     @Path("")
     public void index() {
 
@@ -132,6 +132,7 @@ public class RufusController {
         result.use(Results.status()).ok();
 
     }
+    
     @Get("/rufus/{name}/deleteFile")
     public void deleteFile(String name){
         File tmpFile = new File(pathNfsDirectory+name);

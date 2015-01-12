@@ -120,11 +120,11 @@ public class RufusService {
     public void createLxc(String name, String template) {
         String order = "";
 
-        if (template.equals("default")) {
+        //if (template.equals("default")) {
             order = "{\"name\":\"" + name + "\"}";
-        } else {
-            order = "{\"name\":\"" + name + "\", \"template\":\"" + template + "\"}";
-        }
+        //} else {
+          //  order = "{\"name\":\"" + name + "\", \"template\":\"" + template + "\"}";
+        //}
 
         HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers");
         StringEntity st = new StringEntity(order, "utf-8");

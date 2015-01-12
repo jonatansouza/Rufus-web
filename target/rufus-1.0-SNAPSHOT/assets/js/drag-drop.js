@@ -59,6 +59,11 @@ function deleteNode(idToRemove) {
     $("#" + idToRemove).remove();
     var idx = itemsToUpload.indexOf(name);
     itemsToUpload.splice(idx, 1);
+    if(!itemsToUpload.length){
+        $("#tableFiles").css("display", "none");
+        $("#buttonSend").css("display", "none");
+        $("#text-drop").html("Drop your files here");
+    }
 }
 
 function prepareFilesToSend() {
