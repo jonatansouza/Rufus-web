@@ -1,4 +1,9 @@
+/home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/controller/OAuthController.java
+/home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/intercepts/OAuthIntercept.java
 /home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/model/LxcModel.java
 /home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/model/Template.java
+/home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/service/UserSession.java
+/home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/model/Me.java
 /home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/service/RufusService.java
 /home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/controller/RufusController.java
+/home/jonatan/projects/java/workspace/rufus/src/main/java/br/lncc/comcidis/rufus/model/FileModel.java

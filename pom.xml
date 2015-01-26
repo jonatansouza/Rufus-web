@@ -30,7 +30,8 @@
         <dependency>
             <groupId>br.com.caelum</groupId>
             <artifactId>vraptor</artifactId>
-            <version>4.1.1</version> <!--or the latest version-->
+            <version>4.1.4</version> <!--or the latest version-->
+            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -93,7 +94,29 @@
             <version>1.3</version>
         </dependency>
             
+        <!--oauth-->
+        
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        
+        <!--Session dependency-->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.2.3</version>
+        </dependency>
 
+        
+        
     </dependencies>
     
     

@@ -26,16 +26,25 @@ import java.util.List;
 import java.util.logging.Level;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponseWrapper;
 import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +67,7 @@ public class RufusService {
     @Inject
     @Property
     private String version;
-    
+
     @Inject
     @Property
     private String pathNfsDirectory;
@@ -121,9 +130,9 @@ public class RufusService {
         String order = "";
 
         //if (template.equals("default")) {
-            order = "{\"name\":\"" + name + "\"}";
+        order = "{\"name\":\"" + name + "\"}";
         //} else {
-          //  order = "{\"name\":\"" + name + "\", \"template\":\"" + template + "\"}";
+        //  order = "{\"name\":\"" + name + "\", \"template\":\"" + template + "\"}";
         //}
 
         HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers");
@@ -171,8 +180,11 @@ public class RufusService {
         }
     }
 
+    //
+    //UPLOAD Section
+    //
     public List<FileModel> myFileList() {
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
         File raiz = new File(pathNfsDirectory);
@@ -187,15 +199,17 @@ public class RufusService {
             }
         };
         List<FileModel> list = new ArrayList<>();
-        
-        for(File file : raiz.listFiles(filter)){
+
+        for (File file : raiz.listFiles(filter)) {
             FileModel fm = new FileModel();
             fm.setName(file.getName());
             fm.setDate(sdf.format(file.lastModified()));
             list.add(fm);
         }
-        
+
         return list;
     }
+
+   
 
 }

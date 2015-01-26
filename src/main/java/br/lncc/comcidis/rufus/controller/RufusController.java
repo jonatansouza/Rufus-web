@@ -23,6 +23,8 @@ import br.lncc.comcidis.rufus.service.RufusService;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.sun.corba.se.impl.activation.ServerMain;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -69,13 +71,21 @@ public class RufusController {
         this.rufusService = rufusService;
         this.validator = validator;
     }
-       
-    @Path("")
+    @Path("/login")
+    public void login(String token){
+        result.redirectTo(this).dashboard();
+    }
+    
+    @Path("/index")
     public void index() {
-
+        
+    }
+    
+    @Path("/dashboard")
+    public void dashboard(){
         result.include("list", rufusService.list());
     }
-
+    
     @Get("/create")
     public void create() {
         result.include("listTemplates", rufusService.getLxcTemplates());
@@ -91,19 +101,19 @@ public class RufusController {
         validator.onErrorForwardTo(this).create();
 
         rufusService.createLxc(name, template);
-        result.redirectTo(this).index();
+        result.redirectTo(this).dashboard();
     }
 
     @Get("/rufus/{lxc.name}/update/{lxc.state}")
     public void update(LxcModel lxc) {
         rufusService.changeState(lxc.getName(), lxc.getState());
-        result.redirectTo(this).index();
+        result.redirectTo(this).dashboard();
     }
 
     @Get("/rufus/{name}/delete")
     public void delete(String name) {
         rufusService.deleteLxc(name);
-        result.redirectTo(this).index();
+        result.redirectTo(this).dashboard();
     }
 
     @Get("/upload")
@@ -144,6 +154,8 @@ public class RufusController {
     //*************
     //TESTES
     //*************
+    
+    @Path("/test")
     public void testes() {
 
     }

@@ -1,5 +1,10 @@
+br/lncc/comcidis/rufus/model/FileModel.class
 br/lncc/comcidis/rufus/service/RufusService$1.class
+br/lncc/comcidis/rufus/intercepts/OAuthIntercept.class
+br/lncc/comcidis/rufus/service/UserSession.class
 br/lncc/comcidis/rufus/model/LxcModel.class
 br/lncc/comcidis/rufus/controller/RufusController.class
+br/lncc/comcidis/rufus/controller/OAuthController.class
 br/lncc/comcidis/rufus/model/Template.class
 br/lncc/comcidis/rufus/service/RufusService.class
+br/lncc/comcidis/rufus/model/Me.class
