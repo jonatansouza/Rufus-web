@@ -9,26 +9,19 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.view.Results;
+import br.lncc.comcidis.rufus.model.Me;
+import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
 import br.lncc.comcidis.rufus.service.UserSession;
-import com.google.gson.Gson;
-import java.util.logging.Level;
 import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
-import org.apache.oltu.oauth2.client.request.OAuthBearerClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.client.response.GitHubTokenResponse;
 import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
-import org.apache.oltu.oauth2.client.response.OAuthResourceResponse;
-import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
-import org.jboss.weld.bean.builtin.ee.HttpServletRequestBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,17 +31,21 @@ import org.slf4j.LoggerFactory;
  */
 @Controller
 @SessionScoped
-
 public class OAuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuthController.class);
 
     @Inject
     private Result result;
+    @Inject UserSession session;
     
     @Path("/teste")
     public void teste() {
 
+    }
+    @Path("/login")
+    public void login(){
+        
     }
 
     @Inject
@@ -58,7 +55,6 @@ public class OAuthController {
 
     @Get("/oauth/login")
     public void getOauthCode() throws OAuthSystemException {
-        rq.getSession().invalidate();
         OAuthClientRequest request = OAuthClientRequest
                 .authorizationLocation("http://auth.comcidis.lncc.br:3000/oauth/authorize")
                 .setClientId("96faaa00d5da1e1117cce031dcf1083356fcc6a3d63b0ca5c29bec7627a00a38")
@@ -89,14 +85,18 @@ public class OAuthController {
         String accessToken = oAuthResponse.getAccessToken();
         Long expiresIn = oAuthResponse.getExpiresIn();
         
-        userSession.setLogged(true);
+        Me me = new Me();
+       
+        me.setEmail("bla");
         
-        rq.getSession().setAttribute("token", accessToken);
-        rq.getSession().setAttribute("userSession", userSession);
-        
+       try{ 
+       session.authenticate(me);
+       }catch(NaoAutenticadoException ex){
+           
+       }
         
         /*result.include("token", accessToken)
                 .use(Results.logic()).redirectTo(RufusController.class).dashboard();*/
-        result.redirectTo(RufusController.class).login(accessToken);
+        result.redirectTo(RufusController.class).dashboard();
     }
 }

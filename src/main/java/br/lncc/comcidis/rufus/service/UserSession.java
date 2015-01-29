@@ -7,9 +7,7 @@ package br.lncc.comcidis.rufus.service;
 
 import br.lncc.comcidis.rufus.model.Me;
 import javax.faces.bean.SessionScoped;
-import javax.servlet.http.HttpSession;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.session.SessionListener;
+import javax.inject.Named;
 
 /**
  *
@@ -17,15 +15,28 @@ import org.apache.shiro.session.SessionListener;
  */
 
 @SessionScoped
+@Named("userSession")
 public class UserSession{
-    boolean logged = false;
-
-    public boolean isLogged() {
-        return logged;
+    
+    private Me me;
+    
+    public void authenticate(Me me){
+        if(me == null){
+            throw  new NaoAutenticadoException();
+        }
+        this.me = me;
     }
-
-    public void setLogged(boolean logged) {
-        this.logged = logged;
+    
+    public void logout(){
+        this.me = null;
+    }
+    
+    public boolean isLogged(){
+        return me != null;
+    }
+    
+    public Me currentUser(){
+        return me;
     }
     
     

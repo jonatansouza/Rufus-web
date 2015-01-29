@@ -9,7 +9,6 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
-import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
 import br.com.caelum.vraptor.observer.upload.UploadSizeLimit;
@@ -18,28 +17,27 @@ import br.com.caelum.vraptor.observer.upload.UploadedFile;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
+import br.lncc.comcidis.rufus.intercepts.NeedLogin;
+import br.lncc.comcidis.rufus.model.Cells;
+import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
+import br.lncc.comcidis.rufus.service.GenerateXML;
 import br.lncc.comcidis.rufus.service.RufusService;
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
 import com.google.gson.Gson;
-import com.sun.corba.se.impl.activation.ServerMain;
-
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import javax.inject.Inject;
+import javax.swing.text.html.HTML;
+import javax.ws.rs.GET;
 import org.apache.commons.io.IOUtils;
+import org.json.XML;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author jonatan
  */
 @Controller
+@NeedLogin
 public class RufusController {
 
     private static final Logger logger = LoggerFactory.getLogger(RufusController.class);
@@ -71,10 +70,6 @@ public class RufusController {
         this.rufusService = rufusService;
         this.validator = validator;
     }
-    @Path("/login")
-    public void login(String token){
-        result.redirectTo(this).dashboard();
-    }
     
     @Path("/index")
     public void index() {
@@ -84,6 +79,18 @@ public class RufusController {
     @Path("/dashboard")
     public void dashboard(){
         result.include("list", rufusService.list());
+    }
+    
+    @Post
+    public void sendXML(String xmlTextArea){
+       
+        Cells cells = new Cells();
+        cells = new Gson().fromJson(xmlTextArea, cells.getClass());
+        String myXML = "teste";
+        myXML = GenerateXML.generateXML(cells);
+        logger.info(myXML);
+        result.use(Results.xml()).from(myXML).serialize();
+        
     }
     
     @Get("/create")
@@ -114,6 +121,11 @@ public class RufusController {
     public void delete(String name) {
         rufusService.deleteLxc(name);
         result.redirectTo(this).dashboard();
+    }
+    
+    @Path("/workflow")
+    public void workflow(){
+        
     }
 
     @Get("/upload")

@@ -1,0 +1,15 @@
+<script src="${pageContext.request.contextPath}/assets/js/workflow/FileSaver.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/amphitrite.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/backbone.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/core.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/customNodes.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/geometry.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.connectors.normal.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.dia.cell.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.dia.element.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.dia.graph.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.dia.link.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.dia.paper.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/joint.shapes.basic.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/lodash.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/workflow/vectorizer.js"></script>

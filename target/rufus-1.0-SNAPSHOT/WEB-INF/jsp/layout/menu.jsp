@@ -7,11 +7,11 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="${linkTo[RufusController].index}">LXC Containers</a>
+            <a class="navbar-brand" href="${linkTo[RufusController].dashboard}">LXC Containers</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="${linkTo[RufusController].index}">Home</a></li>
+                <li class="active"><a href="${linkTo[RufusController].dashboard}">Home</a></li>
 
             </ul>
         </div><!--/.nav-collapse -->
@@ -22,7 +22,7 @@
 
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a href="${linkTo[RufusController].index}">
+                    <a href="${linkTo[RufusController].dashboard}">
                         Container System
                     </a>
                 </li>
@@ -32,6 +32,10 @@
                 </li>
                 <li>
                     <a href="${linkTo[RufusController].fileList}">Files</a>
+                </li>
+                
+                <li>
+                    <a href="${linkTo[RufusController].workflow}">Workflow</a>
                 </li>
 
             </ul>

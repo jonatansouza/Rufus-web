@@ -8,6 +8,7 @@ package br.lncc.comcidis.rufus.service;
 import br.com.caelum.vraptor.environment.Property;
 import br.lncc.comcidis.rufus.controller.RufusController;
 import br.lncc.comcidis.rufus.model.FileModel;
+import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
@@ -15,36 +16,20 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import javax.enterprise.inject.Default;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponseWrapper;
 import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,6 +195,30 @@ public class RufusService {
         return list;
     }
 
-   
+    public String operateLxc(LxcInput lxcInputs) {
+        String order = "{\"command\" : \"" + lxcInputs.getActivity() + "\"}";
+
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/input/run");
+        StringEntity st = new StringEntity(order, "utf-8");
+        st.setContentType("application/json");
+        hp.setEntity(st);
+        String json = "";
+            
+        HttpResponse answer;
+        try {
+            answer = httpClient.execute(hp);
+            BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+            String output = "";
+            while ((output = br.readLine()) != null) {
+                json += output;
+            }
+
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return json;
+
+    }
 
 }
