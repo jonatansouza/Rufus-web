@@ -19,6 +19,12 @@ public class Source {
     public void setId(String id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "Source{" + "id=" + id + '}';
+    }
+    
     
     
 }

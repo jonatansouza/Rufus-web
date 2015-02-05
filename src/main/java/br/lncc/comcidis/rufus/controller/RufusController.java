@@ -21,8 +21,11 @@ import br.lncc.comcidis.rufus.intercepts.NeedLogin;
 import br.lncc.comcidis.rufus.model.Cells;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
+import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.service.GenerateXML;
 import br.lncc.comcidis.rufus.service.RufusService;
+
+import br.lncc.comcidis.rufus.service.WorkflowService;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import java.io.File;
@@ -38,7 +41,6 @@ import javax.ws.rs.GET;
 import org.apache.commons.io.IOUtils;
 import org.json.XML;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +53,11 @@ import org.slf4j.LoggerFactory;
 public class RufusController {
 
     private static final Logger logger = LoggerFactory.getLogger(RufusController.class);
+    private UserSession userSession;
     private Result result;
     private RufusService rufusService;
     private Validator validator;
+    private WorkflowService workflowService;
 
     @Inject
     @Property
@@ -61,38 +65,50 @@ public class RufusController {
 
     @Deprecated
     public RufusController() {
-
+       
     }
 
     @Inject
-    public RufusController(Result result, RufusService rufusService, Validator validator) {
+    public RufusController(Result result, RufusService rufusService, Validator validator, WorkflowService workflowService) {
         this.result = result;
         this.rufusService = rufusService;
         this.validator = validator;
-    }
-    
-    @Path("/index")
-    public void index() {
+        this.workflowService = workflowService;
         
     }
-    
-    @Path("/dashboard")
-    public void dashboard(){
-        result.include("list", rufusService.list());
+
+    @Path("/index")
+    public void index() {
+
     }
-    
+
+    @Path("/dashboard")
+    public void dashboard() {
+        result.include("list", rufusService.list());
+
+    }
+
     @Post
-    public void sendXML(String xmlTextArea){
-       
+    public void runWorkflow(String xmlTextArea) {
+
         Cells cells = new Cells();
         cells = new Gson().fromJson(xmlTextArea, cells.getClass());
         String myXML = "teste";
+
+        //workflowService.prepareFiles(cells);
+        workflowService.organizeToRun(cells);
+        /*List<String> app_ids = workflowService.prepareFiles(cells);
+         for(String id : app_ids){
+         rufusService.runOperations("jonatan", id);
+         }*/
+
         myXML = GenerateXML.generateXML(cells);
-        logger.info(myXML);
-        result.use(Results.xml()).from(myXML).serialize();
-        
+        /*logger.info("***************************");
+         logger.info(xmlTextArea);
+         result.use(Results.xml()).from(myXML).serialize();*/
+
     }
-    
+
     @Get("/create")
     public void create() {
         result.include("listTemplates", rufusService.getLxcTemplates());
@@ -122,10 +138,10 @@ public class RufusController {
         rufusService.deleteLxc(name);
         result.redirectTo(this).dashboard();
     }
-    
+
     @Path("/workflow")
-    public void workflow(){
-        
+    public void workflow() {
+
     }
 
     @Get("/upload")
@@ -136,10 +152,10 @@ public class RufusController {
     @Get("/files")
     public void fileList() {
         result.include("fileList", rufusService.myFileList());
-        
+
     }
-    
-    @UploadSizeLimit(sizeLimit=1024 * 1024 * 1024, fileSizeLimit=1024 * 1024 * 1024)
+
+    @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
     public void saveFile(UploadedFile file) {
         File destino = new File("" + pathNfsDirectory + file.getFileName());
         try {
@@ -154,10 +170,10 @@ public class RufusController {
         result.use(Results.status()).ok();
 
     }
-    
+
     @Get("/rufus/{name}/deleteFile")
-    public void deleteFile(String name){
-        File tmpFile = new File(pathNfsDirectory+name);
+    public void deleteFile(String name) {
+        File tmpFile = new File(pathNfsDirectory + name);
         tmpFile.delete();
         result.include("file-info", "File Deleted!");
         result.redirectTo(this).fileList();
@@ -166,16 +182,10 @@ public class RufusController {
     //*************
     //TESTES
     //*************
-    
-    @Path("/test")
-    public void testes() {
-
-    }
-
     public void saveFileTest(UploadedFile file) {
 
-        logger.debug(file.getFileName());
-        logger.debug("**********************************");
+        //logger.debug(file.getFileName());
+        //logger.debug("**********************************");
         File destino = new File("" + pathNfsDirectory + file.getFileName());
         try {
             destino.createNewFile();

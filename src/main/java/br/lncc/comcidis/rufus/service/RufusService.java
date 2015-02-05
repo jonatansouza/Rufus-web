@@ -194,6 +194,8 @@ public class RufusService {
 
         return list;
     }
+    
+    
 
     public String operateLxc(LxcInput lxcInputs) {
         String order = "{\"command\" : \"" + lxcInputs.getActivity() + "\"}";
@@ -220,5 +222,55 @@ public class RufusService {
         return json;
 
     }
+    
+    
+    //***********************************
+    //WORKFLOW SERVICES
+    //***********************************
+    public void runOperations(String user, String app_id){
+        File inputs = new File(pathNfsDirectory+user+"/"+app_id+"/in/");
+        logger.info(pathNfsDirectory+user+"/"+app_id+"/in/");
+        FilenameFilter filter = new FileFileFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                if (!lowercaseName.equals("stdin")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        List<String> inputNames = new ArrayList<>();
+                
+        for(String inputName : inputs.list(filter)){
+            inputNames.add(inputName);
+        }
+        
+        String jsonFile = new Gson().toJson(inputNames);
+        
+        
+        
+        String order = "{\"username\":\""+user+"\", \"app_id\":\""+app_id+"\", \"args\":"+jsonFile+"}";
+        logger.info(order+"####################");
+        
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/Addition/run");
+        StringEntity st = new StringEntity(order, "utf-8");
+        st.setContentType("application/json");
+        hp.setEntity(st);
+        String json = "";
+            
+        HttpResponse answer;
+        try {
+            answer = httpClient.execute(hp);
+            BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+            String output = "";
+            while ((output = br.readLine()) != null) {
+                json += output;
+            }
 
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 }

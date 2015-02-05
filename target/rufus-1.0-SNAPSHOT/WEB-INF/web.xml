@@ -39,4 +39,9 @@
         <param-name>br.com.caelum.vraptor.environment</param-name>
         <param-value>production</param-value>
     </context-param>
+    
+    <context-param>   
+        <param-name>com.sun.faces.writeStateAtFormEnd</param-name>   
+        <param-value>false</param-value>   
+    </context-param>  
 </web-app>

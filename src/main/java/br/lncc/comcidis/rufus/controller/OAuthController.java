@@ -10,15 +10,20 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Result;
 import br.lncc.comcidis.rufus.model.Me;
+import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
-import br.lncc.comcidis.rufus.service.UserSession;
+import com.google.gson.Gson;
+
 import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
+import org.apache.oltu.oauth2.client.request.OAuthBearerClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
+import org.apache.oltu.oauth2.client.response.OAuthResourceResponse;
+import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
@@ -37,15 +42,17 @@ public class OAuthController {
 
     @Inject
     private Result result;
-    @Inject UserSession session;
-    
+    @Inject
+    UserSession session;
+
     @Path("/teste")
     public void teste() {
 
     }
+
     @Path("/login")
-    public void login(){
-        
+    public void login() {
+
     }
 
     @Inject
@@ -57,7 +64,7 @@ public class OAuthController {
     public void getOauthCode() throws OAuthSystemException {
         OAuthClientRequest request = OAuthClientRequest
                 .authorizationLocation("http://auth.comcidis.lncc.br:3000/oauth/authorize")
-                .setClientId("96faaa00d5da1e1117cce031dcf1083356fcc6a3d63b0ca5c29bec7627a00a38")
+                .setClientId("d61755e9a74f4645fd269acae0c7d8db865af5ec49bc55b991bdfbb80a3eed2e")
                 .setRedirectURI("http://localhost:8084/rufus/oauth/callback")
                 .setResponseType("code")
                 .buildQueryMessage();
@@ -71,8 +78,8 @@ public class OAuthController {
         OAuthClientRequest request = OAuthClientRequest
                 .tokenLocation("http://auth.comcidis.lncc.br:3000/oauth/token")
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
-                .setClientId("96faaa00d5da1e1117cce031dcf1083356fcc6a3d63b0ca5c29bec7627a00a38")
-                .setClientSecret("23773eb69593d259ddb981311fa55f2e921b88c49ba156b75491004e6ee028ba")
+                .setClientId("d61755e9a74f4645fd269acae0c7d8db865af5ec49bc55b991bdfbb80a3eed2e")
+                .setClientSecret("df633872206a3d6ca65bf406bfe2c3856ba8331b57becc5c4f8d7e08e5edd0c0")
                 .setRedirectURI("http://localhost:8084/rufus/oauth/callback")
                 .setCode(code)
                 .buildQueryMessage();
@@ -84,19 +91,25 @@ public class OAuthController {
 
         String accessToken = oAuthResponse.getAccessToken();
         Long expiresIn = oAuthResponse.getExpiresIn();
-        
-        Me me = new Me();
        
-        me.setEmail("bla");
         
-       try{ 
-       session.authenticate(me);
-       }catch(NaoAutenticadoException ex){
-           
-       }
+         OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest("http://auth.comcidis.lncc.br:3000/api/v1/me.json")
+                .setAccessToken(oAuthResponse.getAccessToken()).buildQueryMessage();
+
+        OAuthResourceResponse resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
+
+        Me me = new Gson().fromJson(resourceResponse.getBody(), Me.class);
+
+        try {
+            session.authenticate(me);
+        } catch (NaoAutenticadoException ex) {
+
+        }
+
         
-        /*result.include("token", accessToken)
-                .use(Results.logic()).redirectTo(RufusController.class).dashboard();*/
-        result.redirectTo(RufusController.class).dashboard();
+        logger.info("********************************");
+        logger.info(me.getName());
+        logger.info(me.getEmail());
+        result.redirectTo(RufusController.class).index();
     }
 }

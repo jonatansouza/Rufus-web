@@ -84,7 +84,7 @@
             </div>
             <!-- /.container-fluid -->
             <div>
-                <form hidden method="POST" action="${linkTo[RufusController].sendXML}" id="postForm">
+                <form hidden method="POST" action="${linkTo[RufusController].runWorkflow}" id="postForm">
                     <textarea name="xmlTextArea" id="xmlTextArea"></textarea>
                 </form>
             </div>

@@ -11,9 +11,13 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.interceptor.AcceptsWithAnnotations;
 import br.com.caelum.vraptor.interceptor.SimpleInterceptorStack;
 import br.lncc.comcidis.rufus.controller.OAuthController;
-import br.lncc.comcidis.rufus.service.UserSession;
+import br.lncc.comcidis.rufus.model.UserSession;
+
+import java.util.logging.Level;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,23 +27,21 @@ import org.slf4j.LoggerFactory;
  */
 @Intercepts
 @AcceptsWithAnnotations(NeedLogin.class)
-@RequestScoped
 public class OAuthIntercept {
-
-    private static final Logger logger = LoggerFactory.getLogger(OAuthIntercept.class);
-
     @Inject
-    Result result;
-    @Inject
-    UserSession userSession;
-
+    private UserSession userSession;
+    @Inject        
+    private Result result;
+    
     @AroundCall
     public void around(SimpleInterceptorStack stack) {
-        
-        if (userSession.isLogged()) {
+    
+        if (!userSession.isLogged()) {
             result.redirectTo(OAuthController.class).login();
+        } else {
+            stack.next();
         }
-        stack.next();
+
     }
 
 }

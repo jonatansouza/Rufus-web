@@ -157,7 +157,7 @@ function testConnection() {
 
 // Show Download Modal
 function modalDownload(){
-    $.get("/templates/modal/modalDownload.php", function(data,status){
+    $.get("/rufus/assets/templates/modalDownload.html", function(data,status){
         bootbox.dialog({
             message: data,
             title: "Select File",

@@ -18,7 +18,7 @@
                     <h2>You are not logged!</h2>
                     <span class="text-muted"><b>Click bellow to login on VirtualIS</b></span>
                     <br><br>
-                        <a href="#" style="text-decoration: none"><button class="btn btn-primary col-md-12">Sign in</button></a>
+                    <a href="${pageContext.request.contextPath}/oauth/login" style="text-decoration: none"><button class="btn btn-primary col-md-12">Sign in</button></a>
                 </div>
                 <div class="clearfix"></div>
             </div>
