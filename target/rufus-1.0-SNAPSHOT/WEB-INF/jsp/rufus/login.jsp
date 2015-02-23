@@ -1,3 +1,4 @@
+<jsp:include page="../layout/header.jsp"></jsp:include>
 <div class="container">
 
 
@@ -62,3 +63,4 @@
 
 
 </div>
+<jsp:include page="../layout/footer.jsp"></jsp:include>

@@ -1,11 +1,7 @@
 <jsp:include page="../layout/menu.jsp"></jsp:include>
-    <div style="margin-top: 100px"></div>
-    <div class="container-fluid">   
-        <!-- Sidebar -->
 
-    </div>
-   
     <div class="container">
+        <div class="row">
         <table class="table table-hover" id="tablelxc">
             <thead>
                 <tr>
@@ -56,6 +52,7 @@
             </c:forEach>
         </tbody> 
     </table>
+            </div>
 </div>
 
 <script>
@@ -63,10 +60,12 @@
         bootbox.confirm("Are you sure you want delete \"" + name + "\" ?", function (result) {
             if (result) {
                 {
-                        window.location = "${pageContext.request.contextPath}/rufus/" + name + "/delete";
+                    window.location = "${pageContext.request.contextPath}/rufus/" + name + "/delete";
                 }
             }
         });
     }
 
 </script>
+
+<jsp:include page="../layout/footer.jsp"></jsp:include>

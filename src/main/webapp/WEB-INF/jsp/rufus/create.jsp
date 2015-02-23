@@ -1,12 +1,12 @@
 <jsp:include page="../layout/menu.jsp"></jsp:include>
-    <div style =margin-top:100px;></div>
+   
     <div class="container">
-    <c:forEach items="${errors}" var="error">
+        <c:forEach items="${errors}" var="error">
         <div class="row">
             <div class="col-sm-4">
 
                 <p class="alert-danger"><b>
-                        ${error.category} - ${error.message}</b></p><br/>
+                        ${error.category} ${error.message}</b></p><br/>
 
             </div>
         </div>
@@ -36,3 +36,4 @@
 
 
 </div>
+<jsp:include page="../layout/footer.jsp"></jsp:include>

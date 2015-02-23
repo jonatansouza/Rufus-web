@@ -32,6 +32,17 @@ public class Cells {
     public String toString() {
         return "Cells{" + "cells=" + cells + '}';
     }
+    
+    public List<LxcInput> getContainers(){
+        List<LxcInput> lxcs = new ArrayList<>();
+        for (LxcInput lxc : cells) {
+            if (!lxc.getType().equals("link")) {
+                lxcs.add(lxc);
+            }
+        }
+
+        return lxcs;
+    }
 
     public List<LxcInput> getLinks() {
         List<LxcInput> lxcs = new ArrayList<>();
@@ -94,5 +105,26 @@ public class Cells {
             return lxcs.get(0);
         }
     }
-
+    
+    public LxcInput getById(String id){
+        LxcInput found = null;
+        for(LxcInput lxc : getContainers()){
+            if(lxc.getId().equals(id)){
+                found = lxc;
+            }
+        }
+        return found;
+    }
+    
+    public static List<String> getLinkByTarget(String id, List<LxcInput> links){
+        List<String> found = new ArrayList();
+        for(LxcInput lxc : links){
+            if(lxc.getTarget().getId().equals(id)){
+                
+                found.add(lxc.getSource().getId());
+            }
+        }
+        return found;
+    }
+    
 }

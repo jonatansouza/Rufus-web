@@ -1,5 +1,0 @@
-
-    <div class="container">
-        
-        <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
-    </div>

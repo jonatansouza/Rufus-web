@@ -67,7 +67,7 @@ function file() {
     var node = new joint.shapes.basic.Image({
         position: {
             x: 20,
-            y: 10
+            y: 150
         },
         size: {
             width: height / 30 + width / 30,
@@ -97,7 +97,7 @@ function file() {
 function addition() {
     var node = new joint.shapes.basic.Image({
         position: {
-            x: 20,
+            x: 150,
             y: 10
         },
         size: {
@@ -154,40 +154,12 @@ function subtraction() {
     graph.addCell(node);
 }
 
-function multiplication() {
-    var node = new joint.shapes.basic.Image({
-        position: {
-            x: 20,
-            y: 10
-        },
-        size: {
-            width: height / 30 + width / 30,
-            height: height / 30 + width / 30
-        },
-        attrs: {
-            text: {
-                text: 'Multiplication',
-                magnet: true
-            },
-            image: {
-                'xlink:href': '/rufus/assets/images/nodes/multiplication.png',
-                width: 50,
-                height: 50
-            },
-            '.': {
-                magnet: false
-            },
-        },
-        activity: '',
-	name: 'multiplication'
-    });
-    graph.addCell(node);
-}
 
-function division() {
+
+function blast() {
     var node = new joint.shapes.basic.Image({
         position: {
-            x: 20,
+            x: 150,
             y: 10
         },
         size: {
@@ -196,11 +168,11 @@ function division() {
         },
         attrs: {
             text: {
-                text: 'Division',
+                text: 'Blast',
                 magnet: true
             },
             image: {
-                'xlink:href': '/rufus/assets/images/nodes/division.png',
+                'xlink:href': '/rufus/assets/images/nodes/blast.png',
                 width: 50,
                 height: 50
             },
@@ -209,7 +181,7 @@ function division() {
             },
         },
         activity: '',
-	name: 'division'
+	name: 'blast'
     });
     graph.addCell(node);
 }
@@ -217,8 +189,8 @@ function division() {
 function result() {
     var node = new joint.shapes.basic.Image({
         position: {
-            x: 20,
-            y: 10
+            x: 150,
+            y: 150
         },
         size: {
             width: height / 30 + width / 30,

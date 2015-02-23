@@ -36,7 +36,7 @@ public class OAuthIntercept {
     @AroundCall
     public void around(SimpleInterceptorStack stack) {
     
-        if (!userSession.isLogged()) {
+        if (userSession.isLogged()) {
             result.redirectTo(OAuthController.class).login();
         } else {
             stack.next();

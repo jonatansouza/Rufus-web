@@ -56,10 +56,10 @@ paper.$el.on('contextmenu', function (evt) {
                         label: "Select File",
                         className: "btn-info",
                         callback: function () {
-                            $.get("/templates/modal/modalFile.php", function(data,status){
+                            $.get("/rufus/modalFileList", function(data,status){
    		                bootbox.dialog({
                                     message: data,
-                                    title: "Select File <a type=\"button\" class=\"btn btn-default\" href=\"/file.php\" ><i class=\"fa fa-fw fa-eye\"></i> All files</a></a>",
+                                    title: "Select File <a type=\"button\" class=\"btn btn-default\" href=\"/rufus/file\" target=\"_blank\"><i class=\"fa fa-fw fa-eye\"></i> All files</a></a>",
                                 });
                             });
                         }

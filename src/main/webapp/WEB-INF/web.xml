@@ -20,10 +20,10 @@
             <display-name>System Body Life</display-name>
             <url-pattern>*.jsp</url-pattern>
             <include-prelude>/WEB-INF/jsp/layout/header.jspf</include-prelude>
-            <include-coda>/WEB-INF/jsp/layout/footer.jspf</include-coda>
+<!--            <include-coda>/WEB-INF/jsp/layout/footer.jspf</include-coda>-->
         </jsp-property-group>
     </jsp-config>
-    
+
     <resource-env-ref>
         <resource-env-ref-name>BeanManager</resource-env-ref-name>
         <resource-env-ref-type>

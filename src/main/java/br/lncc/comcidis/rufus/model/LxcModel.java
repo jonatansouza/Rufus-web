@@ -5,6 +5,7 @@
  */
 package br.lncc.comcidis.rufus.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -14,12 +15,30 @@ import java.util.List;
  */
 
 
-public class LxcModel {
+public class LxcModel implements Serializable{
     
-    
+    private List<String> ips;
     private String name;
     private String state;
-    private List<String> ips;
+
+    public LxcModel() {
+    }
+
+    public LxcModel(List<String> ips, String name, String state) {
+        this.ips = ips;
+        this.name = name;
+        this.state = state;
+    }
+
+    
+    
+    public List<String> getIps() {
+        return ips;
+    }
+
+    public void setIps(List<String> ips) {
+        this.ips = ips;
+    }
 
     public String getName() {
         return name;
@@ -37,21 +56,12 @@ public class LxcModel {
         this.state = state;
     }
 
-    public List<String> getIps() {
-        return ips;
-    }
-
-    public void setIps(List<String> ips) {
-        this.ips = ips;
-    }
-
     @Override
     public String toString() {
-        return "LxcModel{" + "name=" + name + ", state=" + state + ", ips=" + ips + '}';
+        return "LxcModel{" + "ips=" + ips + ", name=" + name + ", state=" + state + '}';
     }
     
-    
-    
+
     
     
 }

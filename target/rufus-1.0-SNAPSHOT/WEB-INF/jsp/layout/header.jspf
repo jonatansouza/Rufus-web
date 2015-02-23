@@ -3,16 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Rufus</title>
-        <link rel="shortcut item" type="image/png" href="${pageContext.request.contextPath}/assets/img/rufusIcon.png">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/simple-side-bar.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/font-awesome.min.css">
-        
-     </head>
-    <body>
-       
+<body>

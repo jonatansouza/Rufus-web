@@ -65,7 +65,7 @@ public class RufusController {
 
     @Deprecated
     public RufusController() {
-       
+
     }
 
     @Inject
@@ -74,13 +74,13 @@ public class RufusController {
         this.rufusService = rufusService;
         this.validator = validator;
         this.workflowService = workflowService;
-        
+
     }
 
-    @Path("/index")
+    /*@Path("/")
     public void index() {
 
-    }
+    }*/
 
     @Path("/dashboard")
     public void dashboard() {
@@ -91,22 +91,23 @@ public class RufusController {
     @Post
     public void runWorkflow(String xmlTextArea) {
 
-        Cells cells = new Cells();
-        cells = new Gson().fromJson(xmlTextArea, cells.getClass());
-        String myXML = "teste";
+        Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
+        //String myXML = "teste";
 
         //workflowService.prepareFiles(cells);
-        workflowService.organizeToRun(cells);
+        List<LxcInput> containers = new ArrayList<>();
+        containers = workflowService.organizeToRun(cells);
+        workflowService.saveFilesOnDirectory(containers, cells.getResult().getId());
+
+        workflowService.runContainers(containers, cells.getLinks(), cells.getResult().getId(), "jonatan");
         /*List<String> app_ids = workflowService.prepareFiles(cells);
          for(String id : app_ids){
          rufusService.runOperations("jonatan", id);
          }*/
 
-        myXML = GenerateXML.generateXML(cells);
-        /*logger.info("***************************");
-         logger.info(xmlTextArea);
-         result.use(Results.xml()).from(myXML).serialize();*/
-
+        //myXML = GenerateXML.generateXML(cells);
+                //logger.info(lxc.toString());
+        // result.use(Results.xml()).from(myXML).serialize();*/
     }
 
     @Get("/create")
@@ -149,10 +150,13 @@ public class RufusController {
 
     }
 
-    @Get("/files")
+    @Get("/file")
     public void fileList() {
         result.include("fileList", rufusService.myFileList());
-
+    }
+    @Path("/modalFileList")
+    public void modalFileList(){
+        result.include("fileList", rufusService.myFileList());
     }
 
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
@@ -164,7 +168,8 @@ public class RufusController {
             IOUtils.copy(stream, new FileOutputStream(destino));
 
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(RufusController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         result.use(Results.status()).ok();
@@ -193,7 +198,8 @@ public class RufusController {
             IOUtils.copy(stream, new FileOutputStream(destino));
 
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(RufusController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         result.use(Results.status()).ok();

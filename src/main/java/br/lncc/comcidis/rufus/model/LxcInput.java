@@ -16,8 +16,20 @@ public class LxcInput {
     private String type;
     private Source source;
     private Target target;
-    
+    private int step = 0;
 
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
+    
+    public void incrementStep(){
+        this.step ++;
+    }
+   
     public String getName() {
         return name;
     }
@@ -68,7 +80,7 @@ public class LxcInput {
 
     @Override
     public String toString() {
-        return "LxcInput{" + "name=" + name + ", activity=" + activity + ", id=" + id + ", type=" + type + ", source=" + source + ", target=" + target + '}';
+        return "LxcInput{" + "name=" + name + ", activity=" + activity + ", id=" + id + ", source=" + source.getId() + ", target=" + target.getId() + '}';
     }
 
     

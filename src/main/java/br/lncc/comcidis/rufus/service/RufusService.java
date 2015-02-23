@@ -9,8 +9,10 @@ import br.com.caelum.vraptor.environment.Property;
 import br.lncc.comcidis.rufus.controller.RufusController;
 import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
+import br.lncc.comcidis.rufus.model.LxcList;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -19,6 +21,7 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
@@ -65,7 +68,7 @@ public class RufusService {
     }
 
     public List<LxcModel> list() {
-
+        
         HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/containers");
         try {
             HttpResponse answer = httpClient.execute(hg);
@@ -75,12 +78,16 @@ public class RufusService {
             while ((output = br.readLine()) != null) {
                 json += output;
             }
-
-            List<LxcModel> lxcList = new ArrayList<LxcModel>();
-
-            lxcList = new Gson().fromJson(json, lxcList.getClass());
-
-            return lxcList;
+            logger.info(json);
+            LxcModel[] lxcs = new Gson().fromJson(json, LxcModel[].class);
+            LxcModel tmplxc; 
+            List<LxcModel> lxcModels = new ArrayList<>();
+            for(int i = 0; i<lxcs.length;i++){
+                tmplxc = new LxcModel(lxcs[i].getIps(), lxcs[i].getName(), lxcs[i].getState());
+                lxcModels.add(tmplxc);
+            }
+            
+            return lxcModels;
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }

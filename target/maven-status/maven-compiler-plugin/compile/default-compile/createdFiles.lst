@@ -1,5 +1,6 @@
 br/lncc/comcidis/rufus/service/NaoAutenticadoException.class
 br/lncc/comcidis/rufus/model/UserSession.class
+br/lncc/comcidis/rufus/model/LxcList.class
 br/lncc/comcidis/rufus/intercepts/OAuthIntercept.class
 br/lncc/comcidis/rufus/model/Workflow.class
 br/lncc/comcidis/rufus/intercepts/NeedLogin.class
