@@ -90,24 +90,25 @@ public class RufusController {
 
     @Post
     public void runWorkflow(String xmlTextArea) {
-
-        Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
-        //String myXML = "teste";
-
-        //workflowService.prepareFiles(cells);
-        List<LxcInput> containers = new ArrayList<>();
-        containers = workflowService.organizeToRun(cells);
-        workflowService.saveFilesOnDirectory(containers, cells.getResult().getId());
-
-        workflowService.runContainers(containers, cells.getLinks(), cells.getResult().getId(), "jonatan");
-        /*List<String> app_ids = workflowService.prepareFiles(cells);
-         for(String id : app_ids){
-         rufusService.runOperations("jonatan", id);
-         }*/
-
-        //myXML = GenerateXML.generateXML(cells);
-                //logger.info(lxc.toString());
-        // result.use(Results.xml()).from(myXML).serialize();*/
+        
+        logger.info(xmlTextArea);
+//        Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
+//        //String myXML = "teste";
+//
+//        //workflowService.prepareFiles(cells);
+//        List<LxcInput> containers = new ArrayList<>();
+//        containers = workflowService.organizeToRun(cells);
+//        workflowService.saveFilesOnDirectory(containers, cells.getResult().getId());
+//
+//        workflowService.runContainers(containers, cells.getLinks(), cells.getResult().getId(), "jonatan");
+//        /*List<String> app_ids = workflowService.prepareFiles(cells);
+//         for(String id : app_ids){
+//         rufusService.runOperations("jonatan", id);
+//         }*/
+//
+//        //myXML = GenerateXML.generateXML(cells);
+//                //logger.info(lxc.toString());
+//        // result.use(Results.xml()).from(myXML).serialize();*/
     }
 
     @Get("/create")

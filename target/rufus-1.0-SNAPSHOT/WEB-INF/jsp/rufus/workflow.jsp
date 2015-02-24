@@ -29,7 +29,7 @@
 <script src="${pageContext.request.contextPath}/assets/js/workflow/jquery.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/bootstrap.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/bootbox.min.js"></script>
-<script src="${pageContext.request.contextPath}/assets/js/side-bar-admin.js"></script>
+
 
 <script src="${pageContext.request.contextPath}/assets/js/workflow/joint.js"></script>
 

@@ -14,7 +14,6 @@ var paper = new joint.dia.Paper({
     height: $("#DrawingBoard").height(),
     gridSize: 10,
     model: graph,
-
     defaultLink: new joint.dia.Link({
         attrs: {
             '.marker-target': {
@@ -48,7 +47,7 @@ paper.$el.on('contextmenu', function (evt) {
         // console.log(cellView.model.id); // Node id
         // console.log(cellView.model.attributes.name); // Node name
         if (cellView.model.attributes.name == "file") {
-          bootbox.dialog({
+            bootbox.dialog({
                 message: "Select an option",
                 title: "Options",
                 buttons: {
@@ -56,25 +55,42 @@ paper.$el.on('contextmenu', function (evt) {
                         label: "Select File",
                         className: "btn-info",
                         callback: function () {
-                            $.get("/rufus/modalFileList", function(data,status){
-   		                bootbox.dialog({
+                            $.get("/rufus/modalFileList", function (data, status) {
+                                bootbox.dialog({
                                     message: data,
                                     title: "Select File <a type=\"button\" class=\"btn btn-default\" href=\"/rufus/file\" target=\"_blank\"><i class=\"fa fa-fw fa-eye\"></i> All files</a></a>",
+                                    buttons: {
+                                        success: {
+                                            label: "Confirm File",
+                                            className: "btn-success",
+                                            callback: function () {
+                                                var radioFile = $(".radio");
+                                                for (i = 0; i < radioFile.length; i++) {
+                                                    if (radioFile[i].checked) {
+                                                        insertFile(radioFile[i].value);
+                                                    }
+                                                }
+                                                bootbox.alert("File Choosen successful");
+                                            }
+                                        }
+                                    }
                                 });
                             });
+
                         }
                     },
                     danger: {
                         label: "Delete node",
                         className: "btn-danger",
                         callback: function () {
-			    if (selected) selected.remove();
+                            if (selected)
+                                selected.remove();
                         }
                     }
                 }
-            }); 
+            });
         } else {
-          bootbox.dialog({
+            bootbox.dialog({
                 message: "Select an option",
                 title: "Options",
                 buttons: {
@@ -83,8 +99,10 @@ paper.$el.on('contextmenu', function (evt) {
                         className: "btn-info",
                         callback: function () {
                             bootbox.prompt("Input custom code", function (customCode) {
-                                if (customCode === null) {} else {
-                                    if (selected) selected.set('activity', customCode);
+                                if (customCode === null) {
+                                } else {
+                                    if (selected)
+                                        selected.set('activity', customCode);
                                 }
                             });
                         }
@@ -93,7 +111,8 @@ paper.$el.on('contextmenu', function (evt) {
                         label: "Delete node",
                         className: "btn-danger",
                         callback: function () {
-                             if (selected) selected.remove();
+                            if (selected)
+                                selected.remove();
                         }
                     }
                 }
@@ -156,8 +175,8 @@ function testConnection() {
 }
 
 // Show Download Modal
-function modalDownload(){
-    $.get("/rufus/assets/templates/modalDownload.html", function(data,status){
+function modalDownload() {
+    $.get("/rufus/assets/templates/modalDownload.html", function (data, status) {
         bootbox.dialog({
             message: data,
             title: "Select File",
@@ -166,8 +185,8 @@ function modalDownload(){
 }
 
 // Show Upload Modal
-function modalUpload(){
-    $.get("/templates/modal/modalUpload.php", function(data,status){
+function modalUpload() {
+    $.get("/templates/modal/modalUpload.php", function (data, status) {
         bootbox.dialog({
             message: data,
             title: "Select File",
@@ -176,28 +195,39 @@ function modalUpload(){
 }
 
 // Insert File
-function insertFile(customCode){
-    if (selected) selected.set('activity', "/home/ubuntu/upload/" + customCode);
+function insertFile(customCode) {
+    if (selected) {
+        var customJson = {
+            text: {
+                text: customCode,
+                magnet: true
+            }
+        };
+        selected.set('activity', customCode);
+        selected.set('attrs', customJson);
+
+    }
+
 }
 
 // Upload Diagram
-function uploadFile(){
-        var fileInput = document.getElementById('fileUpload').files[0];
-        //http://stackoverflow.com/questions/254184/filter-extensions-in-html-form-upload
-        str = document.getElementById('fileUpload').value.toUpperCase();
-        suffix = ".FLOW";
-        if (str.indexOf(suffix, str.length - suffix.length) == -1) {
-            alert('File type not allowed,\nAllowed file: *.flow');
-        } else {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                var jsonUpload = reader.result;
-                var regex = new RegExp("nodeSizeHolder", 'g');
-                jsonUpload = jsonUpload.replace(regex, nodeSize);
-                graph.fromJSON(JSON.parse(jsonUpload));
-            }
-            reader.readAsText(fileInput, "UTF-8");
+function uploadFile() {
+    var fileInput = document.getElementById('fileUpload').files[0];
+    //http://stackoverflow.com/questions/254184/filter-extensions-in-html-form-upload
+    str = document.getElementById('fileUpload').value.toUpperCase();
+    suffix = ".FLOW";
+    if (str.indexOf(suffix, str.length - suffix.length) == -1) {
+        alert('File type not allowed,\nAllowed file: *.flow');
+    } else {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var jsonUpload = reader.result;
+            var regex = new RegExp("nodeSizeHolder", 'g');
+            jsonUpload = jsonUpload.replace(regex, nodeSize);
+            graph.fromJSON(JSON.parse(jsonUpload));
         }
+        reader.readAsText(fileInput, "UTF-8");
+    }
 }
 
 // Post XML
@@ -224,12 +254,12 @@ function toJSON() {
 function toXML() {
 
     var workflowName = document.getElementById('workflowName').value,
-        AccessLVL = document.getElementById('AccessLVL').value,
-        workflowID = document.getElementById('workflowID').value,
-        jsonString = JSON.stringify(graph.toJSON()),
-        json = jQuery.parseJSON(jsonString),
-        jsonSize = Object.keys(json.cells).length,
-        transID = 0;
+            AccessLVL = document.getElementById('AccessLVL').value,
+            workflowID = document.getElementById('workflowID').value,
+            jsonString = JSON.stringify(graph.toJSON()),
+            json = jQuery.parseJSON(jsonString),
+            jsonSize = Object.keys(json.cells).length,
+            transID = 0;
 
     var xml = "<WorkflowProcess Id=\"" + workflowID + "\" Name=\"" + workflowName + "\" AccessLevel=\"" + AccessLVL + "\">\n";
     xml += "   <Activities>\n";
@@ -282,12 +312,13 @@ function adjustVertices(graph, cell) {
 
     if (cell instanceof joint.dia.Element) {
 
-        _.chain(graph.getConnectedLinks(cell)).groupBy(function(link) {
+        _.chain(graph.getConnectedLinks(cell)).groupBy(function (link) {
             // the key of the group is the model id of the link's source or target, but not our cell id.
             return _.omit([link.get('source').id, link.get('target').id], cell.id)[0];
-        }).each(function(group, key) {
+        }).each(function (group, key) {
             // If the member of the group has both source and target model adjust vertices.
-            if (key !== 'undefined') adjustVertices(graph, _.first(group));
+            if (key !== 'undefined')
+                adjustVertices(graph, _.first(group));
         });
 
         return;
@@ -298,9 +329,10 @@ function adjustVertices(graph, cell) {
     var trgId = cell.get('target').id || cell.previous('target').id;
 
     // If one of the ends is not a model, the link has no siblings.
-    if (!srcId || !trgId) return;
+    if (!srcId || !trgId)
+        return;
 
-    var siblings = _.filter(graph.getLinks(), function(sibling) {
+    var siblings = _.filter(graph.getLinks(), function (sibling) {
 
         var _srcId = sibling.get('source').id;
         var _trgId = sibling.get('target').id;
@@ -310,54 +342,55 @@ function adjustVertices(graph, cell) {
 
     switch (siblings.length) {
 
-    case 0:
-        // The link was removed and had no siblings.
-        break;
+        case 0:
+            // The link was removed and had no siblings.
+            break;
 
-    case 1:
-        // There is only one link between the source and target. No vertices needed.
-        cell.unset('vertices');
-        break;
+        case 1:
+            // There is only one link between the source and target. No vertices needed.
+            cell.unset('vertices');
+            break;
 
-    default:
+        default:
 
-        // There is more than one siblings. We need to create vertices.
+            // There is more than one siblings. We need to create vertices.
 
-        // First of all we'll find the middle point of the link.
-        var srcCenter = graph.getCell(srcId).getBBox().center();
-        var trgCenter = graph.getCell(trgId).getBBox().center();
-        var midPoint = g.line(srcCenter, trgCenter).midpoint();
+            // First of all we'll find the middle point of the link.
+            var srcCenter = graph.getCell(srcId).getBBox().center();
+            var trgCenter = graph.getCell(trgId).getBBox().center();
+            var midPoint = g.line(srcCenter, trgCenter).midpoint();
 
-        // Then find the angle it forms.
-        var theta = srcCenter.theta(trgCenter);
+            // Then find the angle it forms.
+            var theta = srcCenter.theta(trgCenter);
 
-        // This is the maximum distance between links
-        var gap = 20;
+            // This is the maximum distance between links
+            var gap = 20;
 
-        _.each(siblings, function(sibling, index) {
+            _.each(siblings, function (sibling, index) {
 
-            // We want the offset values to be calculated as follows 0, 20, 20, 40, 40, 60, 60 ..
-            var offset = gap * Math.ceil(index / 2);
+                // We want the offset values to be calculated as follows 0, 20, 20, 40, 40, 60, 60 ..
+                var offset = gap * Math.ceil(index / 2);
 
-            // Now we need the vertices to be placed at points which are 'offset' pixels distant
-            // from the first link and forms a perpendicular angle to it. And as index goes up
-            // alternate left and right.
-            //
-            //  ^  odd indexes 
-            //  |
-            //  |---->  index 0 line (straight line between a source center and a target center.
-            //  |
-            //  v  even indexes
-            var sign = index % 2 ? 1 : -1;
-            var angle = g.toRad(theta + sign * 90);
+                // Now we need the vertices to be placed at points which are 'offset' pixels distant
+                // from the first link and forms a perpendicular angle to it. And as index goes up
+                // alternate left and right.
+                //
+                //  ^  odd indexes 
+                //  |
+                //  |---->  index 0 line (straight line between a source center and a target center.
+                //  |
+                //  v  even indexes
+                var sign = index % 2 ? 1 : -1;
+                var angle = g.toRad(theta + sign * 90);
 
-            // We found the vertex.
-            var vertex = g.point.fromPolar(offset, angle, midPoint);
+                // We found the vertex.
+                var vertex = g.point.fromPolar(offset, angle, midPoint);
 
-            sibling.set('vertices', [{ x: vertex.x, y: vertex.y }]);
-        });
+                sibling.set('vertices', [{x: vertex.x, y: vertex.y}]);
+            });
     }
-};
+}
+;
 
 var myAdjustVertices = _.partial(adjustVertices, graph);
 

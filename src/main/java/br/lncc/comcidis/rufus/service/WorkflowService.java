@@ -184,12 +184,7 @@ public class WorkflowService {
                 qtdSteps = container.getStep();
             }
         }
-        
-        for (int i = 0; i < qtdSteps; i++) {
-                inputs = Cells.getLinkByTarget(containers.get(i).getId(), links);
-
-            executeWorkflow(user, containers.get(i), workflow, inputs);
-        }
+      
 
     }
 

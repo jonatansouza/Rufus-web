@@ -6,7 +6,7 @@ function input() {
     var node = new joint.shapes.basic.Image({
         position: {
             x: 20,
-            y: 10
+            y: 150
         },
         size: {
             width: height / 30 + width / 30,
@@ -32,42 +32,12 @@ function input() {
     graph.addCell(node);
 }
 
-function matrix() {
+function file() {
+    
     var node = new joint.shapes.basic.Image({
         position: {
             x: 20,
             y: 10
-        },
-        size: {
-            width: height / 30 + width / 30,
-            height: height / 30 + width / 30
-        },
-        attrs: {
-            text: {
-                text: 'Matrix',
-                magnet: true
-            },
-            image: {
-                'xlink:href': '/rufus/assets/images/nodes/cluster.png',
-                width: 50,
-                height: 50
-            },
-            '.': {
-                magnet: false
-            },
-        },
-        activity: '',
-        name: 'multipy'
-    });
-    graph.addCell(node);
-}
-
-
-function file() {
-    var node = new joint.shapes.basic.Image({
-        position: {
-            x: 20,
-            y: 150
         },
         size: {
             width: height / 30 + width / 30,
@@ -124,40 +94,10 @@ function addition() {
     graph.addCell(node);
 }
 
-function subtraction() {
-    var node = new joint.shapes.basic.Image({
-        position: {
-            x: 20,
-            y: 10
-        },
-        size: {
-            width: height / 30 + width / 30,
-            height: height / 30 + width / 30
-        },
-        attrs: {
-            text: {
-                text: 'Subtraction',
-                magnet: true
-            },
-            image: {
-                'xlink:href': '/rufus/assets/images/nodes/subtraction.png',
-                width: 50,
-                height: 50
-            },
-            '.': {
-                magnet: false
-            },
-        },
-        activity: '',
-	name: 'subtraction'
-    });
-    graph.addCell(node);
-}
-
 
 
 function blast() {
-    var node = new joint.shapes.basic.Image({
+    data = {
         position: {
             x: 150,
             y: 10
@@ -182,7 +122,8 @@ function blast() {
         },
         activity: '',
 	name: 'blast'
-    });
+    };
+    var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
 }
 
