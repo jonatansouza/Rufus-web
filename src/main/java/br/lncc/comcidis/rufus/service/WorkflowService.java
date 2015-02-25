@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -73,7 +74,7 @@ public class WorkflowService {
 
         List<File> app_ids = new ArrayList<>();
 
-        for (LxcInput lxc : cells.getAdditions()) {
+        for (LxcInput lxc : cells.getContainers()) {
             File app_id = new File("/var/rufus/users/jonatan/" + lxc.getName() + "-" + lxc.getId());
             if (!app_id.exists()) {
                 new File("/var/rufus/users/jonatan/" + lxc.getName() + "-" + lxc.getId()).mkdirs();
@@ -93,7 +94,7 @@ public class WorkflowService {
             }
             app_ids.add(app_id);
         }
-        for (LxcInput app_id : cells.getAdditions()) {
+        for (LxcInput app_id : cells.getContainers()) {
             for (LxcInput lxcInput : cells.getInputs()) {
                 for (LxcInput link : cells.getLinks()) {
                     if (link.getSource().getId().equals(lxcInput.getId())
@@ -125,6 +126,50 @@ public class WorkflowService {
         return returnIds;
     }
 
+    public String workflowValidate(Cells cells) {
+        //check if links exists
+        if (cells.getLinks().isEmpty()) {
+            return "<div class='text-center'>\n"
+                    + "<h4>No association have been found</h4>\n"
+                    + "<p><strong>Tip: </strong>Click on name of input or file and than drag<br>until the desired component.</p>\n"
+                    + "<img src='/rufus/assets/images/linkTip.png' style='height:300px; width:300px'>\n"
+                    + "</div>";
+        }
+
+        
+        //check if input are pointed to other input or file
+        boolean inputTarget = false;
+        for (LxcInput link : cells.getLinks()) {
+            for (LxcInput input : cells.getInputs()) {
+                if (link.getTarget().getId().equals(input.getId())) {
+                    inputTarget = true;
+                }
+            }
+        }
+
+        if (inputTarget) {
+            return "<div class='text-center'>\n"
+                    + "<h4>A file or input could not be associated<br>to other file or input</h4>\n"
+                    + "<p><strong>Tip: </strong>Select an <span class='text-warning'>ACTION</span> on side-menu to associate<br>your inputs or files.</p>\n"
+                    + "<img src='/rufus/assets/images/linkTip.png' style='height:300px; width:300px'>\n"
+                    + "</div>";
+        }
+
+        
+        //check if exists one container at least
+        
+
+        if (cells.getContainers().isEmpty()) {
+            return "<div class='text-center'>\n"
+                    + "<h4>No containers have been found</h4>\n"
+                    + "<p><strong>Tip: </strong>make sure to insert a blast or other container on workflow at least.</p>\n"
+                    + "</div>";
+        }
+
+        return "";
+
+    }
+
     /**
      * organiza os nivels para serem executados
      *
@@ -137,15 +182,21 @@ public class WorkflowService {
         int targetIndex = 0;
         LxcInput source = null;
         LxcInput target = null;
+        boolean sourceExist = false;
 
         for (LxcInput lxcLink : cells.getLinks()) {
-            source = cells.getById(lxcLink.getSource().getId());
-            sourceIndex = containers.indexOf(source);
-            target = cells.getById(lxcLink.getTarget().getId());
+            if (cells.getContainersById(lxcLink.getSource().getId()) != null) {
+                source = cells.getContainersById(lxcLink.getSource().getId());
+                cells.getContainersById(lxcLink.getSource().getId());
+                sourceExist = true;
+            }
+
+            target = cells.getContainersById(lxcLink.getTarget().getId());
             targetIndex = containers.indexOf(target);
 
-            if (containers.get(targetIndex).getStep() <= containers.get(sourceIndex).getStep()) {
+            if (containers.get(targetIndex).getStep() <= containers.get(sourceIndex).getStep() && sourceExist) {
                 containers.get(targetIndex).setStep(containers.get(sourceIndex).getStep() + 1);
+                sourceExist = false;
             }
         }
         return containers;
@@ -174,30 +225,46 @@ public class WorkflowService {
         }
     }
 
-    public void runContainers(List<LxcInput> containers, List<LxcInput> links, String workflow, String user) {
-        List<String> inputs = new ArrayList<>();
+    public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
+        List<String> listInputs = new ArrayList<>();
+        List<String> linksSourceInput = new ArrayList<>();
 
-        
         int qtdSteps = 0;
         for (LxcInput container : containers) {
             if (qtdSteps < container.getStep()) {
                 qtdSteps = container.getStep();
             }
         }
-      
+        int countContainers = 0;
+        for (int i = 0; i <= qtdSteps; i++) {
+            for (LxcInput container : containers) {
+                if (container.getStep() == i) {
+                    linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
+                }
+                for (LxcInput lxcInput : inputs) {
+                    for (String sourceId : linksSourceInput) {
+                        if (lxcInput.getId().equals(sourceId)) {
+                            listInputs.add(lxcInput.getActivity());
+                        }
+                    }
+                }
+                executeWorkflow(user, container.getName() + "-" + countContainers, workflow, listInputs);
+                countContainers++;
+            }
+        }
 
     }
 
-    public void executeWorkflow(String user, LxcInput container, String workflow, List<String> inputs) {
+    public void executeWorkflow(String user, String container, String workflow, List<String> inputs) {
 
         httpClient = HttpClients.createDefault();
         for (String in : inputs) {
             logger.info(in + " args");
         }
         String jsonFile = new Gson().toJson(inputs);
-        String order = "{\"username\":\"" + user + "\",\"workflow_id\":\"" + workflow + "\" ,\"app_id\":\"" + container.getId() + "\", \"args\":" + jsonFile + "}";
+        String order = "{\"username\":\"" + user + "\",\"workflow_id\":\"" + workflow + "\" ,\"app_id\":\"" + container + "\", \"args\":" + jsonFile + "}";
 
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/addition/run");
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/blast/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -211,10 +278,20 @@ public class WorkflowService {
             while ((output = br.readLine()) != null) {
                 json += output;
             }
+            logger.info(json);
 
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
+
+    //Implementar o template para leitura do resultado do workflow
+    /*public File workflowResultRead(String workflow){
+     String path = "/var/rufus/users/jonatan/"+workflow;
+     String errorFile = "";
+     String successFile = "";
+     BufferedReader resultWorkflow = new BufferedReader(new FileReader(path));
+     resultWorkflow
+     }*/
 }

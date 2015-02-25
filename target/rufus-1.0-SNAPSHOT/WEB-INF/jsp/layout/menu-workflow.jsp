@@ -52,7 +52,7 @@
                         <a class="active">Action<span class="pull-right"><i class="fa fa-arrow-down"></i></span></a>
                         <ul class="nav nav-second-level">
                             <li>
-                                <a href="#" onclick="blast()"<i class="fa fa-bar-chart-o"></i>Blast</a>
+                                <a href="#" onclick="blast()"<i class="fa fa-random"></i> Blast</a>
                             </li>
                             <li>
                                 <a href="#" onclick="result()">= Result</a>

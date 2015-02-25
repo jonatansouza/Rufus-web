@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import javax.inject.Inject;
 import javax.swing.text.html.HTML;
@@ -90,14 +91,22 @@ public class RufusController {
 
     @Post
     public void runWorkflow(String xmlTextArea) {
-        
+        Random random = new Random();
+        String workflow = "Workflow-"+random.nextInt(1000);
+        File fileWorkflow = new File("/var/rufus/users/jonatan/"+workflow);
+        fileWorkflow.mkdir();
         logger.info(xmlTextArea);
-//        Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
-//        //String myXML = "teste";
-//
-//        //workflowService.prepareFiles(cells);
-//        List<LxcInput> containers = new ArrayList<>();
-//        containers = workflowService.organizeToRun(cells);
+        logger.info(workflow);
+        
+        
+        Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
+        List<LxcInput> containers = new ArrayList<>();
+        
+        String validate = workflowService.workflowValidate(cells); 
+        if(validate.isEmpty()){
+        containers = workflowService.organizeToRun(cells);
+        workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflow, "jonatan");
+        result.redirectTo(this).workflowResult(workflow);
 //        workflowService.saveFilesOnDirectory(containers, cells.getResult().getId());
 //
 //        workflowService.runContainers(containers, cells.getLinks(), cells.getResult().getId(), "jonatan");
@@ -109,6 +118,14 @@ public class RufusController {
 //        //myXML = GenerateXML.generateXML(cells);
 //                //logger.info(lxc.toString());
 //        // result.use(Results.xml()).from(myXML).serialize();*/
+        }else{
+            
+            result.use(Results.http()).body(validate);  
+        }
+    }
+    
+    public void workflowResult(String workflow){
+        
     }
 
     @Get("/create")

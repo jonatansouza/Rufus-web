@@ -89,7 +89,8 @@ function addition() {
             },
         },
         activity: '',
-	name: 'addition'
+	name: 'addition',
+        container: true
     });
     graph.addCell(node);
 }
@@ -121,7 +122,8 @@ function blast() {
             },
         },
         activity: '',
-	name: 'blast'
+	name: 'blast',
+        container: true 
     };
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
