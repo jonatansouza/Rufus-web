@@ -4,8 +4,17 @@
 <div class="wrapper">
     <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
+            <a class="navbar-brand" href="${linkTo[RufusController].index}"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
         </div>
+        <div class="col-lg-4 col-lg-offset-2">
+            <ul class="nav navbar-top-links text-center">
+                <c:if test = "${userSession.currentUser().name != null}">
+                    <li><a href="#">Welcome ${userSession.currentUser().name}</a></li>
+                    </c:if>
+            </ul>
+            
+        </div>
+            
         <ul class="nav navbar-top-links navbar-right">
             <li><a href="file.php"><i class="fa fa-fw fa-file"></i> Files</a></li>
             <li><a href="#" onclick="sendXML()"><i class="fa fa-fw fa-play"></i> Run</a></li>

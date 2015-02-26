@@ -11,6 +11,7 @@ import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcList;
 import br.lncc.comcidis.rufus.model.LxcModel;
+import br.lncc.comcidis.rufus.model.UserSession;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -55,6 +56,9 @@ public class RufusService {
     @Inject
     @Property
     private String version;
+    
+    @Inject
+    UserSession userSession;
 
     @Inject
     @Property
@@ -179,7 +183,7 @@ public class RufusService {
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-        File raiz = new File(pathNfsDirectory);
+        File raiz = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail());
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
@@ -191,7 +195,11 @@ public class RufusService {
             }
         };
         List<FileModel> list = new ArrayList<>();
-
+        
+        if(!raiz.exists()){
+            raiz.mkdir();
+        }
+        
         for (File file : raiz.listFiles(filter)) {
             FileModel fm = new FileModel();
             fm.setName(file.getName());

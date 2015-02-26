@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.swing.text.html.HTML;
 import javax.ws.rs.GET;
@@ -70,18 +71,24 @@ public class RufusController {
     }
 
     @Inject
-    public RufusController(Result result, RufusService rufusService, Validator validator, WorkflowService workflowService) {
+    public RufusController(Result result, RufusService rufusService, Validator validator, WorkflowService workflowService, UserSession userSession) {
         this.result = result;
         this.rufusService = rufusService;
         this.validator = validator;
         this.workflowService = workflowService;
+        this.userSession = userSession;
 
     }
 
-    /*@Path("/")
+    @Path("/")
     public void index() {
 
-    }*/
+    }
+
+    @Path("/account")
+    public void account() {
+
+    }
 
     @Path("/dashboard")
     public void dashboard() {
@@ -91,40 +98,33 @@ public class RufusController {
 
     @Post
     public void runWorkflow(String xmlTextArea) {
+        String user = userSession.currentUser().getEmail();
+
         Random random = new Random();
-        String workflow = "Workflow-"+random.nextInt(1000);
-        File fileWorkflow = new File("/var/rufus/users/jonatan/"+workflow);
+        String workflow = "Workflow-" + random.nextInt(1000);
+
+        File fileWorkflow = new File(pathNfsDirectory + "/" + user + "/" + workflow);
+
         fileWorkflow.mkdir();
         logger.info(xmlTextArea);
         logger.info(workflow);
-        
-        
+
         Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
         List<LxcInput> containers = new ArrayList<>();
-        
-        String validate = workflowService.workflowValidate(cells); 
-        if(validate.isEmpty()){
-        containers = workflowService.organizeToRun(cells);
-        workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflow, "jonatan");
-        result.redirectTo(this).workflowResult(workflow);
-//        workflowService.saveFilesOnDirectory(containers, cells.getResult().getId());
-//
-//        workflowService.runContainers(containers, cells.getLinks(), cells.getResult().getId(), "jonatan");
-//        /*List<String> app_ids = workflowService.prepareFiles(cells);
-//         for(String id : app_ids){
-//         rufusService.runOperations("jonatan", id);
-//         }*/
-//
-//        //myXML = GenerateXML.generateXML(cells);
-//                //logger.info(lxc.toString());
-//        // result.use(Results.xml()).from(myXML).serialize();*/
-        }else{
-            
-            result.use(Results.http()).body(validate);  
+
+        String validate = workflowService.workflowValidate(cells);
+        if (validate.isEmpty()) {
+            containers = workflowService.organizeToRun(cells);
+            workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflow, user);
+            result.redirectTo(this).workflowResult(workflow);
+
+        } else {
+            validator.add(new SimpleMessage("error", validate));
+            validator.onErrorSendBadRequest();
         }
     }
-    
-    public void workflowResult(String workflow){
+
+    public void workflowResult(String workflow) {
         
     }
 
@@ -172,15 +172,21 @@ public class RufusController {
     public void fileList() {
         result.include("fileList", rufusService.myFileList());
     }
+
     @Path("/modalFileList")
-    public void modalFileList(){
+    public void modalFileList() {
         result.include("fileList", rufusService.myFileList());
     }
 
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
     public void saveFile(UploadedFile file) {
-        File destino = new File("" + pathNfsDirectory + file.getFileName());
+        File firstUse = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail());
+        if(!firstUse.exists()){
+            firstUse.mkdirs();
+        }
+        File destino = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/"+file.getFileName());
         try {
+            
             destino.createNewFile();
             InputStream stream = file.getFile();
             IOUtils.copy(stream, new FileOutputStream(destino));
@@ -196,7 +202,7 @@ public class RufusController {
 
     @Get("/rufus/{name}/deleteFile")
     public void deleteFile(String name) {
-        File tmpFile = new File(pathNfsDirectory + name);
+        File tmpFile = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/" + name);
         tmpFile.delete();
         result.include("file-info", "File Deleted!");
         result.redirectTo(this).fileList();
@@ -209,7 +215,7 @@ public class RufusController {
 
         //logger.debug(file.getFileName());
         //logger.debug("**********************************");
-        File destino = new File("" + pathNfsDirectory + file.getFileName());
+        File destino = new File("" + pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/" + file.getFileName());
         try {
             destino.createNewFile();
             InputStream stream = file.getFile();

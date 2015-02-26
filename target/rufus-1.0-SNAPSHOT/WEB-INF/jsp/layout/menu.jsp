@@ -5,31 +5,37 @@
     <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
         <div class="navbar-header">
             <a class="navbar-brand" href="#"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
+
         </div>
+        <ul class="nav navbar-top-links text-center">
+            <c:if test = "${userSession.currentUser().name != null}">
+            <li><a>Welcome ${userSession.currentUser().name}</a></li>
+            </c:if>
+        </ul>
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
                 <ul class="nav" id="side-menu">
-                   
+
                     <li>
                         <a href="${linkTo[RufusController].dashboard}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
                     </li>
                     <li>
                         <a href="${linkTo[RufusController].create}"><i class="fa fa-plus-circle fa-fw"></i> Create new Container</a>
                     </li>
-                    
+
                     <li>
                         <a href="${linkTo[RufusController].fileList}"><i class="fa fa-file-text fa-fw"></i> Files</a>
-                        
+
                     </li>
                     <li>
                         <a href="${linkTo[RufusController].upload}"><i class="fa fa-cloud-download fa-fw"></i> Upload Files</a>
-                        
+
                     </li>
                     <li>
                         <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow</a>
                     </li>
                     <li>
-                        <a href="#"><i class="fa fa-user fa-fw"></i> Account</a>
+                        <a href="${linkTo[RufusController].account}"><i class="fa fa-user fa-fw"></i> Account</a>
                     </li>
 
 
@@ -37,7 +43,7 @@
             </div>
             <!-- /.sidebar-collapse -->
         </div>
-        
+
         <!-- /.navbar-static-side -->
     </nav>
 </div>

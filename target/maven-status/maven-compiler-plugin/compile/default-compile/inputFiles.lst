@@ -13,6 +13,7 @@
 /home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/service/WorkflowService.java
 /home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/model/Template.java
 /home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/intercepts/NeedLogin.java
+/home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/controller/ErrorController.java
 /home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/intercepts/OAuthIntercept.java
 /home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/model/Source.java
 /home/jonatan/projects/java/workspace/rufus-clone/rufus-interface/src/main/java/br/lncc/comcidis/rufus/service/GenerateXML.java

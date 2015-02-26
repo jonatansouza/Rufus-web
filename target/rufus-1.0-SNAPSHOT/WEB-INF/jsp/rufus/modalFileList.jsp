@@ -1,4 +1,10 @@
-
+<style>
+    .table-overflow{
+    max-height:400px;
+    overflow-y:auto;
+}
+</style>
+<div class="table-overflow">
 <table class="table table-striped">
     <thead>
         <tr>
@@ -11,3 +17,4 @@
         </c:forEach> 
 </tbody>
 </table>
+</div>

@@ -239,26 +239,36 @@ function uploadFile() {
 //}
 
 function sendXML() {
-    console.log(graph.toJSON());
     bootbox.dialog({
         title: "Processing workflow",
         message: "<div class='text-center'><p>Please Wait...</p><br><i class='fa fa-spin fa-circle-o-notch fa-4x'></i></div>"
     });
-    $.post("/rufus/rufus/runWorkflow", {xmlTextArea: JSON.stringify(graph.toJSON())})
-            .done(function (data) {
-                bootbox.hideAll();
-                bootbox.alert({
-                    title: "<span class='text-danger'><h3>Workflow not valid</h3>",
-                    message: data
-                });
-            })
-            .fail(function (data) {
-                bootbox.hideAll();
-                bootbox.alert("Your workflow could not processed");
-            })
-            .always(function () {
 
+    $.ajax({
+        type: "POST",
+        url: "/rufus/rufus/runWorkflow",
+        data: {xmlTextArea: JSON.stringify(graph.toJSON())},
+        success: function () {
+            bootbox.hideAll();
+            bootbox.alert({
+               title: "Workflow successfuly processed",
+               message: "TODO"
             });
+        },
+        error: function (data) {
+            var error = JSON.parse(data.responseText);
+            bootbox.hideAll();
+            bootbox.alert({
+                title: "<span class='text-danger'><h3>Workflow Error</h3>",
+                message: error.errors[0].message
+            });
+
+        },
+        dataType: "json"
+        
+    });
+    
+    
 }
 
 // Export JSON

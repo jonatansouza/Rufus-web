@@ -110,6 +110,6 @@ public class OAuthController {
         logger.info("********************************");
         logger.info(me.getName());
         logger.info(me.getEmail());
-        //result.redirectTo(RufusController.class).index();
+        result.redirectTo(RufusController.class).index();
     }
 }

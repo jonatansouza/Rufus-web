@@ -28,15 +28,20 @@ import org.slf4j.LoggerFactory;
 @Intercepts
 @AcceptsWithAnnotations(NeedLogin.class)
 public class OAuthIntercept {
+    
+    private static final Logger logger = LoggerFactory.getLogger(OAuthIntercept.class);
+    
     @Inject
     private UserSession userSession;
     @Inject        
     private Result result;
+    @Inject
+    private HttpServletRequest httpServletRequest;
     
     @AroundCall
     public void around(SimpleInterceptorStack stack) {
-    
-        if (userSession.isLogged()) {
+        
+        if (!userSession.isLogged() && !httpServletRequest.getRequestURI().equals("/rufus/")) {
             result.redirectTo(OAuthController.class).login();
         } else {
             stack.next();
