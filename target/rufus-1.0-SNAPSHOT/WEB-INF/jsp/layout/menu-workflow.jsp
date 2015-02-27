@@ -9,12 +9,11 @@
         <div class="col-lg-4 col-lg-offset-2">
             <ul class="nav navbar-top-links text-center">
                 <c:if test = "${userSession.currentUser().name != null}">
-                    <li><a href="#">Welcome ${userSession.currentUser().name}</a></li>
+                    <li><a href="${linkTo[RufusController].account}"><i class="fa fa-user fa-fw"></i> Welcome ${userSession.currentUser().name}</a></li>
                     </c:if>
             </ul>
-            
         </div>
-            
+
         <ul class="nav navbar-top-links navbar-right">
             <li><a href="file.php"><i class="fa fa-fw fa-file"></i> Files</a></li>
             <li><a href="#" onclick="sendXML()"><i class="fa fa-fw fa-play"></i> Run</a></li>
@@ -63,8 +62,14 @@
                             <li>
                                 <a href="#" onclick="blast()"<i class="fa fa-random"></i> Blast</a>
                             </li>
+                            
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="active">Workflow<span class="pull-right"><i class="fa fa-arrow-down"></i></span></a>
+                        <ul class="nav nav-second-level">
                             <li>
-                                <a href="#" onclick="result()">= Result</a>
+                                <a href="#"><i class="fa fa-line-chart"></i> Results</a>
                             </li>
                         </ul>
                     </li>

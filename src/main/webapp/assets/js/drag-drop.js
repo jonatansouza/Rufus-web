@@ -115,7 +115,7 @@ function uploadFileToServer(file) {
         success: function (data) {
             count++;
             if (count == itemsToUpload.length) {
-                $("#text-information").html("Files Sended");
+                $("#text-information").html("Uploaded");
                 txto = $("#myMessage").html();
                 bootbox.alert(txto, function () {
                     window.location.href = "/rufus/";

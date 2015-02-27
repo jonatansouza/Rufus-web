@@ -5,7 +5,10 @@
  */
 package br.lncc.comcidis.rufus.service;
 
+import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
+import br.com.caelum.vraptor.validator.SimpleMessage;
+import br.com.caelum.vraptor.validator.Validator;
 import br.lncc.comcidis.rufus.controller.RufusController;
 import br.lncc.comcidis.rufus.model.Cells;
 import br.lncc.comcidis.rufus.model.LxcInput;
@@ -53,6 +56,12 @@ public class WorkflowService {
     @Inject
     @Property
     private String pathNfsDirectory;
+    
+    @Inject
+    Result result;
+    
+    @Inject
+    Validator validator;
 
     private HttpClient httpClient;
 
@@ -176,7 +185,7 @@ public class WorkflowService {
             }
         }
         int countContainers = 0;
-        for (int i = 0; i <= qtdSteps; i++) {
+        for (int i = 1; i <= qtdSteps; i++) {
             for (LxcInput container : containers) {
                 if (container.getStep() == i) {
                     linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
@@ -198,9 +207,7 @@ public class WorkflowService {
     public void executeWorkflow(String user, String container, String workflow, List<String> inputs) {
 
         httpClient = HttpClients.createDefault();
-        for (String in : inputs) {
-            logger.info(in + " args");
-        }
+       
         String jsonFile = new Gson().toJson(inputs);
         String order = "{\"username\":\"" + user + "\",\"workflow_id\":\"" + workflow + "\" ,\"app_id\":\"" + container + "\", \"args\":" + jsonFile + "}";
 
@@ -213,12 +220,17 @@ public class WorkflowService {
         HttpResponse answer;
         try {
             answer = httpClient.execute(hp);
+            String testStatus = answer.getStatusLine().getStatusCode()+"";
+           
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
             String output = "";
             while ((output = br.readLine()) != null) {
                 json += output;
             }
             logger.info(json);
+            validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>"+json+"</p>"));
+            validator.onErrorSendBadRequest();
+            
 
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);

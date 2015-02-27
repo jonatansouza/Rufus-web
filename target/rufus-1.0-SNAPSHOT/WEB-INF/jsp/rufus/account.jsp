@@ -15,7 +15,6 @@
     </table>
 
     <br>
-
     <button class="btn btn-primary" onclick="javascript:signout('${userSession.currentUser().name}')">Sign out</button>
 
 
@@ -27,8 +26,7 @@
 <script type="text/javascript">
         function signout(user) {
             bootbox.confirm("Are you sure?", function (result) {
-                    ${userSession.logout()};
-                    location.href="/rufus/"
+                location.href = "/rufus/oauth/logout"
             });
         }
 </script>

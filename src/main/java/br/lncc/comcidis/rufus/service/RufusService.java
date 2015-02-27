@@ -183,7 +183,7 @@ public class RufusService {
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-        File raiz = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail());
+        File raiz = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/files");
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();

@@ -43,7 +43,11 @@ public class OAuthController {
     @Inject
     private Result result;
     @Inject
-    UserSession session;
+    private UserSession session;
+    @Inject
+    private HttpServletRequest httpServletRequest;
+    
+   
 
     @Path("/teste")
     public void teste() {
@@ -54,14 +58,20 @@ public class OAuthController {
     public void login() {
 
     }
+    @Path("oauth/logout")
+    public void logout(){
+        userSession.logout();
+        result.redirectTo(RufusController.class).index();
+    }
 
     @Inject
     HttpServletRequest rq;
     @Inject
     UserSession userSession;
 
-    @Get("/oauth/login")
+    @Get("oauth/login")
     public void getOauthCode() throws OAuthSystemException {
+        
         OAuthClientRequest request = OAuthClientRequest
                 .authorizationLocation("http://auth.comcidis.lncc.br:3000/oauth/authorize")
                 .setClientId("d61755e9a74f4645fd269acae0c7d8db865af5ec49bc55b991bdfbb80a3eed2e")
@@ -74,7 +84,8 @@ public class OAuthController {
     }
 
     @Get("oauth/callback")
-    public void authToken(String code) throws OAuthSystemException, OAuthProblemException {
+    public void authToken(String code, String requestUri) throws OAuthSystemException, OAuthProblemException {
+        
         OAuthClientRequest request = OAuthClientRequest
                 .tokenLocation("http://auth.comcidis.lncc.br:3000/oauth/token")
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
@@ -106,10 +117,11 @@ public class OAuthController {
 
         }
 
-        
+       
         logger.info("********************************");
+        logger.info(httpServletRequest.getSession().getAttribute("requestUri")+" redirect uri");
         logger.info(me.getName());
         logger.info(me.getEmail());
-        result.redirectTo(RufusController.class).index();
+        result.redirectTo("http://localhost:8084"+httpServletRequest.getSession().getAttribute("requestUri"));
     }
 }

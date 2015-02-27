@@ -7,13 +7,17 @@
             <a class="navbar-brand" href="#"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
 
         </div>
-        <ul class="nav navbar-top-links text-center">
+
+        <ul class="nav navbar-top-links navbar-right">
             <c:if test = "${userSession.currentUser().name != null}">
-            <li><a>Welcome ${userSession.currentUser().name}</a></li>
-            </c:if>
+                <li><a href="${linkTo[RufusController].account}">
+                            <i class="fa fa-user fa-fw"></i> Welcome ${userSession.currentUser().name}</a></li>
+                </c:if>
         </ul>
         <div class="navbar-default sidebar" role="navigation">
+
             <div class="sidebar-nav navbar-collapse">
+
                 <ul class="nav" id="side-menu">
 
                     <li>
@@ -34,11 +38,7 @@
                     <li>
                         <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow</a>
                     </li>
-                    <li>
-                        <a href="${linkTo[RufusController].account}"><i class="fa fa-user fa-fw"></i> Account</a>
-                    </li>
-
-
+                    
                 </ul>
             </div>
             <!-- /.sidebar-collapse -->

@@ -70,7 +70,7 @@ paper.$el.on('contextmenu', function (evt) {
                                                         insertFile(radioFile[i].value);
                                                     }
                                                 }
-                                                bootbox.alert("File Choosen successful");
+                                                bootbox.hideAll();
                                             }
                                         }
                                     }
@@ -241,7 +241,7 @@ function uploadFile() {
 function sendXML() {
     bootbox.dialog({
         title: "Processing workflow",
-        message: "<div class='text-center'><p>Please Wait...</p><br><i class='fa fa-spin fa-circle-o-notch fa-4x'></i></div>"
+        message: "<div class='text-center'><p>Please Wait...<br>it may take several minutes</p><br><i class='fa fa-spin fa-circle-o-notch fa-4x'></i></div>"
     });
 
     $.ajax({

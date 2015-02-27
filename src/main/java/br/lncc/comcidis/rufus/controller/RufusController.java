@@ -125,7 +125,7 @@ public class RufusController {
     }
 
     public void workflowResult(String workflow) {
-        
+        result.use(Results.http()).body("<h1>"+workflow+"<h1>");
     }
 
     @Get("/create")
@@ -180,11 +180,11 @@ public class RufusController {
 
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
     public void saveFile(UploadedFile file) {
-        File firstUse = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail());
+        File firstUse = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/files");
         if(!firstUse.exists()){
             firstUse.mkdirs();
         }
-        File destino = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/"+file.getFileName());
+        File destino = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/files/"+file.getFileName());
         try {
             
             destino.createNewFile();
