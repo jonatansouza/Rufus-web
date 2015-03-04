@@ -65,10 +65,10 @@ function file() {
 
 
 function addition() {
-    var node = new joint.shapes.basic.Image({
+    data = {
         position: {
             x: 150,
-            y: 10
+            y: 150
         },
         size: {
             width: height / 30 + width / 30,
@@ -90,10 +90,13 @@ function addition() {
         },
         activity: '',
 	name: 'addition',
-        container: true
-    });
+        container: true 
+    };
+    
+    var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
 }
+
 
 
 

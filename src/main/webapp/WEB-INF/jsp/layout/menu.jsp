@@ -1,6 +1,11 @@
+<!doctype html>
+<html>
+    <head>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sb-admin.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.min.css">
+    </head>
+    <body>
 <div class="wrapper">
     <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
         <div class="navbar-header">
@@ -38,7 +43,9 @@
                     <li>
                         <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow</a>
                     </li>
-                    
+                    <li>
+                        <a href="${linkTo[RufusController].workflowResult}"><i class="fa fa-line-chart fa-fw"></i> Workflows Result</a>
+                    </li>
                 </ul>
             </div>
             <!-- /.sidebar-collapse -->

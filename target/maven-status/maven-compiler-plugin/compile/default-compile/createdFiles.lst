@@ -17,6 +17,7 @@ br/lncc/comcidis/rufus/model/Workflow.class
 br/lncc/comcidis/rufus/intercepts/NeedLogin.class
 br/lncc/comcidis/rufus/model/Template.class
 br/lncc/comcidis/rufus/model/FileModel.class
+br/lncc/comcidis/rufus/service/WorkflowService$1.class
 br/lncc/comcidis/rufus/model/LxcModel.class
 br/lncc/comcidis/rufus/model/LxcInput.class
 br/lncc/comcidis/rufus/controller/OAuthController.class

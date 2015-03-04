@@ -9,23 +9,22 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
-import br.lncc.comcidis.rufus.controller.RufusController;
 import br.lncc.comcidis.rufus.model.Cells;
 import br.lncc.comcidis.rufus.model.LxcInput;
+import br.lncc.comcidis.rufus.model.UserSession;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javassist.compiler.TokenId;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
@@ -56,10 +55,13 @@ public class WorkflowService {
     @Inject
     @Property
     private String pathNfsDirectory;
-    
+
+    @Inject
+    UserSession userSession;
+
     @Inject
     Result result;
-    
+
     @Inject
     Validator validator;
 
@@ -72,8 +74,6 @@ public class WorkflowService {
 
     }
 
- 
-
     public String workflowValidate(Cells cells) {
         //check if links exists
         if (cells.getLinks().isEmpty()) {
@@ -84,7 +84,6 @@ public class WorkflowService {
                     + "</div>";
         }
 
-        
         //check if input are pointed to other input or file
         boolean inputTarget = false;
         for (LxcInput link : cells.getLinks()) {
@@ -103,10 +102,7 @@ public class WorkflowService {
                     + "</div>";
         }
 
-        
         //check if exists one container at least
-        
-
         if (cells.getContainers().isEmpty()) {
             return "<div class='text-center'>\n"
                     + "<h4>No containers have been found</h4>\n"
@@ -150,7 +146,6 @@ public class WorkflowService {
         return containers;
     }
 
-    
     public void saveFilesOnDirectory(List<LxcInput> containers, String resultId) {
         File workflow = new File("/var/rufus/users/jonatan/" + resultId);
         workflow.mkdir();
@@ -177,7 +172,7 @@ public class WorkflowService {
     public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
         List<String> listInputs = new ArrayList<>();
         List<String> linksSourceInput = new ArrayList<>();
-
+        logger.info(containers.size() + " tamanho da lista");
         int qtdSteps = 0;
         for (LxcInput container : containers) {
             if (qtdSteps < container.getStep()) {
@@ -187,31 +182,37 @@ public class WorkflowService {
         int countContainers = 0;
         for (int i = 1; i <= qtdSteps; i++) {
             for (LxcInput container : containers) {
-                if (container.getStep() == i) {
-                    linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
-                }
-                for (LxcInput lxcInput : inputs) {
-                    for (String sourceId : linksSourceInput) {
-                        if (lxcInput.getId().equals(sourceId)) {
-                            listInputs.add(lxcInput.getActivity());
+
+                if (container.isContainer()) {
+                    if (container.getStep() == i) {
+                        linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
+
+                        for (LxcInput lxcInput : inputs) {
+                            for (String sourceId : linksSourceInput) {
+                                if (lxcInput.getId().equals(sourceId)) {
+                                    listInputs.add(lxcInput.getActivity());
+                                }
+                            }
                         }
+
+                        executeWorkflow(user, container.getName() + "-" + countContainers, workflow, listInputs, container.getName());
+                        countContainers++;
+                        listInputs.clear();
                     }
                 }
-                executeWorkflow(user, container.getName() + "-" + countContainers, workflow, listInputs);
-                countContainers++;
             }
         }
 
     }
 
-    public void executeWorkflow(String user, String container, String workflow, List<String> inputs) {
-
+    public void executeWorkflow(String user, String container, String workflow, List<String> inputs, String containerName) {
+        logger.info("enviando requisicao");
         httpClient = HttpClients.createDefault();
-       
+
         String jsonFile = new Gson().toJson(inputs);
         String order = "{\"username\":\"" + user + "\",\"workflow_id\":\"" + workflow + "\" ,\"app_id\":\"" + container + "\", \"args\":" + jsonFile + "}";
 
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/blast/run");
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/" + containerName + "/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -220,17 +221,16 @@ public class WorkflowService {
         HttpResponse answer;
         try {
             answer = httpClient.execute(hp);
-            String testStatus = answer.getStatusLine().getStatusCode()+"";
-           
+            String testStatus = answer.getStatusLine().getStatusCode() + "";
+
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
             String output = "";
             while ((output = br.readLine()) != null) {
                 json += output;
             }
             logger.info(json);
-            validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>"+json+"</p>"));
+            validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>" + json + "</p>"));
             validator.onErrorSendBadRequest();
-            
 
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
@@ -246,4 +246,48 @@ public class WorkflowService {
      BufferedReader resultWorkflow = new BufferedReader(new FileReader(path));
      resultWorkflow
      }*/
+    public List<File> getAllWorkflowResults() {
+        
+
+        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail());
+        FilenameFilter filter = new FileFileFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                if (!lowercaseName.contains("files")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        List<File> list = new ArrayList<>();
+
+        if (!raiz.exists()) {
+            raiz.mkdir();
+        }
+
+        for (File file : raiz.listFiles(filter)) {
+            list.add(file);
+        }
+
+        return list;
+    }
+
+    public List<File> getFilesFromWorkflow(String folder) {
+        
+        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail()+"/"+folder);
+        
+        List<File> list = new ArrayList<>();
+
+        if (!raiz.exists()) {
+            raiz.mkdir();
+        }
+
+        for (File file : raiz.listFiles()) {
+            list.add(file);
+        }
+
+        return list;
+    }
+
 }

@@ -75,7 +75,7 @@ public class OAuthController {
         OAuthClientRequest request = OAuthClientRequest
                 .authorizationLocation("http://auth.comcidis.lncc.br:3000/oauth/authorize")
                 .setClientId("d61755e9a74f4645fd269acae0c7d8db865af5ec49bc55b991bdfbb80a3eed2e")
-                .setRedirectURI("http://localhost:8084/rufus/oauth/callback")
+                .setRedirectURI("http://rufus-interface:8084/rufus/oauth/callback")
                 .setResponseType("code")
                 .buildQueryMessage();
 
@@ -91,7 +91,7 @@ public class OAuthController {
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
                 .setClientId("d61755e9a74f4645fd269acae0c7d8db865af5ec49bc55b991bdfbb80a3eed2e")
                 .setClientSecret("df633872206a3d6ca65bf406bfe2c3856ba8331b57becc5c4f8d7e08e5edd0c0")
-                .setRedirectURI("http://localhost:8084/rufus/oauth/callback")
+                .setRedirectURI("http://rufus-interface:8084/rufus/oauth/callback")
                 .setCode(code)
                 .buildQueryMessage();
 
@@ -117,11 +117,6 @@ public class OAuthController {
 
         }
 
-       
-        logger.info("********************************");
-        logger.info(httpServletRequest.getSession().getAttribute("requestUri")+" redirect uri");
-        logger.info(me.getName());
-        logger.info(me.getEmail());
-        result.redirectTo("http://localhost:8084"+httpServletRequest.getSession().getAttribute("requestUri"));
+        result.redirectTo("http://rufus-interface:8084"+httpServletRequest.getSession().getAttribute("requestUri"));
     }
 }
