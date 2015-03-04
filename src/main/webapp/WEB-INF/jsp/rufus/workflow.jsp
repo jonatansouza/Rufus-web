@@ -1,12 +1,15 @@
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/joint.css">
+
 <jsp:include page="../layout/menu-workflow.jsp"></jsp:include>
-    <div id="page-wrapper">
+
+<div id="page-wrapper">
         <div class="container-fluid">
             <!-- Page Heading -->
             <div class="col-md-12">
+                
                 <h3 class="page-header">
-                    Workflow Drawing board
-                </h1>
+                    <span id="workflowHeaderName"></span>
+                    <br><small>Workflow Drawing board<small> 
+                </h3>
             </div>
             <div class="row">
                 <div id="DrawingBoard" class="col-md-12">
@@ -52,8 +55,8 @@
 
 <script src="${pageContext.request.contextPath}/assets/js/workflow/customNodes.js"></script>
 
-
-
+</body>
+</html>
 
 
 

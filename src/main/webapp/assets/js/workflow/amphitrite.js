@@ -2,11 +2,42 @@
 //     (c) 2014 Christian Mury
 //     Amphitrite may be freely distributed under the GNU GPL.
 
+// set workflow name
+
+
+var folders = [];
+var workflowName = "";
+
+function saveWorkflowName(name) {
+    workflowName = name;
+    $("#workflowHeaderName").html(workflowName);
+    bootbox.hideAll();
+}
+
+
+// end
+
 // Creating drawing paper
 var graph = new joint.dia.Graph;
 var height = window.outerHeight;
 var width = window.outerWidth;
 var nodeSize = height / 30 + width / 30;
+
+
+//Variable to set workflow name
+
+$(document).ready(function () {
+    $.get("/rufus/modalWorkflowName", function (data, status) {
+        bootbox.dialog({
+            message: data,
+            title: "Workflow name",
+            closeButton: false
+        });
+    });
+});
+
+
+
 
 var paper = new joint.dia.Paper({
     el: $('#paper'),
@@ -70,7 +101,7 @@ paper.$el.on('contextmenu', function (evt) {
                                                         insertFile(radioFile[i].value);
                                                     }
                                                 }
-                                                bootbox.alert("File Choosen successful");
+                                                bootbox.hideAll();
                                             }
                                         }
                                     }
@@ -179,7 +210,7 @@ function modalDownload() {
     $.get("/rufus/assets/templates/modalDownload.html", function (data, status) {
         bootbox.dialog({
             message: data,
-            title: "Select File",
+            title: "Workflow Dialog",
         });
     });
 }
@@ -231,11 +262,63 @@ function uploadFile() {
 }
 
 // Post XML
+//function sendXML() {
+//    postForm = document.getElementById("postForm");
+//    xmlTextArea = document.getElementById("xmlTextArea");
+//    xmlTextArea.value = JSON.stringify(graph.toJSON());
+//    postForm.submit();
+//}
+
 function sendXML() {
-    postForm = document.getElementById("postForm");
-    xmlTextArea = document.getElementById("xmlTextArea");
-    xmlTextArea.value = JSON.stringify(graph.toJSON());
-    postForm.submit();
+
+    bootbox.dialog({
+        title: "Processing workflow",
+        message: "<div class='text-center'><p>Please Wait...<br>it may take several minutes</p><br><i class='fa fa-spin fa-cog fa-4x'></i></div>"
+    });
+
+    $.ajax({
+        type: "POST",
+        url: "/rufus/rufus/runWorkflow",
+        dataType: "json",
+        data: {xmlTextArea: JSON.stringify(graph.toJSON()), workflowName: workflowName},
+        statusCode: {
+            400: function (data) {
+
+                var error = JSON.parse(data.responseText);
+                console.log(error);
+                if (error.errors[0].category == "nameError") {
+                    var notify = error.errors[0].message;
+                    bootbox.hideAll();
+                    bootbox.alert({
+                        title: "<span class='text-danger'><h3>Error</h3>",
+                        message: notify,
+                        success: function () {
+                            bootbox.prompt("Type Workflow name: ", function (result) {
+                                setVariableName(result);
+                            });
+                        }
+                    });
+
+                } else {
+                    var notify = error.errors[0].message;
+                    bootbox.hideAll();
+                    bootbox.alert({
+                        title: "<span class='text-danger'><h3>Error</h3>",
+                        message: notify
+                    })
+                }
+
+            },
+            200: function () {
+
+                bootbox.hideAll();
+                bootbox.alert({
+                    title: "<span class='text-danger'><h3>Workflow</h3>",
+                    message: "workflow processed"
+                })
+            }
+        }});
+
 }
 
 // Export JSON

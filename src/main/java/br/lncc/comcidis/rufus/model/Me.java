@@ -5,13 +5,15 @@
  */
 package br.lncc.comcidis.rufus.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author jonatan
  */
 
 
-public class Me {
+public class Me implements Serializable{
     
         private String email; 
         private String name;

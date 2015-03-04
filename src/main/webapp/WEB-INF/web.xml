@@ -9,7 +9,7 @@
             30
         </session-timeout>
     </session-config>
-    
+ 
     <listener>
         <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
     </listener>
@@ -20,7 +20,7 @@
             <display-name>System Body Life</display-name>
             <url-pattern>*.jsp</url-pattern>
             <include-prelude>/WEB-INF/jsp/layout/header.jspf</include-prelude>
-<!--            <include-coda>/WEB-INF/jsp/layout/footer.jspf</include-coda>-->
+            <!--            <include-coda>/WEB-INF/jsp/layout/footer.jspf</include-coda>-->
         </jsp-property-group>
     </jsp-config>
 
@@ -44,4 +44,15 @@
         <param-name>com.sun.faces.writeStateAtFormEnd</param-name>   
         <param-value>false</param-value>   
     </context-param>  
+    
+    <error-page>  
+        <error-code>404</error-code>  
+        <location>/WEB-INF/jsp/error/error404.jsp</location>  
+    </error-page>   
+    
+    <error-page>  
+        <error-code>500</error-code>  
+        <location>/WEB-INF/jsp/error/error500.jsp</location>  
+    </error-page>   
+    
 </web-app>

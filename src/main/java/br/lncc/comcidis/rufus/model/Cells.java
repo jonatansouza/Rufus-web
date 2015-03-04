@@ -33,17 +33,6 @@ public class Cells {
         return "Cells{" + "cells=" + cells + '}';
     }
     
-    public List<LxcInput> getContainers(){
-        List<LxcInput> lxcs = new ArrayList<>();
-        for (LxcInput lxc : cells) {
-            if (!lxc.getType().equals("link")) {
-                lxcs.add(lxc);
-            }
-        }
-
-        return lxcs;
-    }
-
     public List<LxcInput> getLinks() {
         List<LxcInput> lxcs = new ArrayList<>();
         for (LxcInput lxc : cells) {
@@ -59,7 +48,7 @@ public class Cells {
         List<LxcInput> lxcs = new ArrayList<>();
         for (LxcInput lxc : cells) {
             if (lxc.getName() != null) {
-                if (lxc.getName().equalsIgnoreCase("input")) {
+                if (!lxc.isContainer()) {
                     lxcs.add(lxc);
                 }
             }
@@ -68,11 +57,11 @@ public class Cells {
         return lxcs;
     }
 
-    public List<LxcInput> getAdditions() {
+    public List<LxcInput> getContainers() {
         List<LxcInput> lxcs = new ArrayList<>();
         for (LxcInput lxc : cells) {
             if (lxc.getName() != null) {
-                if (lxc.getName().equalsIgnoreCase("addition")) {
+                if (lxc.isContainer()) {
                     lxcs.add(lxc);
                 }
             }
@@ -107,13 +96,39 @@ public class Cells {
     }
     
     public LxcInput getById(String id){
-        LxcInput found = null;
-        for(LxcInput lxc : getContainers()){
-            if(lxc.getId().equals(id)){
+        LxcInput found = new LxcInput();
+        for(LxcInput lxc : getContainersAndInputs()){
+            logger.info(id+" inside getByid id to found");
+            
+            logger.info(lxc.getId()+" inside getByid lxc id");
+            if(lxc.getId().equalsIgnoreCase(id)){
+                logger.info("inside if getbyid");
                 found = lxc;
             }
         }
         return found;
+    }
+    
+    public LxcInput getContainersById(String id){
+        LxcInput found = new LxcInput();
+        for(LxcInput lxc : getContainers()){
+            if(lxc.getId().equalsIgnoreCase(id)){
+                found = lxc;
+            }
+        }
+        return found;
+    }
+    
+    
+    public List<LxcInput> getContainersAndInputs(){
+        List<LxcInput> lxcs = new ArrayList<>();
+        for (LxcInput lxc : cells) {
+            if (!lxc.getType().equals("link")) {
+                lxcs.add(lxc);
+            }
+        }
+
+        return lxcs;
     }
     
     public static List<String> getLinkByTarget(String id, List<LxcInput> links){
@@ -125,6 +140,16 @@ public class Cells {
             }
         }
         return found;
+    }
+    
+    public static List<LxcInput> getLxcInputsByStep(int step, List<LxcInput> lxcs){
+         List<LxcInput> found = new ArrayList();
+         for(LxcInput lxc : lxcs){
+             if(lxc.getStep() == step){
+                 found.add(lxc);
+             }
+         }
+         return found;
     }
     
 }

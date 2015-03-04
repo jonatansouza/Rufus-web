@@ -1,7 +1,10 @@
-<jsp:include page="../layout/header.jsp"></jsp:include>
+
+  
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sb-admin.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.min.css">
+
 <div class="container">
-
-
 
     <!--login modal-->
     <div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
@@ -50,9 +53,9 @@
             </div>
         </div>
     </div>
-                        
+
     <div class="col-md-5 col-md-offset-4" style="margin-top: 450px">
-       
+
         <c:forEach var="error" items="${errors}">
             <h3 class="alert-danger">${error.category} - ${error.message}</h3>
             <br>
@@ -63,4 +66,9 @@
 
 
 </div>
-<jsp:include page="../layout/footer.jsp"></jsp:include>
+<script src="${pageContext.request.contextPath}/assets/js/jquery-2.1.1.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/bootbox.min.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/side-bar-admin.js"></script>
+</body>
+</html>

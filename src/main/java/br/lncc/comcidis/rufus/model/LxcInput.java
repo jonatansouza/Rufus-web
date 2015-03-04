@@ -16,7 +16,16 @@ public class LxcInput {
     private String type;
     private Source source;
     private Target target;
+    private boolean container;
     private int step = 0;
+
+    public boolean isContainer() {
+        return container;
+    }
+
+    public void setContainer(boolean container) {
+        this.container = container;
+    }
 
     public int getStep() {
         return step;

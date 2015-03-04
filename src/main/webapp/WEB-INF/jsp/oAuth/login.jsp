@@ -1,3 +1,8 @@
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sb-admin.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.min.css">
+
+
 <div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
