@@ -81,6 +81,9 @@
                                     <li>
                                         <a href="${linkTo[RufusController].workflowResult}"><i class="fa fa-line-chart"></i> Results</a>
                                     </li>
+                                    <li>
+                                        <a href="javascript:listFilesToLoad()"><i class="fa fa-line-chart"></i> load</a>
+                                    </li>
                                 </ul>
                             </li>
 

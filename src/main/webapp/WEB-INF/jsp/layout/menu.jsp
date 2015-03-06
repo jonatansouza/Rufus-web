@@ -15,7 +15,7 @@
 
         <ul class="nav navbar-top-links navbar-right">
             <c:if test = "${userSession.currentUser().name != null}">
-                <li><a href="${linkTo[RufusController].account}">
+                <li><a href="${linkTo[RufusController].account}" data-toggle="tooltip" data-placement="bottom" title="Sign out or edit profile">
                             <i class="fa fa-user fa-fw"></i> Welcome ${userSession.currentUser().name}</a></li>
                 </c:if>
         </ul>

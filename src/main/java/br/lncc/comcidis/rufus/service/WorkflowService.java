@@ -10,16 +10,21 @@ import br.com.caelum.vraptor.environment.Property;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.lncc.comcidis.rufus.model.Cells;
+import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.UserSession;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -247,7 +252,6 @@ public class WorkflowService {
      resultWorkflow
      }*/
     public List<File> getAllWorkflowResults() {
-        
 
         File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail());
         FilenameFilter filter = new FileFileFilter() {
@@ -274,17 +278,121 @@ public class WorkflowService {
     }
 
     public List<File> getFilesFromWorkflow(String folder) {
-        
-        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail()+"/"+folder);
-        
+
+        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + folder);
+
         List<File> list = new ArrayList<>();
 
         if (!raiz.exists()) {
             raiz.mkdir();
         }
-
-        for (File file : raiz.listFiles()) {
+        FilenameFilter filter = new FileFileFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                if (!lowercaseName.startsWith(".")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        for (File file : raiz.listFiles(filter)) {
             list.add(file);
+        }
+
+        return list;
+    }
+
+    public void saveJSON(String jsonWorkflow, String workflow) {
+        String path = "" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/." + workflow;
+        logger.info(path + " path do file");
+        File raiz = new File(path);
+
+        try {
+            if (!raiz.exists()) {
+                raiz.createNewFile();
+            }
+            FileWriter fw;
+            fw = new FileWriter(raiz);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(jsonWorkflow);
+            bw.close();
+            fw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public void saveXML(String xmlWorkflow, String workflow) {
+        String path = "" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/" + workflow + ".xml";
+        logger.info(path + " path do file");
+        File raiz = new File(path);
+
+        try {
+            if (!raiz.exists()) {
+                raiz.createNewFile();
+            }
+            FileWriter fw;
+            fw = new FileWriter(raiz);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(xmlWorkflow);
+            bw.close();
+            fw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public String loadWorkflow(String workflow) {
+        String path = "" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/." + workflow;
+        File file = new File(path);
+        FileReader fr;
+        String result = "";
+        String flux = "";
+        try {
+            fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            result = br.readLine();
+            flux = br.readLine();
+            while (flux != null) {
+                result += br.readLine() + "";
+                flux = br.readLine();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return result;
+    }
+
+    public List<FileModel> listWorkflowsToLoad() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
+        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail());
+        FilenameFilter filter = new FileFileFilter() {
+            public boolean accept(File dir, String name) {
+                String lowercaseName = name.toLowerCase();
+                if (!lowercaseName.equals("files")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+
+        List<FileModel> list = new ArrayList<>();
+
+        if (!raiz.exists()) {
+            raiz.mkdir();
+        }
+
+        for (File file : raiz.listFiles(filter)) {
+            FileModel fm = new FileModel();
+            fm.setName(file.getName());
+            fm.setDate(sdf.format(file.lastModified()));
+            list.add(fm);
         }
 
         return list;

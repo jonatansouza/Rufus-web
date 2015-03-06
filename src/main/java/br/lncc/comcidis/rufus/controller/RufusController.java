@@ -44,6 +44,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.swing.text.html.HTML;
 import javax.ws.rs.GET;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.json.XML;
@@ -91,6 +92,10 @@ public class RufusController {
     @Path("/")
     public void index() {
 
+    }
+
+    public void login() {
+        result.redirectTo(this).index();
     }
 
     /**
@@ -215,11 +220,8 @@ public class RufusController {
             folders.add(file.getName());
         }
         result.include("folders", new Gson().toJson(folders));
-    
-    }
 
-    
-    
+    }
 
     /**
      * on upload view, will send a file to be save on this method
@@ -227,7 +229,7 @@ public class RufusController {
      * @param file
      */
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
-        public void saveFile(UploadedFile file) {
+    public void saveFile(UploadedFile file) {
         File firstUse = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/files");
         if (!firstUse.exists()) {
             firstUse.mkdirs();
@@ -239,14 +241,9 @@ public class RufusController {
             InputStream stream = file.getFile();
             IOUtils.copy(stream, new FileOutputStream(destino));
 
-        
-
-
-
-} catch (IOException ex) {
-            java.util.logging.Logger.getLogger(RufusController.class  
-
-.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         result.use(Results.status()).ok();
@@ -259,7 +256,7 @@ public class RufusController {
      * @param name
      */
     @Get("/rufus/{name}/deleteFile")
-        public void deleteFile(String name) {
+    public void deleteFile(String name) {
         File tmpFile = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + name);
         tmpFile.delete();
         result.include("file-info", "File Deleted!");
@@ -273,8 +270,26 @@ public class RufusController {
      * this method will display the workflow dashboard
      */
     @Path("/workflow")
-        public void workflow() {
+    public void workflow() {
 
+    }
+
+    /**
+     * delete a workflow folder
+     *
+     * @param workflowFolderName
+     */
+    @Get("/deleteWorkflow/{name}")
+    public void deleteWorkflow(String name) {
+        logger.info(name + " workflow para deletar");
+        File tmpFile = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + name);
+        try {
+            FileUtils.deleteDirectory(tmpFile);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        result.include("file-info", "File Deleted!");
+        result.redirectTo(this).workflowResult();
     }
 
     /**
@@ -285,7 +300,11 @@ public class RufusController {
     public void workflowLiveResult() {
         result.use(Results.http()).body(" Processed");
     }
-
+    @Get("/loadWorkflow/{workflowToLoad}")
+    public void loadWorkflow(String workflowToLoad){
+        result.use(Results.http()).body(workflowService.loadWorkflow(workflowToLoad));
+    }
+    
     /**
      * receive a string with json from workflow this method will prepare a
      * workflow and validate it
@@ -293,12 +312,12 @@ public class RufusController {
      * @param xmlTextArea
      */
     @Post
-        public void runWorkflow(String xmlTextArea, String workflowName) {
-
+    public void runWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow) {
         String user = userSession.currentUser().getEmail();
         File fileWorkflow = new File(pathNfsDirectory + "/" + user + "/" + workflowName);
-
         fileWorkflow.mkdir();
+        workflowService.saveXML(xmlWorkflow, workflowName);
+        workflowService.saveJSON(jsonWorkflow, workflowName);
         Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
         List<LxcInput> containers = new ArrayList<>();
 
@@ -319,13 +338,13 @@ public class RufusController {
      * this method will show all folders that contains a workflow result
      */
     @Path("/workflowResults")
-        public void workflowResult() {
+    public void workflowResult() {
         List<File> workflows = workflowService.getAllWorkflowResults();
         result.include("workflows", workflows);
     }
 
     @Get("/displayResults/{folder}")
-        public void displayResults(String folder) {
+    public void displayResults(String folder) {
         List<File> workflowFiles = workflowService.getFilesFromWorkflow(folder);
         result.include("workflowFiles", workflowFiles);
     }
@@ -339,14 +358,19 @@ public class RufusController {
         }
         return null;
     }
-
+    
+    @Get("/workflowsToLoad")
+    public void workflowsToLoad(){
+        result.include("workflows", workflowService.listWorkflowsToLoad());
+    }
+    
     //End of workflow Area
     //*************
     //TESTES
     //*************
     // teste session
     public void saveFileTest(UploadedFile file) {
-
+        
         //logger.debug(file.getFileName());
         //logger.debug("**********************************");
         File destino = new File("" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + file.getFileName());
@@ -355,14 +379,9 @@ public class RufusController {
             InputStream stream = file.getFile();
             IOUtils.copy(stream, new FileOutputStream(destino));
 
-        
-
-
-
-} catch (IOException ex) {
-            java.util.logging.Logger.getLogger(RufusController.class  
-
-.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         result.use(Results.status()).ok();

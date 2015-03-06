@@ -10,18 +10,20 @@
     folders = JSON.parse('${folders}');
     var testName
     $("#nameWork").keyup(function (evt) {
+
         testName = $("#nameWork").val();
         $("#workflowDiv").removeClass('has-error');
+
         if (testName.length == 0 || testName.indexOf(" ") >= 0 || $.inArray(testName, folders) >= 0) {
-            $("#workflowDiv").addClass('has-error');
             $("#btn-name").hide();
+            $("#workflowDiv").addClass('has-error');
         } else {
             $("#btn-name").show("slow");
         }
     });
-    
-    $("#btn-name").click(function (){
-       saveWorkflowName(testName); 
+
+    $("#btn-name").click(function () {
+        saveWorkflowName(testName);
     });
-       
+
 </script>

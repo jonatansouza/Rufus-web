@@ -55,8 +55,8 @@ public class OAuthController {
     }
 
     @Path("/login")
-    public void login() {
-
+    public void login() throws OAuthSystemException {
+        result.redirectTo(this).getOauthCode();
     }
     @Path("oauth/logout")
     public void logout(){

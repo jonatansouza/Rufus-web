@@ -15,8 +15,16 @@
     </table>
 
     <br>
-    <button class="btn btn-primary" onclick="javascript:signout('${userSession.currentUser().name}')">Sign out</button>
+    <p>
+    <div class="col-md-1">
+        <button class="btn btn-primary" onclick="javascript:signout('${userSession.currentUser().name}')">Sign out</button>
+    </div>
+    <div class="col-md-1">
 
+        <a href="http://auth.comcidis.lncc.br:3000/users/me"><button class="btn btn-success">Edit your profile</button></a>
+    </div>
+
+</p>
 
 </div>
 <script src="${pageContext.request.contextPath}/assets/js/jquery-2.1.1.min.js"></script>

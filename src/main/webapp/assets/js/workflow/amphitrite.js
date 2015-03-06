@@ -14,7 +14,6 @@ function saveWorkflowName(name) {
     bootbox.hideAll();
 }
 
-
 // end
 
 // Creating drawing paper
@@ -26,16 +25,41 @@ var nodeSize = height / 30 + width / 30;
 
 //Variable to set workflow name
 
+
+
+
+
 $(document).ready(function () {
     $.get("/rufus/modalWorkflowName", function (data, status) {
         bootbox.dialog({
             message: data,
-            title: "Workflow name",
+            title: "Workflow name <a href='javascript:listFilesToLoad()'><button class='btn btn-success pull-right'>Load Workflow</button></a></div>",
             closeButton: false
         });
     });
 });
 
+function listFilesToLoad() {
+    $.get("/rufus/workflowsToLoad", function (data) {
+
+        bootbox.dialog({
+            message: data,
+            title: "Workflows",
+        });
+    });
+}
+
+
+//loading a workflow
+function loadWorkflow(workflowToLoad) {
+    $.get("/rufus/loadWorkflow/"+workflowToLoad, function (data) {
+        bootbox.hideAll();
+        console.log(data);
+        graph.fromJSON(JSON.parse(data));
+        saveWorkflowName(workflowToLoad);
+    });
+
+}
 
 
 
@@ -228,15 +252,25 @@ function modalUpload() {
 // Insert File
 function insertFile(customCode) {
     if (selected) {
+        
         var customJson = {
             text: {
                 text: customCode,
                 magnet: true
+            },image: {
+                'xlink:href': '/rufus/assets/images/nodes/file.png',
+                width: 50,
+                height: 50
+            },
+            '.': {
+                magnet: false
             }
         };
+        
+        
         selected.set('activity', customCode);
         selected.set('attrs', customJson);
-
+        
     }
 
 }
@@ -270,7 +304,7 @@ function uploadFile() {
 //}
 
 function sendXML() {
-
+    
     bootbox.dialog({
         title: "Processing workflow",
         message: "<div class='text-center'><p>Please Wait...<br>it may take several minutes</p><br><i class='fa fa-spin fa-cog fa-4x'></i></div>"
@@ -280,7 +314,7 @@ function sendXML() {
         type: "POST",
         url: "/rufus/rufus/runWorkflow",
         dataType: "json",
-        data: {xmlTextArea: JSON.stringify(graph.toJSON()), workflowName: workflowName},
+        data: {xmlTextArea: JSON.stringify(graph.toJSON()), workflowName: workflowName, xmlWorkflow: rufusToXML(), jsonWorkflow: rufusToJson()},
         statusCode: {
             400: function (data) {
 
@@ -334,6 +368,54 @@ function toJSON() {
 }
 
 // Creating XML
+function rufusToJson(){
+    return JSON.stringify(graph.toJSON());
+}
+
+function rufusToXML() {
+
+    workflowID = workflowName;
+    jsonString = JSON.stringify(graph.toJSON()),
+            json = jQuery.parseJSON(jsonString),
+            jsonSize = Object.keys(json.cells).length,
+            transID = 0;
+
+    var xml = "<WorkflowProcess Id=\"" + workflowID + "\">\n";
+    xml += "   <Activities>\n";
+    for (var i = 0; i < jsonSize; i++) {
+        var jsonType = json.cells[i].type;
+        if (jsonType == "basic.Image") {
+            var name = json.cells[i].name;
+            var id = json.cells[i].id;
+            var activity = json.cells[i].activity;
+
+            xml += "      	 <Activity Id=\"" + id + "\" Name=\"" + name + "\">\n";
+            xml += "	         <Implementation>";
+            xml += activity + "</Implementation>\n";
+            xml += "         </Activity>\n";
+        }
+    }
+
+    xml += "   </Activities>\n";
+    xml += "   <Transitions>";
+
+    for (var i = 0; i < jsonSize; i++) {
+        var jsonType = json.cells[i].type;
+        if (jsonType == "link") {
+            var source = json.cells[i].source.id;
+            var target = json.cells[i].target.id;
+            xml += "\n      <Transition Id=\"" + transID + "\" From=\"" + source + "\" To=\"" + target + "\"/>";
+            transID++;
+        }
+    }
+
+    xml += "\n   </Transitions>\n";
+    xml += "</WorkflowProcess>\n";
+
+    return xml;
+
+}
+
 function toXML() {
 
     var workflowName = document.getElementById('workflowName').value,
