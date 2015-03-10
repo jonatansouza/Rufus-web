@@ -197,7 +197,7 @@ public class RufusService {
         List<FileModel> list = new ArrayList<>();
         
         if(!raiz.exists()){
-            raiz.mkdir();
+            raiz.mkdirs();
         }
         
         for (File file : raiz.listFiles(filter)) {

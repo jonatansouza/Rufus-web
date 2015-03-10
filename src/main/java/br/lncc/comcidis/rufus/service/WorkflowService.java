@@ -200,7 +200,7 @@ public class WorkflowService {
                             }
                         }
 
-                        executeWorkflow(user, container.getName() + "-" + countContainers, workflow, listInputs, container.getName());
+                        executeWorkflow(user, container.getId(), workflow, listInputs, container.getName());
                         countContainers++;
                         listInputs.clear();
                     }
