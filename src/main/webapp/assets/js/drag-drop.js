@@ -36,15 +36,10 @@ objdroped.on('drop', function (e) {
         var entryCheck = e.originalEvent.dataTransfer.items[i].webkitGetAsEntry();
 
         if (entryCheck.isFile) {
-            $("#tableFiles").css("display", "block");
-            $("#buttonSend").css("display", "block");
+
             $("#text-drop").html("File Dropped");
             entry = e.originalEvent.dataTransfer.files[i];
-            itemsToUpload[itemsToUpload.length] = entry;
-            $("#listFiles").append("<tr id='file" + i + "'><td>" + entry.name + "</td>" +
-                    "<td>" + (entry.size / 1024).toFixed(2) + " kb</td>" +
-                    "<td><a class='pull-right' href=\"javascript:deleteNode('file" + i + "')\"> " +
-                    "<i class='glyphicon glyphicon-remove'></td></tr>");
+            firstStepFile(entry);
         } else if (entryCheck.isDirectory) {
             $("#text-information").html("Directories should be ziped!");
             txto = $("#myMessage").html();
@@ -54,12 +49,24 @@ objdroped.on('drop', function (e) {
         }
     }
 });
+
+function firstStepFile(entry) {
+    $("#tableFiles").css("display", "block");
+    $("#buttonSend").css("display", "block");
+    itemsToUpload[itemsToUpload.length] = entry;
+    $("#listFiles").append("<tr id='" + entry.name + "'><td>" + entry.name + "</td>" +
+            "<td>" + (entry.size / 1024).toFixed(2) + " kb</td>" +
+            "<td><a class='pull-right' href=\"javascript:deleteNode('" + entry.name + "')\"> " +
+            "<i class='glyphicon glyphicon-remove'></td></tr>");
+}
+
+
 function deleteNode(idToRemove) {
 
     $("#" + idToRemove).remove();
     var idx = itemsToUpload.indexOf(name);
     itemsToUpload.splice(idx, 1);
-    if(!itemsToUpload.length){
+    if (!itemsToUpload.length) {
         $("#tableFiles").css("display", "none");
         $("#buttonSend").css("display", "none");
         $("#text-drop").html("Drop your files here");
@@ -118,7 +125,7 @@ function uploadFileToServer(file) {
                 $("#text-information").html("Uploaded");
                 txto = $("#myMessage").html();
                 bootbox.alert(txto, function () {
-                    window.location.href = "/rufus/";
+                    window.location.href = "/rufus/upload";
                 });
             }
         }
@@ -139,4 +146,20 @@ $("#buttonSend").click(function () {
         title: countfiles,
         message: uploadDialog
     });
+});
+
+$(document).ready(function () {
+
+    $("#mydropzone").on("click", function () {
+        $("#myclickzone").append("<input type='file' id='fileclickzone' style='display: none'>");
+        $("#fileclickzone").click();
+        $("#fileclickzone").change(function () {
+            fileClick = $(this)[0].files[0];
+        $("#fileclickzone").remove();
+            firstStepFile(fileClick);
+        });
+
+
+    });
+
 });

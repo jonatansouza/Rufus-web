@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sb-admin.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/joint.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
         <div class="wrapper">

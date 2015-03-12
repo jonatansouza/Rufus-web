@@ -257,7 +257,7 @@ public class RufusController {
      */
     @Get("/rufus/{name}/deleteFile")
     public void deleteFile(String name) {
-        File tmpFile = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + name);
+        File tmpFile = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/files/" + name);
         tmpFile.delete();
         result.include("file-info", "File Deleted!");
         result.redirectTo(this).fileList();
