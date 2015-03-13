@@ -21,6 +21,7 @@ import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
 import br.lncc.comcidis.rufus.intercepts.NeedLogin;
 import br.lncc.comcidis.rufus.model.Cells;
+import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import br.lncc.comcidis.rufus.model.UserSession;
@@ -36,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -331,6 +333,16 @@ public class RufusController {
             validator.onErrorSendBadRequest();
         }
     }
+    
+    @Post
+    public void saveWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow){
+        String user = userSession.currentUser().getEmail();
+        File fileWorkflow = new File(pathNfsDirectory + "/" + user + "/" + workflowName);
+        fileWorkflow.mkdir();
+        workflowService.saveXML(xmlWorkflow, workflowName);
+        workflowService.saveJSON(jsonWorkflow, workflowName);
+        result.use(Results.http()).setStatusCode(200);
+    }
 
     /**
      * TODO display a download
@@ -339,7 +351,16 @@ public class RufusController {
      */
     @Path("/workflowResults")
     public void workflowResult() {
-        List<File> workflows = workflowService.getAllWorkflowResults();
+        List<File> workflowsFiles = workflowService.getAllWorkflowResults();
+        List<FileModel> workflows = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        FileModel fileModel = null;
+        for(File file: workflowsFiles){
+            fileModel = new FileModel();
+            fileModel.setName(file.getName());
+            fileModel.setDate(sdf.format(file.lastModified()));
+            workflows.add(fileModel);
+        }
         result.include("workflows", workflows);
     }
 

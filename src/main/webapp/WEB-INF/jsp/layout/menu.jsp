@@ -44,10 +44,10 @@
 
                             </li>
                             <li>
-                                <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow</a>
+                                <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow Dashboard</a>
                             </li>
                             <li>
-                                <a href="${linkTo[RufusController].workflowResult}"><i class="fa fa-line-chart fa-fw"></i> Workflows Result</a>
+                                <a href="${linkTo[RufusController].workflowResult}"><i class="fa fa-line-chart fa-fw"></i> Workflows</a>
                             </li>
                         </ul>
                     </div>

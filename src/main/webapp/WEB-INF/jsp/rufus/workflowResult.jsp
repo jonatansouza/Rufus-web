@@ -1,7 +1,10 @@
 <jsp:include page="../layout/menu.jsp"></jsp:include>
     <div id="page-wrapper">    
         <div class="container-fluid">
-
+        <c:if test="${workflows.size() == 0}">
+            <h3>No Workflows submitted!</h3>
+        </c:if>
+            
         <c:forEach items="${workflows}" var="workflow">
 
             <div class="col-xs-4 col-md-2 ">
@@ -10,7 +13,7 @@
                     <a href="${pageContext.request.contextPath}/displayResults/${workflow.name}" >
                         <img src="${pageContext.request.contextPath}/assets/img/folderWorkflow.png" alt="Workflow">
                         <div class="caption">
-                            <h4 class="text-center">${workflow.name}</h4>
+                            <h4 class="text-center">${workflow.name}<br><br><small>${workflow.date}</small></h4>
                         </div>
                     </a>
                     <a class="col-lg-offset-10" href="javascript:removeWorkflow('${workflow.name}')" data-toggle="tooltip" data-placement="bottom" title="Delete this Workflow">

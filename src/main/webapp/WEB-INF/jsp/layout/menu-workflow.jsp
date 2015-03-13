@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sb-admin.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/joint.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
         <div class="wrapper">
@@ -22,8 +22,12 @@
                 </div>
 
                 <ul class="nav navbar-top-links navbar-right">
-                    <li><a href="file.php"><i class="fa fa-fw fa-file"></i> Files</a></li>
-                    <li><a href="#" onclick="sendXML()"><i class="fa fa-fw fa-play"></i> Run</a></li>
+                    <li><a href="${linkTo[RufusController].fileList}" target="_blank"><i class="fa fa-fw fa-file"></i> Files</a></li>
+                    <li><a href="#" onclick="saveWorkflow()" id="linksave"> <i class="fa fa-fw fa-save"></i>Save</a></li>
+                    <li><a href="#" onclick="sendXML()"><i class="fa fa-fw fa-play"></i>Run</a></li>
+
+
+
                     <!-- Options -->
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog fa-spin"></i> Options <b class="caret"></b></a>

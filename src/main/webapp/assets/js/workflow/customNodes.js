@@ -2,6 +2,12 @@
 //     (c) 2014 Christian Mury
 //     Amphitrite may be freely distributed under the GNU GPL.
 
+function setUnsaved() {
+    $("#linksave").html("<i class='fa fa-fw fa-save'></i>S  ave");
+    $("#linksave").removeClass("disabled");
+}
+
+
 function input() {
     var node = new joint.shapes.basic.Image({
         position: {
@@ -33,6 +39,7 @@ function input() {
 }
 
 function file() {
+    setUnsaved();
     
     var node = new joint.shapes.basic.Image({
         position: {

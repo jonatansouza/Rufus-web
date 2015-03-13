@@ -7,7 +7,6 @@
 
 var folders = [];
 var workflowName = "";
-
 function saveWorkflowName(name) {
     workflowName = name;
     $("#workflowHeaderName").html(workflowName);
@@ -21,8 +20,6 @@ var graph = new joint.dia.Graph;
 var height = window.outerHeight;
 var width = window.outerWidth;
 var nodeSize = height / 30 + width / 30;
-
-
 //Variable to set workflow name
 
 
@@ -37,7 +34,15 @@ $(document).ready(function () {
             closeButton: false
         });
     });
+    
+    console.log($('svg').val());
 });
+
+
+function setUnsaved() {
+    $("#linksave").html("<i class='fa fa-fw fa-save'></i>save");
+    $("#linksave").removeClass("disabled");
+}
 
 function listFilesToLoad() {
     $.get("/rufus/workflowsToLoad", function (data) {
@@ -52,13 +57,11 @@ function listFilesToLoad() {
 
 //loading a workflow
 function loadWorkflow(workflowToLoad) {
-    $.get("/rufus/loadWorkflow/"+workflowToLoad, function (data) {
+    $.get("/rufus/loadWorkflow/" + workflowToLoad, function (data) {
         bootbox.hideAll();
-        console.log(data);
         graph.fromJSON(JSON.parse(data));
         saveWorkflowName(workflowToLoad);
     });
-
 }
 
 
@@ -85,12 +88,10 @@ var paper = new joint.dia.Paper({
         radius: 75
     }
 });
-
 var selected;
 paper.on('cell:pointerdown', function (cellView) {
     selected = cellView.model;
 });
-
 // Right button menu
 // https://groups.google.com/forum/#!topic/jointjs/e3sq1fZkq0w
 paper.$el.on('contextmenu', function (evt) {
@@ -131,7 +132,6 @@ paper.$el.on('contextmenu', function (evt) {
                                     }
                                 });
                             });
-
                         }
                     },
                     danger: {
@@ -183,7 +183,6 @@ function testConnection() {
     paper.on('cell:pointerdown', function (cellView) {
         cellView.model.trigger('signal', cellView.model);
     });
-
     // Signaling.
     // ----------
     graph.on('signal', function (cell, data) {
@@ -192,7 +191,6 @@ function testConnection() {
             sendToken(cell, 1, function () {
                 targetCell.trigger('signal', targetCell);
             });
-
         } else {
             flash(cell);
             var outboundLinks = graph.getConnectedLinks(cell, {
@@ -203,7 +201,6 @@ function testConnection() {
             });
         }
     });
-
     function flash(cell) {
         var cellView = paper.findViewByModel(cell);
         cellView.highlight();
@@ -252,12 +249,12 @@ function modalUpload() {
 // Insert File
 function insertFile(customCode) {
     if (selected) {
-        
+
         var customJson = {
             text: {
                 text: customCode,
                 magnet: true
-            },image: {
+            }, image: {
                 'xlink:href': '/rufus/assets/images/nodes/file.png',
                 width: 50,
                 height: 50
@@ -266,11 +263,8 @@ function insertFile(customCode) {
                 magnet: false
             }
         };
-        
-        
         selected.set('activity', customCode);
         selected.set('attrs', customJson);
-        
     }
 
 }
@@ -303,14 +297,53 @@ function uploadFile() {
 //    postForm.submit();
 //}
 
-function sendXML() {
-    
-    bootbox.dialog({
-        title: "Processing workflow",
-        message: "<div class='text-center'><p>Please Wait...<br>it may take several minutes</p><br><i class='fa fa-spin fa-cog fa-4x'></i></div>"
+function saveWorkflow() {
+    $.ajax({
+        type: "POST",
+        url: "/rufus/rufus/saveWorkflow",
+        dataType: "json",
+        data: {xmlTextArea: JSON.stringify(graph.toJSON()), workflowName: workflowName, xmlWorkflow: rufusToXML(), jsonWorkflow: rufusToJson()},
+        statusCode: {
+            200: function () {
+                $("#linksave").html("Saved");
+                $("#linksave").addClass("disabled");
+
+            }}
     });
 
+}
+
+function sendXML() {
+
+    bootbox.dialog({
+        title: "Processing workflow",
+        message: "<div class='text-center'><p>Please Wait...<br>it may take several minutes</p><br>\n\
+            <div class='progress'><div id='workflowprogressbar' class='progress-bar progress-bar-striped active' \n\
+            role='progressbar' \n\
+            style='width: 45%'></div></div></div>"
+    });
     $.ajax({
+        xhr: function ()
+        {
+            var xhr = new window.XMLHttpRequest();
+            //Upload progress
+            xhr.upload.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    $("#workflowprogressbar").css("width", percentComplete * 100 + "%");
+
+                }
+            }, false);
+            //Download progress
+            xhr.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    //Do something with download progress
+                    console.log(percentComplete);
+                }
+            }, false);
+            return xhr;
+        },
         type: "POST",
         url: "/rufus/rufus/runWorkflow",
         dataType: "json",
@@ -319,7 +352,6 @@ function sendXML() {
             400: function (data) {
 
                 var error = JSON.parse(data.responseText);
-                console.log(error);
                 if (error.errors[0].category == "nameError") {
                     var notify = error.errors[0].message;
                     bootbox.hideAll();
@@ -332,7 +364,6 @@ function sendXML() {
                             });
                         }
                     });
-
                 } else {
                     var notify = error.errors[0].message;
                     bootbox.hideAll();
@@ -352,7 +383,6 @@ function sendXML() {
                 })
             }
         }});
-
 }
 
 // Export JSON
@@ -368,7 +398,7 @@ function toJSON() {
 }
 
 // Creating XML
-function rufusToJson(){
+function rufusToJson() {
     return JSON.stringify(graph.toJSON());
 }
 
@@ -379,7 +409,6 @@ function rufusToXML() {
             json = jQuery.parseJSON(jsonString),
             jsonSize = Object.keys(json.cells).length,
             transID = 0;
-
     var xml = "<WorkflowProcess Id=\"" + workflowID + "\">\n";
     xml += "   <Activities>\n";
     for (var i = 0; i < jsonSize; i++) {
@@ -388,7 +417,6 @@ function rufusToXML() {
             var name = json.cells[i].name;
             var id = json.cells[i].id;
             var activity = json.cells[i].activity;
-
             xml += "      	 <Activity Id=\"" + id + "\" Name=\"" + name + "\">\n";
             xml += "	         <Implementation>";
             xml += activity + "</Implementation>\n";
@@ -398,7 +426,6 @@ function rufusToXML() {
 
     xml += "   </Activities>\n";
     xml += "   <Transitions>";
-
     for (var i = 0; i < jsonSize; i++) {
         var jsonType = json.cells[i].type;
         if (jsonType == "link") {
@@ -411,9 +438,7 @@ function rufusToXML() {
 
     xml += "\n   </Transitions>\n";
     xml += "</WorkflowProcess>\n";
-
     return xml;
-
 }
 
 function toXML() {
@@ -425,7 +450,6 @@ function toXML() {
             json = jQuery.parseJSON(jsonString),
             jsonSize = Object.keys(json.cells).length,
             transID = 0;
-
     var xml = "<WorkflowProcess Id=\"" + workflowID + "\" Name=\"" + workflowName + "\" AccessLevel=\"" + AccessLVL + "\">\n";
     xml += "   <Activities>\n";
     for (var i = 0; i < jsonSize; i++) {
@@ -434,7 +458,6 @@ function toXML() {
             var name = json.cells[i].name;
             var id = json.cells[i].id;
             var activity = json.cells[i].activity;
-
             xml += "      	 <Activity Id=\"" + id + "\" Name=\"" + name + "\">\n";
             xml += "	         <Implementation>";
             xml += activity + "</Implementation>\n";
@@ -444,7 +467,6 @@ function toXML() {
 
     xml += "   </Activities>\n";
     xml += "   <Transitions>";
-
     for (var i = 0; i < jsonSize; i++) {
         var jsonType = json.cells[i].type;
         if (jsonType == "link") {
@@ -465,57 +487,49 @@ function toXML() {
 }
 
 window.onload = function () {
-    // Making paper scale to screen height
+// Making paper scale to screen height
     $("svg").attr("class", "col-md-12");
     $("svg").height(window.innerHeight - 179);
 }
 
 function adjustVertices(graph, cell) {
 
-    // If the cell is a view, find its model.
+// If the cell is a view, find its model.
     cell = cell.model || cell;
-
     if (cell instanceof joint.dia.Element) {
 
         _.chain(graph.getConnectedLinks(cell)).groupBy(function (link) {
-            // the key of the group is the model id of the link's source or target, but not our cell id.
+// the key of the group is the model id of the link's source or target, but not our cell id.
             return _.omit([link.get('source').id, link.get('target').id], cell.id)[0];
         }).each(function (group, key) {
-            // If the member of the group has both source and target model adjust vertices.
+// If the member of the group has both source and target model adjust vertices.
             if (key !== 'undefined')
                 adjustVertices(graph, _.first(group));
         });
-
         return;
     }
 
-    // The cell is a link. Let's find its source and target models.
+// The cell is a link. Let's find its source and target models.
     var srcId = cell.get('source').id || cell.previous('source').id;
     var trgId = cell.get('target').id || cell.previous('target').id;
-
     // If one of the ends is not a model, the link has no siblings.
     if (!srcId || !trgId)
         return;
-
     var siblings = _.filter(graph.getLinks(), function (sibling) {
 
         var _srcId = sibling.get('source').id;
         var _trgId = sibling.get('target').id;
-
         return (_srcId === srcId && _trgId === trgId) || (_srcId === trgId && _trgId === srcId);
     });
-
     switch (siblings.length) {
 
         case 0:
             // The link was removed and had no siblings.
             break;
-
         case 1:
             // There is only one link between the source and target. No vertices needed.
             cell.unset('vertices');
             break;
-
         default:
 
             // There is more than one siblings. We need to create vertices.
@@ -524,18 +538,14 @@ function adjustVertices(graph, cell) {
             var srcCenter = graph.getCell(srcId).getBBox().center();
             var trgCenter = graph.getCell(trgId).getBBox().center();
             var midPoint = g.line(srcCenter, trgCenter).midpoint();
-
             // Then find the angle it forms.
             var theta = srcCenter.theta(trgCenter);
-
             // This is the maximum distance between links
             var gap = 20;
-
             _.each(siblings, function (sibling, index) {
 
                 // We want the offset values to be calculated as follows 0, 20, 20, 40, 40, 60, 60 ..
                 var offset = gap * Math.ceil(index / 2);
-
                 // Now we need the vertices to be placed at points which are 'offset' pixels distant
                 // from the first link and forms a perpendicular angle to it. And as index goes up
                 // alternate left and right.
@@ -547,21 +557,16 @@ function adjustVertices(graph, cell) {
                 //  v  even indexes
                 var sign = index % 2 ? 1 : -1;
                 var angle = g.toRad(theta + sign * 90);
-
                 // We found the vertex.
                 var vertex = g.point.fromPolar(offset, angle, midPoint);
-
                 sibling.set('vertices', [{x: vertex.x, y: vertex.y}]);
             });
     }
 }
 ;
-
 var myAdjustVertices = _.partial(adjustVertices, graph);
-
 // adjust vertices when a cell is removed or its source/target was changed
 graph.on('add remove change:source change:target', myAdjustVertices);
-
 // also when an user stops interacting with an element.
 paper.on('cell:pointerup', myAdjustVertices);
 
