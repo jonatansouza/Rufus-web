@@ -8,15 +8,18 @@ package br.lncc.comcidis.rufus.controller;
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
+import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
 import br.lncc.comcidis.rufus.model.Me;
 import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
+import br.lncc.comcidis.rufus.service.OauthService;
 import com.google.gson.Gson;
 
 import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.POST;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthBearerClientRequest;
@@ -46,7 +49,8 @@ public class OAuthController {
     private UserSession session;
     @Inject
     private HttpServletRequest httpServletRequest;
-    
+    @Inject
+    private OauthService oauthService;
    
 
     @Path("/teste")
@@ -110,7 +114,12 @@ public class OAuthController {
         OAuthResourceResponse resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
 
         Me me = new Gson().fromJson(resourceResponse.getBody(), Me.class);
-
+        for(String user: oauthService.getRootUsers()){
+            if(user.equalsIgnoreCase(me.getEmail())){
+                me.setAdmin(true);
+            }
+        }
+        logger.info(me.toString()+" ***********");
         try {
             session.authenticate(me);
         } catch (NaoAutenticadoException ex) {
@@ -118,5 +127,12 @@ public class OAuthController {
         }
 
         result.redirectTo("http://rufus.comcidis.lncc.br:8080"+httpServletRequest.getSession().getAttribute("requestUri"));
+    }
+    
+    @Post("/newUser")
+    public void registerNewRootUser(String email){
+        oauthService.registerNewRootUser(email);
+        result.include("message", "User "+email+" has been added to the admin group.");
+        result.redirectTo(RufusController.class).account();
     }
 }

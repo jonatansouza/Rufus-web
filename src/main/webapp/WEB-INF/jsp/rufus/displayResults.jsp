@@ -6,7 +6,7 @@
             <div class="col-xs-4 col-md-2">
                 <a href="${linkTo[RufusController].downloadWorkflowFile}?requiredFile=${file.path.replaceAll("/var/rufus/users","")}" class="thumbnail">
                     <c:if test="${fn:containsIgnoreCase(file.name, '.xml')}">
-                        <img src="${pageContext.request.contextPath}/assets/img/xml.png" alt="Workflow" style="width: 70px">
+                        <img src="${pageContext.request.contextPath}/assets/img/xml.png" alt="Workflow" style="width: 90px">
                     </c:if>
                     <c:if test="${not fn:containsIgnoreCase(file.name, '.xml')}">
                         <img src="${pageContext.request.contextPath}/assets/img/file.png" alt="Workflowxml" style="width: 50px">

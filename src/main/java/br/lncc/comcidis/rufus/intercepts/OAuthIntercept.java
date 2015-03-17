@@ -40,7 +40,7 @@ public class OAuthIntercept {
 
     @AroundCall
     public void around(SimpleInterceptorStack stack) throws OAuthSystemException {
-
+        
         if (!userSession.isLogged() && !httpServletRequest.getRequestURI().equals("/rufus/")) {
             try {
                 httpServletRequest.getSession().setAttribute("requestUri", httpServletRequest.getRequestURI());

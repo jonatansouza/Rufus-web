@@ -18,6 +18,15 @@ public class Me implements Serializable{
         private String email; 
         private String name;
         private int id;
+        boolean admin;
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
 
     public String getEmail() {
         return email;
@@ -45,8 +54,9 @@ public class Me implements Serializable{
 
     @Override
     public String toString() {
-        return "Me{" + "email=" + email + ", name=" + name + ", id=" + id + '}';
+        return "Me{" + "email=" + email + ", name=" + name + ", id=" + id + ", admin=" + admin + '}';
     }
-        
+
+       
         
 }

@@ -93,7 +93,7 @@ public class RufusController {
      */
     @Path("/")
     public void index() {
-
+       
     }
 
     public void login() {
@@ -408,5 +408,6 @@ public class RufusController {
         result.use(Results.status()).ok();
 
     }
+    
 
 }

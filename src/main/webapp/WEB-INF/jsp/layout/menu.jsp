@@ -27,14 +27,14 @@
                     <div class="sidebar-nav navbar-collapse">
 
                         <ul class="nav" id="side-menu">
-
-                            <li>
-                                <a href="${linkTo[RufusController].dashboard}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
-                            </li>
-                            <li>
-                                <a href="${linkTo[RufusController].create}"><i class="fa fa-plus-circle fa-fw"></i> Create new Container</a>
-                            </li>
-
+                            <c:if test="${userSession.currentUser().admin}">
+                                <li>
+                                    <a href="${linkTo[RufusController].dashboard}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
+                                </li>
+                                <li>
+                                    <a href="${linkTo[RufusController].create}"><i class="fa fa-plus-circle fa-fw"></i> Create new Container</a>
+                                </li>
+                            </c:if>
                             <li>
                                 <a href="${linkTo[RufusController].fileList}"><i class="fa fa-file-text fa-fw"></i> Files</a>
 

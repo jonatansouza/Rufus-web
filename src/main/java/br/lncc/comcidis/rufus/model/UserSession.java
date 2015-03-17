@@ -19,7 +19,7 @@ import javax.inject.Named;
 public class UserSession implements Serializable {
 
     private Me me;
-
+    
     public void authenticate(Me me) {
         if (me == null) {
             throw new NaoAutenticadoException();
