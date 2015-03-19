@@ -54,13 +54,37 @@ public class OauthService {
         try {
             fw = new FileWriter(file, true);
             BufferedWriter bw = new BufferedWriter(fw);
-            bw.newLine();
-            bw.write(email);
+            bw.write(email+"\n");
             bw.close();
         } catch (IOException ex) {
             Logger.getLogger(OauthService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    
+    public void rewriteListRootUsers(List<String> users){
+        File file = new File("/home/jonatan/NetBeansProjects/rufus-interface/src/main/resources/rootUsers");
+        FileWriter fw;
+        try {
+            fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            for(String user : users){
+                bw.write(user+"\n");
+               
+            }
+            bw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(OauthService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void deleteRootUser(String name) {
+        List<String> rootUsers = getRootUsers();
+        if(rootUsers.contains(name)){
+            rootUsers.remove(name);
+        }
+        rewriteListRootUsers(rootUsers);
+        
     }
 
 }

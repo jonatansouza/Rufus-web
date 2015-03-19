@@ -10,6 +10,7 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
+import br.com.caelum.vraptor.view.Results;
 import br.lncc.comcidis.rufus.model.Me;
 import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
@@ -133,6 +134,16 @@ public class OAuthController {
     public void registerNewRootUser(String email){
         oauthService.registerNewRootUser(email);
         result.include("message", "User "+email+" has been added to the admin group.");
+        result.redirectTo(RufusController.class).account();
+    }
+    @Path("/oauth/getRootUsers")
+    public void listRootUsers(){
+        
+        result.include("admins", oauthService.getRootUsers());
+    }
+    @Get("/oauth/deleteRootUser/{name}")
+    public void deleteRootUser(String name){
+        oauthService.deleteRootUser(name);
         result.redirectTo(RufusController.class).account();
     }
 }
