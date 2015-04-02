@@ -8,52 +8,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <div class="wrapper">
         <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed"
+                            data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
 
-            </div>
-            <ul class="nav navbar-top-links navbar-right">
-                <c:if test = "${userSession.currentUser().name != null}">
-                    <li><a href="${linkTo[RufusController].account}">
-                            <i class="fa fa-user fa-fw"></i> Welcome ${userSession.currentUser().name}</a></li>
-
-                </ul>
-
-                <div class="navbar-default sidebar" role="navigation">
-                    <div class="sidebar-nav navbar-collapse">
-                        <ul class="nav" id="side-menu">
-                            <c:if test="${userSession.currentUser().admin}">
-                                <li>
-                                    <a href="${linkTo[RufusController].dashboard}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
-                                </li>
-                                <li>
-                                    <a href="${linkTo[RufusController].create}"><i class="fa fa-plus-circle fa-fw"></i> Create new Container</a>
-                                </li>
-                            </c:if>
-                            <li>
-                                <a href="${linkTo[RufusController].fileList}"><i class="fa fa-file-text fa-fw"></i> Files</a>
-
-                            </li>
-                            <li>
-                                <a href="${linkTo[RufusController].upload}"><i class="fa fa-cloud-download fa-fw"></i> Upload Files</a>
-
-                            </li>
-                            <li>
-                                <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow</a>
-                            </li>
-                            <li>
-                                <a href="${linkTo[RufusController].account}"><i class="fa fa-user fa-fw"></i> Account</a>
-                            </li>
-
-
-                        </ul>
-                    </div>
-                    <!-- /.sidebar-collapse -->
                 </div>
-            </c:if>
+                <ul class="nav navbar-top-links navbar-right">
+                    <c:if test = "${userSession.currentUser().name != null}">
+                        <li><a href="${linkTo[RufusController].account}">
+                                <i class="fa fa-user fa-fw"></i> Welcome ${userSession.currentUser().name}</a></li>
+
+                    </ul>
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <div class="navbar-default sidebar" role="navigation">
+                            <div class="sidebar-nav">
+                                <ul class="nav" id="side-menu">
+                                    <c:if test="${userSession.currentUser().admin}">
+                                        <li>
+                                            <a href="${linkTo[RufusController].dashboard}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
+                                        </li>
+                                        <li>
+                                            <a href="${linkTo[RufusController].create}"><i class="fa fa-plus-circle fa-fw"></i> Create new Container</a>
+                                        </li>
+                                    </c:if>
+                                    <li>
+                                        <a href="${linkTo[RufusController].fileList}"><i class="fa fa-file-text fa-fw"></i> Files</a>
+
+                                    </li>
+                                    <li>
+                                        <a href="${linkTo[RufusController].upload}"><i class="fa fa-cloud-download fa-fw"></i> Upload Files</a>
+
+                                    </li>
+                                    <li>
+                                        <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow</a>
+                                    </li>
+                                    <li>
+                                        <a href="${linkTo[RufusController].account}"><i class="fa fa-user fa-fw"></i> Account</a>
+                                    </li>
+
+
+                                </ul>
+                            </div>
+                            <!-- /.sidebar-collapse -->
+                        </div>
+                    </div>
+                </c:if>
+           
         </nav>
     </div>
-
     <div id="page-wrapper">
 
         <div class="container">

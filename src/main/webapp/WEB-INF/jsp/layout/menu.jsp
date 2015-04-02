@@ -14,23 +14,31 @@
             <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="${linkTo[RufusController].index}"><span class="active"><strong>Rufus</strong></span> lxc-containers</a>
-
+                    <button type="button" class="navbar-toggle collapsed"
+                            data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
                 </div>
 
                 <ul class="nav navbar-top-links navbar-right">
                     <c:if test = "${userSession.currentUser().name != null}">
-                        
+
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-user fa-fw"></i> Welcome ${userSession.currentUser().name}</a>
-                                <ul class="dropdown-menu">
-                                   
-                                    <li><a href="http://auth.comcidis.lncc.br:3000/users/me" target="_blank">Edit Profile  <i class="fa fa-pencil"></i></a></li>
-                                     <li><a href="javascript:signout('${userSession.currentUser().name}')">Sign out  <i class="fa fa-sign-out"></i></a></li>
-                                </ul>
+                            <ul class="dropdown-menu">
+
+                                <li><a href="http://auth.comcidis.lncc.br:3000/users/me" target="_blank">Edit Profile  <i class="fa fa-pencil"></i></a></li>
+                                <li><a href="javascript:signout('${userSession.currentUser().name}')">Sign out  <i class="fa fa-sign-out"></i></a></li>
+                            </ul>
                         </li>
-                            </c:if>
+                    </c:if>
                 </ul>
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <div class="navbar-default sidebar" role="navigation">
 
                     <div class="sidebar-nav navbar-collapse">
@@ -64,7 +72,7 @@
                         </ul>
                     </div>
                     <!-- /.sidebar-collapse -->
-                </div>
+                </div></div>
 
                 <!-- /.navbar-static-side -->
             </nav>

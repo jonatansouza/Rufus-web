@@ -5,6 +5,11 @@
  */
 package br.lncc.comcidis.rufus.service;
 
+import br.com.caelum.vraptor.Get;
+import br.com.caelum.vraptor.Path;
+import br.com.caelum.vraptor.Result;
+import br.com.caelum.vraptor.environment.Property;
+import br.lncc.comcidis.rufus.controller.RufusController;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,21 +22,29 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author jonatan
  */
-public class OauthService {
 
+public class OauthService {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(OauthService.class);
+    @Property
+    @Inject
+    String pathRootUsers;
+    
     @Deprecated
     public OauthService() {
-
+        
     }
-
+   
     public List<String> getRootUsers() {
         List<String> users = new ArrayList<>();
-        File file = new File("/home/jonatan/NetBeansProjects/rufus-interface/src/main/resources/rootUsers");
+        File file = new File(pathRootUsers);
         FileReader fr;
         try {
             fr = new FileReader(file);
@@ -48,8 +61,8 @@ public class OauthService {
         return users;
     }
 
-    public void registerNewRootUser(String email) {
-        File file = new File("/home/jonatan/NetBeansProjects/rufus-interface/src/main/resources/rootUsers");
+    public synchronized void registerNewRootUser(String email) {
+        File file = new File(pathRootUsers);
         FileWriter fw;
         try {
             fw = new FileWriter(file, true);
@@ -62,8 +75,8 @@ public class OauthService {
 
     }
     
-    public void rewriteListRootUsers(List<String> users){
-        File file = new File("/home/jonatan/NetBeansProjects/rufus-interface/src/main/resources/rootUsers");
+    public synchronized void rewriteListRootUsers(List<String> users){
+        File file = new File(pathRootUsers);
         FileWriter fw;
         try {
             fw = new FileWriter(file);
@@ -78,7 +91,7 @@ public class OauthService {
         }
     }
 
-    public void deleteRootUser(String name) {
+    public synchronized void deleteRootUser(String name) {
         List<String> rootUsers = getRootUsers();
         if(rootUsers.contains(name)){
             rootUsers.remove(name);

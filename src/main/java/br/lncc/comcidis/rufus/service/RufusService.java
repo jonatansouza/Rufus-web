@@ -48,7 +48,7 @@ public class RufusService {
     @Inject
     @Property
     private String ip;
-
+    
     @Inject
     @Property
     private String port;
@@ -82,7 +82,7 @@ public class RufusService {
             while ((output = br.readLine()) != null) {
                 json += output;
             }
-            logger.info(json);
+            
             LxcModel[] lxcs = new Gson().fromJson(json, LxcModel[].class);
             LxcModel tmplxc; 
             List<LxcModel> lxcModels = new ArrayList<>();
@@ -244,7 +244,7 @@ public class RufusService {
     //***********************************
     public void runOperations(String user, String app_id){
         File inputs = new File(pathNfsDirectory+user+"/"+app_id+"/in/");
-        logger.info(pathNfsDirectory+user+"/"+app_id+"/in/");
+        
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
@@ -266,7 +266,7 @@ public class RufusService {
         
         
         String order = "{\"username\":\""+user+"\", \"app_id\":\""+app_id+"\", \"args\":"+jsonFile+"}";
-        logger.info(order+"####################");
+        
         
         HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/Addition/run");
         StringEntity st = new StringEntity(order, "utf-8");
