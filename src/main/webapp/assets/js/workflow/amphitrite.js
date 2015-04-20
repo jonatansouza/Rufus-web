@@ -7,6 +7,20 @@
 
 var folders = [];
 var workflowName = "";
+
+var doNotShowMe = true;
+
+
+function containerSetNode(){
+    if(doNotShowMe){
+        bootbox.alert("To set nodes double click on icon!");
+        doNotShowMe = false;
+    }  
+    blastNode();
+  
+}
+
+
 function saveWorkflowName(name) {
     workflowName = name;
     $("#workflowHeaderName").html(workflowName);
@@ -174,8 +188,20 @@ paper.$el.on('contextmenu', function (evt) {
             });
         }// End Else
     }
-})
-
+});
+//TODO ****************************************************
+//LEFT CLICK For SET NODES
+paper.$el.on('dblclick', function (evt) {
+    evt.stopPropagation(); // Stop bubbling so that the paper does not handle mousedown.
+    evt.preventDefault(); // Prevent displaying default browser context menu.
+    var cellView = paper.findView(evt.target);
+    if (cellView) {
+        if (cellView.model.attributes.name == "blast-node") {
+            bootbox.alert("teste");
+        }
+    }
+ });
+//*************************************************************
 // Test node connections
 function testConnection() {
     alert("Click on the node you want to test connection");

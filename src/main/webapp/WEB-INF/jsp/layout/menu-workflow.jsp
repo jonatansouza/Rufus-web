@@ -73,6 +73,9 @@
                                     <li>
                                         <a href="#" onclick="blast()"<i class="fa fa-random"></i> Blast</a>
                                     </li>
+                                    <li>
+                                        <a href="#" onclick="containerSetNode()"<i class="fa fa-sitemap"></i> Blast-Node</a>
+                                    </li>
 
                                     <li>
                                         <a href="#" onclick="addition()"<i class="fa fa-plus-circle"></i> Addition</a>

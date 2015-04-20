@@ -13,6 +13,7 @@ import br.lncc.comcidis.rufus.model.Cells;
 import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.UserSession;
+import br.lncc.comcidis.rufus.model.Workflow;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -69,6 +70,8 @@ public class WorkflowService {
 
     @Inject
     Validator validator;
+    
+    
 
     private HttpClient httpClient;
 
@@ -151,6 +154,8 @@ public class WorkflowService {
         return containers;
     }
 
+    
+            
     public void saveFilesOnDirectory(List<LxcInput> containers, String resultId) {
         File workflow = new File("/var/rufus/users/jonatan/" + resultId);
         workflow.mkdir();
@@ -191,7 +196,7 @@ public class WorkflowService {
                 if (container.isContainer()) {
                     if (container.getStep() == i) {
                         linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
-
+                       
                         for (LxcInput lxcInput : inputs) {
                             for (String sourceId : linksSourceInput) {
                                 if (lxcInput.getId().equals(sourceId)) {
@@ -199,8 +204,9 @@ public class WorkflowService {
                                 }
                             }
                         }
-
-                        executeWorkflow(user, container.getId(), workflow, listInputs, container.getName());
+                        
+                        
+                        executeWorkflow(new Workflow(userSession.currentUser().getEmail(), workflow, container.getName()+"-"+countContainers, listInputs, container.getActivity(), container.getNodes()));
                         countContainers++;
                         listInputs.clear();
                     }
@@ -210,14 +216,12 @@ public class WorkflowService {
 
     }
 
-    public void executeWorkflow(String user, String container, String workflow, List<String> inputs, String containerName) {
+    public void executeWorkflow(Workflow workflow) {
         logger.info("enviando requisicao");
         httpClient = HttpClients.createDefault();
-
-        String jsonFile = new Gson().toJson(inputs);
-        String order = "{\"username\":\"" + user + "\",\"workflow_id\":\"" + workflow + "\" ,\"app_id\":\"" + container + "\", \"args\":" + jsonFile + "}";
-
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/" + containerName + "/run");
+        String order = new Gson().toJson(workflow);
+        logger.info(order);
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/blast-node/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);

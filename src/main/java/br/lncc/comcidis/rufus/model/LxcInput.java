@@ -17,7 +17,31 @@ public class LxcInput {
     private Source source;
     private Target target;
     private boolean container;
+    private String nodes;
     private int step = 0;
+
+    public LxcInput(String name, String activity, String id, String type, Source source, Target target, boolean container, String nodes) {
+        this.name = name;
+        this.activity = activity;
+        this.id = id;
+        this.type = type;
+        this.source = source;
+        this.target = target;
+        this.container = container;
+        this.nodes = (nodes.isEmpty() || nodes == null) ? "1" : nodes;
+    }
+
+    public LxcInput() {
+    }
+
+    public void setNodes(String nodes) {
+        
+        this.nodes = (nodes.isEmpty() || nodes == null) ? "1" : nodes;
+    }
+
+    public String getNodes() {
+        return nodes;
+    }
 
     public boolean isContainer() {
         return container;

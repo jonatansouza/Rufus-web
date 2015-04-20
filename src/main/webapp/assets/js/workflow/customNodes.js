@@ -139,6 +139,41 @@ function blast() {
     graph.addCell(node);
 }
 
+
+function blastNode() {
+    data = {
+        position: {
+            x: 300,
+            y: 10
+        },
+        size: {
+            width: height / 30 + width / 30,
+            height: height / 30 + width / 30
+        },
+        attrs: {
+            text: {
+                text: 'Blast-Cluster',
+                magnet: true
+            },
+            image: {
+                'xlink:href': '/rufus/assets/images/nodes/blast.png',
+                width: 50,
+                height: 50
+            },
+            '.': {
+                magnet: false
+            },
+        },
+        activity: '',
+	name: 'blast-node',
+        nodes: '',
+        container: true 
+    };
+    var node = new joint.shapes.basic.Image(data);
+    graph.addCell(node);
+}
+
+
 function result() {
     var node = new joint.shapes.basic.Image({
         position: {
