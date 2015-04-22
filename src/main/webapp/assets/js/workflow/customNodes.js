@@ -156,7 +156,7 @@ function blastNode() {
                 magnet: true
             },
             image: {
-                'xlink:href': '/rufus/assets/images/nodes/blast.png',
+                'xlink:href': '/rufus/assets/images/nodes/blastCluster.png',
                 width: 50,
                 height: 50
             },

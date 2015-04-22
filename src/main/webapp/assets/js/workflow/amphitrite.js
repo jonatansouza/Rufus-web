@@ -8,18 +8,6 @@
 var folders = [];
 var workflowName = "";
 
-var doNotShowMe = true;
-
-
-function containerSetNode(){
-    if(doNotShowMe){
-        bootbox.alert("To set nodes double click on icon!");
-        doNotShowMe = false;
-    }  
-    blastNode();
-  
-}
-
 
 function saveWorkflowName(name) {
     workflowName = name;
@@ -48,8 +36,8 @@ $(document).ready(function () {
             closeButton: false
         });
     });
-    
-    console.log($('svg').val());
+
+    //console.log($('svg').val());
 });
 
 
@@ -68,6 +56,12 @@ function listFilesToLoad() {
     });
 }
 
+function setNumberNodesCluster(number) {
+    if (selected) {
+        selected.set('nodes', number);
+    }
+    bootbox.hideAll();
+}
 
 //loading a workflow
 function loadWorkflow(workflowToLoad) {
@@ -190,17 +184,25 @@ paper.$el.on('contextmenu', function (evt) {
     }
 });
 //TODO ****************************************************
-//LEFT CLICK For SET NODES
+//DOUBLE LEFT CLICK For SET NODES
 paper.$el.on('dblclick', function (evt) {
     evt.stopPropagation(); // Stop bubbling so that the paper does not handle mousedown.
     evt.preventDefault(); // Prevent displaying default browser context menu.
     var cellView = paper.findView(evt.target);
     if (cellView) {
         if (cellView.model.attributes.name == "blast-node") {
-            bootbox.alert("teste");
+
+            $.get("/rufus/cluster", function (data, status) {
+                bootbox.dialog({
+                    message: data,
+                    title: "Workflow",
+                    closeButton: false
+                });
+            });
+
         }
     }
- });
+});
 //*************************************************************
 // Test node connections
 function testConnection() {

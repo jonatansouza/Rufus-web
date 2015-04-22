@@ -182,7 +182,7 @@ public class WorkflowService {
     public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
         List<String> listInputs = new ArrayList<>();
         List<String> linksSourceInput = new ArrayList<>();
-        logger.info(containers.size() + " tamanho da lista");
+        
         int qtdSteps = 0;
         for (LxcInput container : containers) {
             if (qtdSteps < container.getStep()) {

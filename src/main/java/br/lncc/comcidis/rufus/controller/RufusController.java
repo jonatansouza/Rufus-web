@@ -321,6 +321,7 @@ public class RufusController {
         workflowService.saveXML(xmlWorkflow, workflowName);
         workflowService.saveJSON(jsonWorkflow, workflowName);
         Cells cells = new Gson().fromJson(xmlTextArea, new Cells().getClass());
+        
         List<LxcInput> containers = new ArrayList<>();
 
         String validate = workflowService.workflowValidate(cells);
@@ -407,6 +408,16 @@ public class RufusController {
 
         result.use(Results.status()).ok();
 
+    }
+    @Path("/cluster")
+    public void clusterOptions(){
+        ArrayList<String> nodes = new ArrayList<>();
+        nodes.add("2");
+        nodes.add("4");
+        nodes.add("8");
+        nodes.add("16");
+        nodes.add("32");
+        result.include("nodes", nodes);
     }
     
   
