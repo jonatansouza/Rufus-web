@@ -121,6 +121,7 @@ public class OAuthController {
             }
         }
         logger.info(me.toString()+" ***********");
+      
         try {
             session.authenticate(me);
         } catch (NaoAutenticadoException ex) {

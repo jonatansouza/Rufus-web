@@ -76,7 +76,15 @@
                                     <li>
                                         <a href="#" onclick="blastNode()"<i class="fa fa-sitemap"></i> Blast-Node</a>
                                     </li>
-
+                                    
+                                    <li>
+                                        <a href="#" onclick="skymapp()"<i class="fa fa-globe"></i> Skymapp</a>
+                                    </li>
+                                    
+                                    <li>
+                                        <a href="#" onclick="skyadd()"<i class="fa fa-globe"></i> Skyadd</a>
+                                    </li>
+                                    
                                     <li>
                                         <a href="#" onclick="addition()"<i class="fa fa-plus-circle"></i> Addition</a>
                                     </li>

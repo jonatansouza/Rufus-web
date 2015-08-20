@@ -172,6 +172,69 @@ function blastNode() {
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
 }
+function skyadd() {
+    data = {
+        position: {
+            x: 300,
+            y: 150
+        },
+        size: {
+            width: height / 30 + width / 30,
+            height: height / 30 + width / 30
+        },
+        attrs: {
+            text: {
+                text: 'Skymapadd',
+                magnet: true
+            },
+            image: {
+                'xlink:href': '/rufus/assets/images/nodes/skyadd.png',
+                width: 50,
+                height: 50
+            },
+            '.': {
+                magnet: false
+            },
+        },
+        activity: '',
+	name: 'skymapadd',
+        container: true 
+    };
+    var node = new joint.shapes.basic.Image(data);
+    graph.addCell(node);
+}
+
+function skymapp() {
+    data = {
+        position: {
+            x: 150,
+            y: 150
+        },
+        size: {
+            width: height / 30 + width / 30,
+            height: height / 30 + width / 30
+        },
+        attrs: {
+            text: {
+                text: 'Skymap',
+                magnet: true
+            },
+            image: {
+                'xlink:href': '/rufus/assets/images/nodes/skymap.png',
+                width: 50,
+                height: 50
+            },
+            '.': {
+                magnet: false
+            },
+        },
+        activity: '',
+	name: 'skymap',
+        container: true 
+    };
+    var node = new joint.shapes.basic.Image(data);
+    graph.addCell(node);
+}
 
 
 function result() {

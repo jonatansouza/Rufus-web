@@ -9,9 +9,11 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
+import br.lncc.comcidis.rufus.controller.RufusController;
 import br.lncc.comcidis.rufus.model.Cells;
 import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
+import br.lncc.comcidis.rufus.model.PylxcResources;
 import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.model.Workflow;
 import com.google.gson.Gson;
@@ -35,6 +37,7 @@ import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
@@ -70,8 +73,6 @@ public class WorkflowService {
 
     @Inject
     Validator validator;
-    
-    
 
     private HttpClient httpClient;
 
@@ -154,8 +155,6 @@ public class WorkflowService {
         return containers;
     }
 
-    
-            
     public void saveFilesOnDirectory(List<LxcInput> containers, String resultId) {
         File workflow = new File("/var/rufus/users/jonatan/" + resultId);
         workflow.mkdir();
@@ -182,7 +181,7 @@ public class WorkflowService {
     public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
         List<String> listInputs = new ArrayList<>();
         List<String> linksSourceInput = new ArrayList<>();
-        
+
         int qtdSteps = 0;
         for (LxcInput container : containers) {
             if (qtdSteps < container.getStep()) {
@@ -196,7 +195,7 @@ public class WorkflowService {
                 if (container.isContainer()) {
                     if (container.getStep() == i) {
                         linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
-                       
+
                         for (LxcInput lxcInput : inputs) {
                             for (String sourceId : linksSourceInput) {
                                 if (lxcInput.getId().equals(sourceId)) {
@@ -204,9 +203,8 @@ public class WorkflowService {
                                 }
                             }
                         }
-                        
-                        
-                        executeWorkflow(new Workflow(userSession.currentUser().getEmail(), workflow, container.getName()+"-"+countContainers, listInputs, container.getActivity(), container.getNodes()));
+
+                        executeWorkflow(new Workflow(userSession.currentUser().getEmail(), workflow, container.getName() + "-" + countContainers, listInputs, container.getActivity(), container.getNodes()), container.getName());
                         countContainers++;
                         listInputs.clear();
                     }
@@ -216,12 +214,50 @@ public class WorkflowService {
 
     }
 
-    public void executeWorkflow(Workflow workflow) {
-        logger.info("enviando requisicao");
+    public PylxcResources getPylxcResources() {
+        httpClient = HttpClients.createDefault();
+        HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/resources");
+        try {
+            HttpResponse answer = httpClient.execute(hg);
+            BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+            String output = "";
+            String json = "";
+            while ((output = br.readLine()) != null) {
+                json += output;
+            }
+            logger.info(json);
+            PylxcResources pylxc = new PylxcResources();
+
+            pylxc = new Gson().fromJson(json, pylxc.getClass());
+
+            return pylxc;
+
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
+    }
+
+    public List<String> getListCpuAvailables(int nodes) {
+
+        List<String> list = new ArrayList<>();
+        int aux, diff;
+        aux = nodes / 4;
+        diff = nodes % 4;
+        for (int i = 2; i < 4; i++) {
+            list.add(aux*i + "");
+        }
+        list.add((aux*4 + diff) + "");
+        return list;
+    }
+
+    public void executeWorkflow(Workflow workflow, String containerName) {
+        
         httpClient = HttpClients.createDefault();
         String order = new Gson().toJson(workflow);
         logger.info(order);
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/blast-node/run");
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/"+containerName+"/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);

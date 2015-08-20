@@ -71,7 +71,7 @@
 
                     <div class="jumbotron" style="background:#4F4F4F !important">
 
-                        <h1><span style="color : #E8E8E8">Rufus</span><small> lxc-containeirs</small></h1>
+                        <h1><span style="color : #E8E8E8">Rufus</span><small> lxc-containers</small></h1>
                         <div class="pull-right">
                             <img src="${pageContext.request.contextPath}/assets/img/rufus.png" width="150" height="150">
                         </div>

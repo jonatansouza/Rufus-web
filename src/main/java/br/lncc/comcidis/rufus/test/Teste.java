@@ -15,19 +15,9 @@ import java.util.List;
  * @author jonatan
  */
 public class Teste {
+    
     public static void main(String[] as) {
-        List<String> args = new ArrayList<>();
-        List<String> resources = new ArrayList<>();
         
         
-        resources.add("file01");
-        resources.add("file02");
-        
-        
-       /*Workflow w = new Workflow("Jonatan", "TESTE001", "Blast01", resources,"-o dkjsafhdkj -r lksdajlakd");
-        
-        String json = new Gson().toJson(w);
-        
-        System.out.println(json);*/
     }
 }
