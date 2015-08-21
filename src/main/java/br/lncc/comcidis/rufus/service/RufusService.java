@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -48,7 +49,7 @@ public class RufusService {
     @Inject
     @Property
     private String ip;
-    
+
     @Inject
     @Property
     private String port;
@@ -56,7 +57,7 @@ public class RufusService {
     @Inject
     @Property
     private String version;
-    
+
     @Inject
     UserSession userSession;
 
@@ -72,7 +73,7 @@ public class RufusService {
     }
 
     public List<LxcModel> list() {
-        
+
         HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/containers");
         try {
             HttpResponse answer = httpClient.execute(hg);
@@ -82,20 +83,30 @@ public class RufusService {
             while ((output = br.readLine()) != null) {
                 json += output;
             }
-            
+
             LxcModel[] lxcs = new Gson().fromJson(json, LxcModel[].class);
-            LxcModel tmplxc; 
+            LxcModel tmplxc;
             List<LxcModel> lxcModels = new ArrayList<>();
-            for(int i = 0; i<lxcs.length;i++){
+            for (int i = 0; i < lxcs.length; i++) {
                 tmplxc = new LxcModel(lxcs[i].getIps(), lxcs[i].getName(), lxcs[i].getState());
                 lxcModels.add(tmplxc);
             }
-            
+
             return lxcModels;
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public LxcModel getContainerByName(String name) {
+        for (LxcModel lxc : list()) {
+            if (lxc.getName().equals(name)) {
+                return lxc;
+            }
+        }
+        return null;
+
     }
 
     public List<String> getLxcTemplates() {
@@ -183,7 +194,7 @@ public class RufusService {
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-        File raiz = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/files");
+        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/files");
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
@@ -195,11 +206,11 @@ public class RufusService {
             }
         };
         List<FileModel> list = new ArrayList<>();
-        
-        if(!raiz.exists()){
+
+        if (!raiz.exists()) {
             raiz.mkdirs();
         }
-        
+
         for (File file : raiz.listFiles(filter)) {
             FileModel fm = new FileModel();
             fm.setName(file.getName());
@@ -209,8 +220,6 @@ public class RufusService {
 
         return list;
     }
-    
-    
 
     public String operateLxc(LxcInput lxcInputs) {
         String order = "{\"command\" : \"" + lxcInputs.getActivity() + "\"}";
@@ -220,7 +229,7 @@ public class RufusService {
         st.setContentType("application/json");
         hp.setEntity(st);
         String json = "";
-            
+
         HttpResponse answer;
         try {
             answer = httpClient.execute(hp);
@@ -237,14 +246,13 @@ public class RufusService {
         return json;
 
     }
-    
-    
+
     //***********************************
     //WORKFLOW SERVICES
     //***********************************
-    public void runOperations(String user, String app_id){
-        File inputs = new File(pathNfsDirectory+user+"/"+app_id+"/in/");
-        
+    public void runOperations(String user, String app_id) {
+        File inputs = new File(pathNfsDirectory + user + "/" + app_id + "/in/");
+
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
@@ -256,24 +264,21 @@ public class RufusService {
             }
         };
         List<String> inputNames = new ArrayList<>();
-                
-        for(String inputName : inputs.list(filter)){
+
+        for (String inputName : inputs.list(filter)) {
             inputNames.add(inputName);
         }
-        
+
         String jsonFile = new Gson().toJson(inputNames);
-        
-        
-        
-        String order = "{\"username\":\""+user+"\", \"app_id\":\""+app_id+"\", \"args\":"+jsonFile+"}";
-        
-        
+
+        String order = "{\"username\":\"" + user + "\", \"app_id\":\"" + app_id + "\", \"args\":" + jsonFile + "}";
+
         HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/Addition/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
         String json = "";
-            
+
         HttpResponse answer;
         try {
             answer = httpClient.execute(hp);
@@ -289,5 +294,4 @@ public class RufusService {
 
     }
 
-   
 }

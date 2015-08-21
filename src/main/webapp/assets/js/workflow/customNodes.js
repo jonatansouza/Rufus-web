@@ -33,14 +33,14 @@ function input() {
             },
         },
         activity: '',
-	name: 'input'
+        name: 'input'
     });
     graph.addCell(node);
 }
 
 function file() {
     setUnsaved();
-    
+
     var node = new joint.shapes.basic.Image({
         position: {
             x: 20,
@@ -96,10 +96,10 @@ function addition() {
             },
         },
         activity: '',
-	name: 'addition',
-        container: true 
+        name: 'addition',
+        container: true
     };
-    
+
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
 }
@@ -132,8 +132,8 @@ function blast() {
             },
         },
         activity: '',
-	name: 'blast',
-        container: true 
+        name: 'blast',
+        container: true
     };
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
@@ -165,9 +165,9 @@ function blastNode() {
             },
         },
         activity: '',
-	name: 'blast-node',
+        name: 'blast-node',
         nodes: '',
-        container: true 
+        container: true
     };
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
@@ -197,8 +197,8 @@ function skyadd() {
             },
         },
         activity: '',
-	name: 'skymapadd',
-        container: true 
+        name: 'skymapadd',
+        container: true
     };
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
@@ -229,13 +229,66 @@ function skymapp() {
             },
         },
         activity: '',
-	name: 'skymap',
-        container: true 
+        name: 'skymap',
+        container: true
     };
     var node = new joint.shapes.basic.Image(data);
     graph.addCell(node);
 }
+//continuar implementacao do container
+function containerDefault(containerName) {
+    var iconContainerLink = '/rufus/icons/container.png';
 
+
+    $.ajax({
+        url: '/rufus/icons/' + containerName + '.png',
+        success: function (data, textStatus, jqXHR) {
+            iconContainerLink = '/rufus/icons/' + containerName + '.png';
+            console.log("find");
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("error");
+        },
+    }).always(function () {
+
+
+        data = {
+            position: {
+                x: 50,
+                y: 50
+            },
+            size: {
+                width: height / 30 + width / 30,
+                height: height / 30 + width / 30
+            },
+            attrs: {
+                text: {
+                    text: containerName,
+                    magnet: true
+                },
+                image: {
+                    'xlink:href': iconContainerLink,
+                    width: 50,
+                    height: 50
+                },
+                '.': {
+                    magnet: false
+                },
+            },
+            activity: '',
+            name: containerName,
+            container: true
+        };
+        var node = new joint.shapes.basic.Image(data);
+        graph.addCell(node);
+
+
+    });
+
+
+
+
+}
 
 function result() {
     var node = new joint.shapes.basic.Image({
@@ -262,7 +315,7 @@ function result() {
             },
         },
         activity: '',
-	name: 'result'
+        name: 'result'
     });
     graph.addCell(node);
 }

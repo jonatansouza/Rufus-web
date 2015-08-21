@@ -14,7 +14,6 @@
                     <tbody>
                     <c:forEach items="${list}" var="lxc">
                         <tr>
-
                             <td>${lxc.name}</td>
                             <td>${lxc.state}</td>
                             <td><c:forEach items="${lxc.ips}" var="ips">

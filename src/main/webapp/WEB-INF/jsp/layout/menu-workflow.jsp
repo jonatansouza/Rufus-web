@@ -70,24 +70,14 @@
                             <li>
                                 <a class="active">Action<span class="pull-right"><i class="fa fa-arrow-down"></i></span></a>
                                 <ul class="nav nav-second-level">
-                                    <li>
-                                        <a href="#" onclick="blast()"<i class="fa fa-random"></i> Blast</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" onclick="blastNode()"<i class="fa fa-sitemap"></i> Blast-Node</a>
-                                    </li>
-                                    
-                                    <li>
-                                        <a href="#" onclick="skymapp()"<i class="fa fa-globe"></i> Skymapp</a>
-                                    </li>
-                                    
-                                    <li>
-                                        <a href="#" onclick="skyadd()"<i class="fa fa-globe"></i> Skyadd</a>
-                                    </li>
-                                    
-                                    <li>
-                                        <a href="#" onclick="addition()"<i class="fa fa-plus-circle"></i> Addition</a>
-                                    </li>
+                                    <c:forEach items="${containers}" var="container">
+                                        <li>
+                                            <a href="#" onclick="containerDefault('${container.name}')"<i class="fa fa-desktop"></i> ${container.name}</a>
+                                        </li>
+
+
+                                    </c:forEach>
+
 
                                 </ul>
                             </li>

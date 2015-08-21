@@ -8,7 +8,7 @@
 
 <script type="text/javascript">
     folders = JSON.parse('${folders}');
-    var testName
+    var testName;
     $("#nameWork").keyup(function (evt) {
 
         testName = $("#nameWork").val();
@@ -25,5 +25,8 @@
     $("#btn-name").click(function () {
         saveWorkflowName(testName);
     });
+    
+    
+    
 
 </script>

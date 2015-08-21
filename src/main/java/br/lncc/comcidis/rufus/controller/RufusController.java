@@ -36,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import javax.servlet.ServletContext;
 import javax.swing.text.html.HTML;
 import javax.ws.rs.GET;
 import org.apache.commons.io.FileUtils;
@@ -115,9 +117,39 @@ public class RufusController {
     @Path("/dashboard")
     public void dashboard() {
         result.include("list", rufusService.list());
-
     }
-
+    
+    @Path("/containers")
+    public void containers(){
+        result.include("containers", rufusService.list());
+    }
+    @Get("/rufus/containerEdit/{lxc.name}")
+    public void containerEdit(LxcModel lxc){
+        result.include("lxc", rufusService.getContainerByName(lxc.getName()));
+    }
+    
+    @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
+    public void uploadIcon(UploadedFile uploadedFile, String name, ServletContext servletContext, LxcModel lxcModel){
+        String path = servletContext.getRealPath("/icons");
+        
+        File file = new File(path+"/"+name+".png");
+        if(!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        try {
+            IOUtils.copy(uploadedFile.getFile(), new FileOutputStream(file));
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        lxcModel.setName(name);
+        result.redirectTo(this).containerEdit(lxcModel);
+        
+    }
     /**
      * the can create a container with a list of templates
      */
@@ -156,7 +188,7 @@ public class RufusController {
     @Get("/rufus/{lxc.name}/update/{lxc.state}")
     public void update(LxcModel lxc) {
         rufusService.changeState(lxc.getName(), lxc.getState());
-        result.redirectTo(this).dashboard();
+        result.redirectTo(this).containerEdit(lxc);
     }
 
     /**
@@ -273,7 +305,7 @@ public class RufusController {
      */
     @Path("/workflow")
     public void workflow() {
-
+        result.include("containers", rufusService.list());
     }
 
     /**

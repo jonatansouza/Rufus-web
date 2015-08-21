@@ -4,7 +4,7 @@
         <c:if test="${workflows.size() == 0}">
             <h3>No Workflows submitted!</h3>
         </c:if>
-            
+
         <c:forEach items="${workflows}" var="workflow">
 
             <div class="col-xs-4 col-md-2 ">
@@ -16,9 +16,11 @@
                             <h4 class="text-center">${workflow.name}<br><br><small>${workflow.date}</small></h4>
                         </div>
                     </a>
-                    <a class="col-lg-offset-10" href="javascript:removeWorkflow('${workflow.name}')" data-toggle="tooltip" data-placement="bottom" title="Delete this Workflow">
+                    <a class="pull-right" href="javascript:removeWorkflow('${workflow.name}')" data-toggle="tooltip" data-placement="bottom" title="Delete this Workflow">
                         <i class="fa fa-trash-o fa-2x"></i>
                     </a>
+                        <div class="clearfix"></div>
+
                 </div>
             </div>
 
