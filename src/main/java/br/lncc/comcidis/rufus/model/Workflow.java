@@ -78,6 +78,12 @@ public class Workflow {
     public void setNodes(String nodes) {
         this.nodes = nodes;
     }
+
+    @Override
+    public String toString() {
+        return "Workflow{" + "username=" + username + ", workflow_id=" + workflow_id + ", app_id=" + app_id + ", files=" + files + ", args=" + args + ", nodes=" + nodes + '}';
+    }
+    
     
     
 }

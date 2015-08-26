@@ -1,4 +1,26 @@
 <jsp:include page="../layout/menu.jsp"></jsp:include>
+<style>
+    .btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+</style>
     <div id="page-wrapper">
         <div class="container-fluid">
             <div class="row">
@@ -47,14 +69,15 @@
                 </tr>
             </table>
 
-            <form method="POST" action="${pageContext.request.contextPath}/rufus/uploadIcon"  enctype="multipart/form-data">
+            <form id="formIcon" name="iconForm" method="POST" onchange="return validateForm()" action="${pageContext.request.contextPath}/rufus/uploadIcon"  enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="exampleInputFile">Upload a icon for your container</label>
-                    <input type="file" id="exampleInputFile" name="uploadedFile">
+                    <span class="btn btn-primary btn-file">
+                        Click to upload Icon<input type="file" id="exampleInputFile" name="uploadedFile">
+                    </span>
                     <input type="hidden" value="${lxc.name}" name="name">
-                    <p class="help-block">The file should be in png format</p>
+                    
                 </div>
-                <button class="btn btn-primary" type="submit">Upload Icon</button>
+
             </form>
 
             <h3>Container Icon</h3>        
@@ -69,5 +92,25 @@
     </div>
 
 </div>
+<script>
+    function validateForm() {
+        var x = document.forms["iconForm"]["uploadedFile"].value;
+        if (x == null || x == "") {
+            return false;
+        } else {
+            $("#formIcon").submit();
+        }
+    }
 
+    function tools(name) {
+        bootbox.confirm("Are you sure you want delete \"" + name + "\" ?", function (result) {
+            if (result) {
+                {
+                    window.location = "${pageContext.request.contextPath}/rufus/" + name + "/delete";
+                }
+            }
+        });
+    }
+
+</script>
 <jsp:include page="../layout/footer.jsp"></jsp:include>

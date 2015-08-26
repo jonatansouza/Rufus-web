@@ -152,5 +152,17 @@ public class Cells {
          return found;
     }
     
+    public static List<LxcInput> getLxcContainersByStep(int step, List<LxcInput> lxcs){
+         List<LxcInput> found = new ArrayList();
+         for(LxcInput lxc : lxcs){
+             if(lxc.getStep() == step){
+                 if(lxc.isContainer()){
+                    found.add(lxc);
+                 }
+             }
+         }
+         return found;
+    }
+    
     
 }

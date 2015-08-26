@@ -199,7 +199,7 @@ public class RufusController {
     @Get("/rufus/{name}/delete")
     public void delete(String name) {
         rufusService.deleteLxc(name);
-        result.redirectTo(this).dashboard();
+        result.redirectTo(this).containers();
     }
 
     /**
@@ -347,6 +347,7 @@ public class RufusController {
      */
     @Post
     public void runWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow) {
+       
         String user = userSession.currentUser().getEmail();
         File fileWorkflow = new File(pathNfsDirectory + "/" + user + "/" + workflowName);
         fileWorkflow.mkdir();
@@ -358,7 +359,6 @@ public class RufusController {
         String validate = workflowService.workflowValidate(cells);
         if (validate.isEmpty()) {
             containers = workflowService.organizeToRun(cells);
-            
             workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflowName, user);
             result.use(Results.status()).ok();
         } else {

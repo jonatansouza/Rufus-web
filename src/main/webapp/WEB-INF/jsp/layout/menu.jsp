@@ -46,7 +46,7 @@
                         <ul class="nav" id="side-menu">
                             <c:if test="${userSession.currentUser().admin}">
                                 <li>
-                                    <a href="${linkTo[RufusController].dashboard}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
+                                    <a href="${linkTo[RufusController].containers}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
                                 </li>
                                 <li>
                                     <a href="${linkTo[RufusController].create}"><i class="fa fa-plus-circle fa-fw"></i> Create new Container</a>

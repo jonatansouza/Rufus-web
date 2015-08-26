@@ -31,6 +31,9 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
@@ -178,9 +181,51 @@ public class WorkflowService {
         }
     }
 
+    /* public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
+     List<String> listInputs = new ArrayList<>();
+     List<String> linksSourceInput = new ArrayList<>();
+
+     int qtdSteps = 0;
+     for (LxcInput container : containers) {
+     if (qtdSteps < container.getStep()) {
+     qtdSteps = container.getStep();
+     }
+     }
+     int countContainers = 0;
+     for (int i = 1; i <= qtdSteps; i++) {
+     for (LxcInput container : containers) {
+
+     if (container.isContainer()) {
+     if (container.getStep() == i) {
+     linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
+
+     for (LxcInput lxcInput : inputs) {
+     for (String sourceId : linksSourceInput) {
+     if (lxcInput.getId().equals(sourceId)) {
+     listInputs.add(lxcInput.getActivity());
+     }
+     }
+     }
+
+     executeWorkflow(new Workflow(userSession.currentUser().getEmail(), workflow, container.getName() + "-" + countContainers, listInputs, container.getActivity(), container.getNodes()), container.getName());
+     countContainers++;
+     listInputs.clear();
+     }
+     }
+     }
+     }
+
+     }
+     */
+    /**
+     * **********************
+     * //testes com concorrencia //////////////////////////////
+     *
+     */
     public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
         List<String> listInputs = new ArrayList<>();
         List<String> linksSourceInput = new ArrayList<>();
+        List<Thread> threadPool = new ArrayList();
 
         int qtdSteps = 0;
         for (LxcInput container : containers) {
@@ -189,13 +234,12 @@ public class WorkflowService {
             }
         }
         int countContainers = 0;
+
         for (int i = 1; i <= qtdSteps; i++) {
             for (LxcInput container : containers) {
-
                 if (container.isContainer()) {
                     if (container.getStep() == i) {
                         linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
-
                         for (LxcInput lxcInput : inputs) {
                             for (String sourceId : linksSourceInput) {
                                 if (lxcInput.getId().equals(sourceId)) {
@@ -203,13 +247,30 @@ public class WorkflowService {
                                 }
                             }
                         }
-
-                        executeWorkflow(new Workflow(userSession.currentUser().getEmail(), workflow, container.getName() + "-" + countContainers, listInputs, container.getActivity(), container.getNodes()), container.getName());
-                        countContainers++;
+                        Workflow w = new Workflow(userSession.currentUser().getEmail(), workflow, container.getName() + "-" + countContainers,new ArrayList<String>(listInputs), container.getActivity(), container.getNodes());
                         listInputs.clear();
+                        Thread t = new Thread(new ExecuteWorkflow(w, container.getName()));
+                        t.start();
+                        threadPool.add(t);
+                        countContainers++;
+
                     }
                 }
+
             }
+
+            for (Thread t : threadPool) {
+                try {
+                    if (t.isAlive()) {
+                        t.join();
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            threadPool.clear();
+
         }
 
     }
@@ -246,18 +307,61 @@ public class WorkflowService {
         aux = nodes / 4;
         diff = nodes % 4;
         for (int i = 2; i < 4; i++) {
-            list.add(aux*i + "");
+            list.add(aux * i + "");
         }
-        list.add((aux*4 + diff) + "");
+        list.add((aux * 4 + diff) + "");
         return list;
     }
 
+    public class ExecuteWorkflow implements Runnable {
+
+        private Workflow workflow;
+        private String containerName;
+
+        public ExecuteWorkflow(Workflow workflow, String containerName) {
+            this.workflow = workflow;
+            this.containerName = containerName;
+        }
+
+        @Override
+        public void run() {
+            httpClient = HttpClients.createDefault();
+            String order = new Gson().toJson(workflow);
+            logger.info(order + " ########");
+            HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/" + containerName + "/run");
+            StringEntity st = new StringEntity(order, "utf-8");
+            st.setContentType("application/json");
+            hp.setEntity(st);
+            String json = "";
+
+            HttpResponse answer;
+            try {
+                answer = httpClient.execute(hp);
+                String testStatus = answer.getStatusLine().getStatusCode() + "";
+
+                BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+                String output = "";
+                while ((output = br.readLine()) != null) {
+                    json += output;
+                }
+                logger.info(json);
+                validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>" + json + "</p>"));
+                validator.onErrorSendBadRequest();
+
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+    }
+
     public void executeWorkflow(Workflow workflow, String containerName) {
-        
+
         httpClient = HttpClients.createDefault();
         String order = new Gson().toJson(workflow);
         logger.info(order);
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/"+containerName+"/run");
+        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/" + containerName + "/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
