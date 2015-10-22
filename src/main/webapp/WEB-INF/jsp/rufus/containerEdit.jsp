@@ -46,7 +46,7 @@
                                     <span class="glyphicon glyphicon-off"></span>
                                 </a>   
 
-                                <a class="  btn-default" href="#" data-toggle="tooltip" data-placement="right" title="Remote acces">
+                                <a class="  btn-default" href="${pageContext.request.contextPath}/rufus/remoteAccess/${lxc.ips}" data-toggle="tooltip" data-placement="right" title="Remote acces" target="_blank">
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-square fa-stack-2x"></i>
                                         <i class="fa fa-terminal fa-stack-1x fa-inverse"></i>

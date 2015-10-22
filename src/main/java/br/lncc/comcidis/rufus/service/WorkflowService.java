@@ -441,7 +441,17 @@ public class WorkflowService {
             }
         };
         for (File file : raiz.listFiles(filter)) {
-            list.add(file);
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                if(br.readLine() != null){
+                    list.add(file);
+                }
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
 
         return list;

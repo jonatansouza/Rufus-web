@@ -95,7 +95,7 @@ public class RufusController {
      */
     @Path("/")
     public void index() {
-       
+
     }
 
     public void login() {
@@ -118,22 +118,23 @@ public class RufusController {
     public void dashboard() {
         result.include("list", rufusService.list());
     }
-    
+
     @Path("/containers")
-    public void containers(){
+    public void containers() {
         result.include("containers", rufusService.list());
     }
+
     @Get("/rufus/containerEdit/{lxc.name}")
-    public void containerEdit(LxcModel lxc){
+    public void containerEdit(LxcModel lxc) {
         result.include("lxc", rufusService.getContainerByName(lxc.getName()));
     }
-    
+
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
-    public void uploadIcon(UploadedFile uploadedFile, String name, ServletContext servletContext, LxcModel lxcModel){
+    public void uploadIcon(UploadedFile uploadedFile, String name, ServletContext servletContext, LxcModel lxcModel) {
         String path = servletContext.getRealPath("/icons");
-        
-        File file = new File(path+"/"+name+".png");
-        if(!file.exists()){
+
+        File file = new File(path + "/" + name + ".png");
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException ex) {
@@ -145,11 +146,12 @@ public class RufusController {
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         lxcModel.setName(name);
         result.redirectTo(this).containerEdit(lxcModel);
-        
+
     }
+
     /**
      * the can create a container with a list of templates
      */
@@ -224,6 +226,14 @@ public class RufusController {
     @Path("/modalFileList")
     public void modalFileList() {
         result.include("fileList", rufusService.myFileList());
+    }
+
+    @Get("/rufus/remoteAccess/{lxc.ips}")
+    public void remoteAccess(LxcModel lxc) {
+
+        String url = rufusService.remoteAccess(lxc.getIps().get(0).substring(1, lxc.getIps().get(0).length() - 1));
+        logger.info(url + " #########");
+        result.redirectTo(url.replaceAll("\"", ""));
     }
 
     /**
@@ -334,11 +344,12 @@ public class RufusController {
     public void workflowLiveResult() {
         result.use(Results.http()).body(" Processed");
     }
+
     @Get("/loadWorkflow/{workflowToLoad}")
-    public void loadWorkflow(String workflowToLoad){
+    public void loadWorkflow(String workflowToLoad) {
         result.use(Results.http()).body(workflowService.loadWorkflow(workflowToLoad));
     }
-    
+
     /**
      * receive a string with json from workflow this method will prepare a
      * workflow and validate it
@@ -347,7 +358,7 @@ public class RufusController {
      */
     @Post
     public void runWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow) {
-       
+
         String user = userSession.currentUser().getEmail();
         File fileWorkflow = new File(pathNfsDirectory + "/" + user + "/" + workflowName);
         fileWorkflow.mkdir();
@@ -366,9 +377,9 @@ public class RufusController {
             validator.onErrorSendBadRequest();
         }
     }
-    
+
     @Post
-    public void saveWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow){
+    public void saveWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow) {
         String user = userSession.currentUser().getEmail();
         File fileWorkflow = new File(pathNfsDirectory + "/" + user + "/" + workflowName);
         fileWorkflow.mkdir();
@@ -388,7 +399,7 @@ public class RufusController {
         List<FileModel> workflows = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         FileModel fileModel = null;
-        for(File file: workflowsFiles){
+        for (File file : workflowsFiles) {
             fileModel = new FileModel();
             fileModel.setName(file.getName());
             fileModel.setDate(sdf.format(file.lastModified()));
@@ -412,19 +423,19 @@ public class RufusController {
         }
         return null;
     }
-    
+
     @Get("/workflowsToLoad")
-    public void workflowsToLoad(){
+    public void workflowsToLoad() {
         result.include("workflows", workflowService.listWorkflowsToLoad());
     }
-    
+
     //End of workflow Area
     //*************
     //TESTES
     //*************
     // teste session
     public void saveFileTest(UploadedFile file) {
-        
+
         //logger.debug(file.getFileName());
         //logger.debug("**********************************");
         File destino = new File("" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + file.getFileName());
@@ -441,15 +452,13 @@ public class RufusController {
         result.use(Results.status()).ok();
 
     }
+
     @Path("/cluster")
-    public void clusterOptions(){
+    public void clusterOptions() {
         //workflowService.getPylxcResources();
         int cpus = Integer.parseInt(workflowService.getPylxcResources().getCpus());
         ArrayList<String> list = new ArrayList<>();
         result.include("nodes", workflowService.getListCpuAvailables(cpus));
     }
-    
-  
-    
 
 }

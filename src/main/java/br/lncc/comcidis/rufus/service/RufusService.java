@@ -294,4 +294,23 @@ public class RufusService {
 
     }
 
+    public String remoteAccess(String ipContainer) {
+       
+        HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/console/" + ipContainer);
+        String url = "";
+        
+        try {
+            HttpResponse answer = httpClient.execute(hg);
+            BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+            String output = "";
+            while ((output = br.readLine()) != null) {
+                url += output;
+            }
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return url;
+    }
+
 }
