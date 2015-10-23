@@ -111,7 +111,7 @@ public class Cells {
     
     public LxcInput getContainersById(String id){
         LxcInput found = new LxcInput();
-        for(LxcInput lxc : getContainers()){
+        for(LxcInput lxc : getContainersAndInputs()){
             if(lxc.getId().equalsIgnoreCase(id)){
                 found = lxc;
             }
@@ -135,7 +135,6 @@ public class Cells {
         List<String> found = new ArrayList();
         for(LxcInput lxc : links){
             if(lxc.getTarget().getId().equals(id)){
-                
                 found.add(lxc.getSource().getId());
             }
         }
@@ -163,6 +162,8 @@ public class Cells {
          }
          return found;
     }
+    
+    
     
     
 }

@@ -132,8 +132,7 @@ public class WorkflowService {
      * @param cells
      */
     public List<LxcInput> organizeToRun(Cells cells) {
-        List<LxcInput> containers = cells.getContainers();
-
+        List<LxcInput> containers = cells.getContainersAndInputs();
         int sourceIndex = 0;
         int targetIndex = 0;
         LxcInput source = null;
@@ -143,18 +142,22 @@ public class WorkflowService {
         for (LxcInput lxcLink : cells.getLinks()) {
             if (cells.getContainersById(lxcLink.getSource().getId()) != null) {
                 source = cells.getContainersById(lxcLink.getSource().getId());
-                cells.getContainersById(lxcLink.getSource().getId());
+                sourceIndex = containers.indexOf(source);
                 sourceExist = true;
             }
+            if (cells.getContainersById(lxcLink.getTarget().getId()) != null) {
+                target = cells.getContainersById(lxcLink.getTarget().getId());
+                targetIndex = containers.indexOf(target);
 
-            target = cells.getContainersById(lxcLink.getTarget().getId());
-            targetIndex = containers.indexOf(target);
+            }
 
             if (containers.get(targetIndex).getStep() <= containers.get(sourceIndex).getStep() && sourceExist) {
                 containers.get(targetIndex).setStep(containers.get(sourceIndex).getStep() + 1);
                 sourceExist = false;
             }
+
         }
+
         return containers;
     }
 
@@ -234,20 +237,31 @@ public class WorkflowService {
             }
         }
         int countContainers = 0;
+        int auxCount = 0;
 
         for (int i = 1; i <= qtdSteps; i++) {
             for (LxcInput container : containers) {
                 if (container.isContainer()) {
                     if (container.getStep() == i) {
                         linksSourceInput = Cells.getLinkByTarget(container.getId(), links);
-                        for (LxcInput lxcInput : inputs) {
+                        for (LxcInput lxcInput : containers) {
                             for (String sourceId : linksSourceInput) {
                                 if (lxcInput.getId().equals(sourceId)) {
-                                    listInputs.add(lxcInput.getActivity());
+                                    if (lxcInput.isContainer()) {
+                                        lxcInput.setNameJob(lxcInput.getName()+"-"+auxCount);
+                                        listInputs.add("job-"+lxcInput.getNameJob()+".out");
+                                        auxCount ++;
+                                    } else {
+                                        listInputs.add(lxcInput.getActivity());
+                                    }
                                 }
                             }
                         }
-                        Workflow w = new Workflow(userSession.currentUser().getEmail(), workflow, container.getName() + "-" + countContainers,new ArrayList<String>(listInputs), container.getActivity(), container.getNodes());
+                        container.setNameJob(container.getName() + "-" + countContainers);
+                        Workflow w = new Workflow(userSession.currentUser().getEmail(),
+                                workflow, container.getNameJob(), new ArrayList<String>(listInputs),
+                                container.getActivity(), container.getNodes());
+
                         listInputs.clear();
                         Thread t = new Thread(new ExecuteWorkflow(w, container.getName()));
                         t.start();
@@ -356,6 +370,33 @@ public class WorkflowService {
 
     }
 
+    /**
+     * TESTS PROPOSAL
+     */
+    public class TestExecuteWorkflow implements Runnable {
+
+        private Workflow workflow;
+        private String containerName;
+
+        public TestExecuteWorkflow(Workflow workflow, String containerName) {
+            this.workflow = workflow;
+            this.containerName = containerName;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            String order = new Gson().toJson(workflow);
+            logger.info(order + " ########");
+
+        }
+
+    }
+
     public void executeWorkflow(Workflow workflow, String containerName) {
 
         httpClient = HttpClients.createDefault();
@@ -382,7 +423,8 @@ public class WorkflowService {
             validator.onErrorSendBadRequest();
 
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(RufusService.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -443,15 +485,18 @@ public class WorkflowService {
         for (File file : raiz.listFiles(filter)) {
             try {
                 BufferedReader br = new BufferedReader(new FileReader(file));
-                if(br.readLine() != null){
+                if (br.readLine() != null) {
                     list.add(file);
+
                 }
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(WorkflowService.class
+                        .getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(WorkflowService.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
-            
+
         }
 
         return list;
@@ -472,8 +517,10 @@ public class WorkflowService {
             bw.write(jsonWorkflow);
             bw.close();
             fw.close();
+
         } catch (IOException ex) {
-            Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(WorkflowService.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -493,8 +540,10 @@ public class WorkflowService {
             bw.write(xmlWorkflow);
             bw.close();
             fw.close();
+
         } catch (IOException ex) {
-            Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(WorkflowService.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -513,9 +562,11 @@ public class WorkflowService {
             while (flux != null) {
                 result += br.readLine() + "";
                 flux = br.readLine();
+
             }
         } catch (IOException ex) {
-            Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(WorkflowService.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         return result;

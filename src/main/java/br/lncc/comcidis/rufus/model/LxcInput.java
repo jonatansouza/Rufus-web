@@ -14,13 +14,14 @@ public class LxcInput {
     private String activity;
     private String id;
     private String type;
+    private String nameJob;
     private Source source;
     private Target target;
-    private boolean container;
+    private boolean container = false;
     private String nodes;
     private int step = 0;
 
-    public LxcInput(String name, String activity, String id, String type, Source source, Target target, boolean container, String nodes) {
+    public LxcInput(String name, String activity, String id, String type, Source source, Target target, boolean container, String nodes, String nameJob) {
         this.name = name;
         this.activity = activity;
         this.id = id;
@@ -28,11 +29,23 @@ public class LxcInput {
         this.source = source;
         this.target = target;
         this.container = container;
+        this.nameJob = (nameJob.isEmpty() || nodes == null) ? name : nameJob;
         this.nodes = (nodes.isEmpty() || nodes == null) ? "1" : nodes;
+       
     }
 
     public LxcInput() {
     }
+
+    public String getNameJob() {
+        return nameJob;
+    }
+
+    public void setNameJob(String nameJob) {
+        this.nameJob = nameJob;
+    }
+    
+    
 
     public void setNodes(String nodes) {
         
