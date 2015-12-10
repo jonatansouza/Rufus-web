@@ -79,8 +79,8 @@ public class OAuthController {
         
         OAuthClientRequest request = OAuthClientRequest
                 .authorizationLocation("http://auth.comcidis.lncc.br:3000/oauth/authorize")
-                .setClientId("c502d28fd7ae160e16f020baad86b09284b548178e952affd0035a3829912350")
-                .setRedirectURI("http://rufus.comcidis.lncc.br:8080/rufus/oauth/callback")
+                .setClientId("c10f7006ade104e70895b9c5d88f8043dd92f7af9a0492a92417ceab5e375371")
+                .setRedirectURI("http://rufus.comcidis.lncc.br:8084/rufus/oauth/callback")
                 .setResponseType("code")
                 .buildQueryMessage();
 
@@ -94,9 +94,9 @@ public class OAuthController {
         OAuthClientRequest request = OAuthClientRequest
                 .tokenLocation("http://auth.comcidis.lncc.br:3000/oauth/token")
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
-                .setClientId("c502d28fd7ae160e16f020baad86b09284b548178e952affd0035a3829912350")
-                .setClientSecret("1b0b9614cdb419649a7e79f803526481f802cf444f3ba5a0ae63b4c804c09fbe")
-                .setRedirectURI("http://rufus.comcidis.lncc.br:8080/rufus/oauth/callback")
+                .setClientId("c10f7006ade104e70895b9c5d88f8043dd92f7af9a0492a92417ceab5e375371")
+                .setClientSecret("1eaf400ad8f2c0c98cb09efb2d8a3e764e5a08ea046a2aca890bbe7c7d14a767")
+                .setRedirectURI("http://rufus.comcidis.lncc.br:8084/rufus/oauth/callback")
                 .setCode(code)
                 .buildQueryMessage();
 
@@ -128,7 +128,7 @@ public class OAuthController {
 
         }
 
-        result.redirectTo("http://rufus.comcidis.lncc.br:8080"+httpServletRequest.getSession().getAttribute("requestUri"));
+        result.redirectTo("http://rufus.comcidis.lncc.br:8084"+httpServletRequest.getSession().getAttribute("requestUri"));
     }
     
     @Post("/newUser")

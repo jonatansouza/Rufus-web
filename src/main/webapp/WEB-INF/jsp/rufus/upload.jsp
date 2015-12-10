@@ -4,8 +4,8 @@
 
         #mydropzone{   
 
-            width: 500px;
-            height: 400px;
+            width: 300px;
+            height: 250px;
             border: 3px dashed #000000;
             position:fixed; 
 
@@ -17,7 +17,6 @@
             text-align: center;
             width: 300px; 
             height: 200px; 
-            top: 100px;
             margin: 0 auto; 
             position: relative; 
 

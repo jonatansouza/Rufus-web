@@ -423,6 +423,16 @@ public class RufusController {
         }
         return null;
     }
+    @Get("/rufus/{name}/download")
+    public Download downloadFile(String name) {
+        File file = new File(pathNfsDirectory+"/"+userSession.currentUser().getEmail()+"/files/"+name);
+        try {
+            return new FileDownload(file, "application/text");
+        } catch (IOException ex) {
+            logger.info("nao foi possivel downlaod");
+        }
+        return null;
+    }
 
     @Get("/workflowsToLoad")
     public void workflowsToLoad() {

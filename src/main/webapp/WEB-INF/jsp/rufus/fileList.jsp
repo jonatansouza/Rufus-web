@@ -9,12 +9,15 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>File Name</th><th>Date</th><th>Remove</th>
+                                    <th>File Name</th><th>Date</th><th>Download</th><th>Remove</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <c:forEach items="${fileList}" var="file">
-                                <tr><td>${file.name}</td><td>${file.date}</td><td style="text-align: center"><a href="javascript:removeFile('${file.name}')"><i class="glyphicon glyphicon-remove"></i></a></td></tr>
+                                <tr><td>${file.name}</td><td>${file.date}</td>
+                                    <td><a href="javascript:downloadFile('${file.name}')">
+                                            <i class="glyphicon glyphicon-download"></i></a></td>
+                                    <td><a href="javascript:removeFile('${file.name}')"><i class="glyphicon glyphicon-remove"></i></a></td></tr>
                                         </c:forEach>
                         </tbody>
                     </table>
@@ -39,6 +42,12 @@
                 }
             }
         });
+    }
+
+    function downloadFile(name) {
+
+        window.location = "${pageContext.request.contextPath}/rufus/" + name + "/download";
+
     }
 
 </script>

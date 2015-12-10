@@ -8,7 +8,7 @@
                 
                 <h3 class="page-header">
                     <span id="workflowHeaderName"></span>
-                    <br><small>Workflow Drawing board<small> 
+                    <br><small><i class="fa fa-paint-brush"></i> Composer Drawing board<small> 
                 </h3>
             </div>
             <div class="row">

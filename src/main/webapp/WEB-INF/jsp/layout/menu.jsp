@@ -46,7 +46,7 @@
                         <ul class="nav" id="side-menu">
                             <c:if test="${userSession.currentUser().admin}">
                                 <li>
-                                    <a href="${linkTo[RufusController].containers}"><i class="fa fa-laptop fa-fw"></i> Containers</a>
+                                    <a href="${linkTo[RufusController].containers}"><i class="fa fa-laptop fa-fw"></i> Templates management</a>
                                 </li>
                                 
                             </c:if>
@@ -59,10 +59,10 @@
 
                             </li>
                             <li>
-                                <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Workflow Dashboard</a>
+                                <a href="${linkTo[RufusController].workflow}"><i class="fa fa-wrench fa-fw"></i> Composer </a>
                             </li>
                             <li>
-                                <a href="${linkTo[RufusController].workflowResult}"><i class="fa fa-line-chart fa-fw"></i> Workflows</a>
+                                <a href="${linkTo[RufusController].workflowResult}"><i class="fa fa-line-chart fa-fw"></i> Composer Results</a>
                             </li>
                             <li>
                                 <a href="${linkTo[RufusController].account}"><i class="fa fa-user fa-fw"></i> Account</a>
