@@ -54,15 +54,12 @@ public class WorkflowService {
 
     @Inject
     @Property
-    private String ip;
+    private String RUFUS_CORE_URI;
+
 
     @Inject
     @Property
-    private String port;
-
-    @Inject
-    @Property
-    private String version;
+    private String RUFUS_CORE_VERSION;
 
     @Inject
     @Property
@@ -291,7 +288,7 @@ public class WorkflowService {
 
     public PylxcResources getPylxcResources() {
         httpClient = HttpClients.createDefault();
-        HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/resources");
+        HttpGet hg = new HttpGet(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/resources");
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -342,7 +339,7 @@ public class WorkflowService {
             httpClient = HttpClients.createDefault();
             String order = new Gson().toJson(workflow);
             logger.info(order + " ########");
-            HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/" + containerName + "/run");
+            HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/" + containerName + "/run");
             StringEntity st = new StringEntity(order, "utf-8");
             st.setContentType("application/json");
             hp.setEntity(st);
@@ -402,7 +399,7 @@ public class WorkflowService {
         httpClient = HttpClients.createDefault();
         String order = new Gson().toJson(workflow);
         logger.info(order);
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/" + containerName + "/run");
+        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/" + containerName + "/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);

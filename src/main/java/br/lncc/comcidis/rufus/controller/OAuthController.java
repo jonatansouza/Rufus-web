@@ -11,7 +11,6 @@ import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
-import br.com.caelum.vraptor.view.Results;
 import br.lncc.comcidis.rufus.model.Me;
 import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
@@ -21,7 +20,6 @@ import com.google.gson.Gson;
 import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.POST;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthBearerClientRequest;
@@ -49,28 +47,27 @@ public class OAuthController {
 
     @Inject
     @Property
-    private String argusIp;
+    private String AUTH_URI;
     
     @Inject
     @Property
-    private String portDefaultRufus;
+    private String RUFUS_WEB_URI;
     
     @Inject
     @Property
-    private String argusPort;
-    
-    
-    @Inject
-    @Property
-    private String  appId;   
+    private String  APP_ID;   
     
     @Inject
     @Property
-    private String secret;
+    private String APP_SECRET;
             
     @Inject
     @Property
-    private String redirectUri;
+    private String AUTH_REDIRECT_URI;
+    
+    @Inject
+    @Property
+    private String AUTH_CLIENT_REQUEST_URI;
     
     @Inject
     private Result result;
@@ -106,9 +103,9 @@ public class OAuthController {
     public void getOauthCode() throws OAuthSystemException {
         
         OAuthClientRequest request = OAuthClientRequest
-                .authorizationLocation("http://"+argusIp+":"+argusPort+"/oauth/authorize")
-                .setClientId(appId)
-                .setRedirectURI(redirectUri)
+                .authorizationLocation(AUTH_URI+"/oauth/authorize")
+                .setClientId(APP_ID)
+                .setRedirectURI(AUTH_REDIRECT_URI)
                 .setResponseType("code")
                 .buildQueryMessage();
 
@@ -120,11 +117,11 @@ public class OAuthController {
     public void authToken(String code, String requestUri) throws OAuthSystemException, OAuthProblemException {
         
         OAuthClientRequest request = OAuthClientRequest
-                .tokenLocation("http://"+argusIp+":"+argusPort+"/oauth/token")
+                .tokenLocation(AUTH_URI+"/oauth/token")
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
-                .setClientId(appId)
-                .setClientSecret(secret)
-                .setRedirectURI(redirectUri)
+                .setClientId(APP_ID)
+                .setClientSecret(APP_SECRET)
+                .setRedirectURI(AUTH_REDIRECT_URI)
                 .setCode(code)
                 .buildQueryMessage();
 
@@ -137,7 +134,7 @@ public class OAuthController {
         Long expiresIn = oAuthResponse.getExpiresIn();
        
         
-         OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest("http://auth.comcidis.lncc.br:3000/api/v1/me.json")
+         OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest(AUTH_CLIENT_REQUEST_URI)
                 .setAccessToken(oAuthResponse.getAccessToken()).buildQueryMessage();
 
         OAuthResourceResponse resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
@@ -156,7 +153,7 @@ public class OAuthController {
 
         }
 
-        result.redirectTo("http://rufus.comcidis.lncc.br:"+portDefaultRufus+httpServletRequest.getSession().getAttribute("requestUri"));
+        result.redirectTo(RUFUS_WEB_URI+httpServletRequest.getSession().getAttribute("requestUri"));
     }
     
     @Post("/newUser")

@@ -9,7 +9,6 @@ import br.com.caelum.vraptor.environment.Property;
 import br.lncc.comcidis.rufus.controller.RufusController;
 import br.lncc.comcidis.rufus.model.FileModel;
 import br.lncc.comcidis.rufus.model.LxcInput;
-import br.lncc.comcidis.rufus.model.LxcList;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import br.lncc.comcidis.rufus.model.UserSession;
 import com.google.gson.Gson;
@@ -21,9 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
@@ -48,16 +45,13 @@ public class RufusService {
 
     @Inject
     @Property
-    private String ip;
+    private String RUFUS_CORE_URI;
 
     @Inject
     @Property
-    private String port;
+    private String RUFUS_CORE_VERSION;
 
-    @Inject
-    @Property
-    private String version;
-
+    
     @Inject
     UserSession userSession;
 
@@ -74,7 +68,7 @@ public class RufusService {
 
     public List<LxcModel> list() {
 
-        HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/containers");
+        HttpGet hg = new HttpGet(RUFUS_CORE_URI +  "/" + RUFUS_CORE_VERSION +"/containers");
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -110,7 +104,7 @@ public class RufusService {
     }
 
     public List<String> getLxcTemplates() {
-        HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/templates");
+        HttpGet hg = new HttpGet(RUFUS_CORE_URI+ "/" + RUFUS_CORE_VERSION + "/templates");
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -142,7 +136,7 @@ public class RufusService {
         //  order = "{\"name\":\"" + name + "\", \"template\":\"" + template + "\"}";
         //}
 
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers");
+        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -164,7 +158,7 @@ public class RufusService {
             order = "{\"state\":\"STOPPED\"}";
         }
 
-        HttpPut clientPut = new HttpPut("http://" + ip + ":" + port + "/" + version + "/containers/" + name + "");
+        HttpPut clientPut = new HttpPut(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/" + name + "");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         clientPut.setEntity(st);
@@ -178,7 +172,7 @@ public class RufusService {
     }
 
     public void deleteLxc(String name) {
-        String order = "http://" + ip + ":" + port + "/" + version + "/containers/" + name;
+        String order = RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/" + name;
         HttpDelete hd = new HttpDelete(order);
         try {
             httpClient.execute(hd);
@@ -224,7 +218,7 @@ public class RufusService {
     public String operateLxc(LxcInput lxcInputs) {
         String order = "{\"command\" : \"" + lxcInputs.getActivity() + "\"}";
 
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/input/run");
+        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/input/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -273,7 +267,7 @@ public class RufusService {
 
         String order = "{\"username\":\"" + user + "\", \"app_id\":\"" + app_id + "\", \"args\":" + jsonFile + "}";
 
-        HttpPost hp = new HttpPost("http://" + ip + ":" + port + "/" + version + "/containers/Addition/run");
+        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/Addition/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -296,7 +290,7 @@ public class RufusService {
 
     public String remoteAccess(String ipContainer) {
        
-        HttpGet hg = new HttpGet("http://" + ip + ":" + port + "/" + version + "/console/" + ipContainer);
+        HttpGet hg = new HttpGet(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/console/" + ipContainer);
         String url = "";
         
         try {
