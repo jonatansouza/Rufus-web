@@ -34,6 +34,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -470,5 +471,51 @@ public class RufusController {
         ArrayList<String> list = new ArrayList<>();
         result.include("nodes", workflowService.getListCpuAvailables(cpus));
     }
+    
+    @Post
+    @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
+    public void loadWorkflow(UploadedFile file) {
+        File f = new File(file.getFileName());
+        try {
+            IOUtils.copy(file.getFile(), new FileOutputStream(f));
+        } catch (FileNotFoundException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        result.use(Results.http()).body(workflowService.loadWorkflowFile(f));
+        
+    }
+    
+    @Get("/rufus/{workflowRequired}/downloadWorkflowProvider/{type}")
+    public Download downloadWorkflowProvider(String workflowRequired, String type){
+        try {
+            File f = null;
+            if(type.equals("json")){
+                 f = new File("" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/"
+                    + "" + workflowRequired +"/."+workflowRequired);
+                 return new FileDownload(f, "application/text", workflowRequired+".flow");
+            }else{
+                f = new File("" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/"
+                    + "" + workflowRequired +"/"+workflowRequired+".xml");
+                
+                 return new FileDownload(f, "application/text", workflowRequired+".xml");
+            }
+            
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return null;
+    }
+    @Get("/modalUpload")
+    public void modalUpload(){
+        List<String> folders = new ArrayList<>();
+        for (File file : workflowService.getAllWorkflowResults()) {
+            folders.add(file.getName());
+        }
+        
+        result.include("folders", new Gson().toJson(folders));
 
+    }
 }

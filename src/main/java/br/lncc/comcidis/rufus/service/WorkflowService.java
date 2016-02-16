@@ -571,6 +571,28 @@ public class WorkflowService {
 
         return result;
     }
+    
+    public String loadWorkflowFile(File file) {
+        FileReader fr;
+        String result = "";
+        String flux = "";
+        try {
+            fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            result = br.readLine();
+            flux = br.readLine();
+            while (flux != null) {
+                result += br.readLine() + "";
+                flux = br.readLine();
+
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(WorkflowService.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return result;
+    }
 
     public List<FileModel> listWorkflowsToLoad() {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");

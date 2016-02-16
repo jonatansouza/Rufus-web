@@ -32,7 +32,9 @@ $(document).ready(function () {
     $.get("/rufus/modalWorkflowName", function (data, status) {
         bootbox.dialog({
             message: data,
-            title: "Workflow name <a href='javascript:listFilesToLoad()'><button class='btn btn-success pull-right'>Load Workflow</button></a></div>",
+            title: "Workflow name \n\
+<a href='javascript:listFilesToLoad()'><button class='btn btn-success pull-right'>Load Workflow</button></a></div>\n\
+<a href='javascript:modalUpload()'><button class='btn btn-primary pull-right'>Upload Workflow</button></a></div>",
             closeButton: false
         });
     });
@@ -71,6 +73,33 @@ function loadWorkflow(workflowToLoad) {
         saveWorkflowName(workflowToLoad);
     });
 }
+
+function loadWorkflowFromUpload(desireName) {
+    var fd = new FormData();
+    var contentFile = $("#workflowToLoad")[0].files[0];
+    fd.append("file", contentFile);
+    var url = "/rufus/rufus/loadWorkflow"
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: fd,
+        dataType: 'HTML',
+        cache: false,
+        contentType: false,
+        processData: false,
+        statusCode: {
+            200: function (data) {
+                bootbox.hideAll();
+                console.log(data);
+                graph.fromJSON(JSON.parse(data));
+                saveWorkflowName(desireName);
+            }
+        }
+    });
+
+}
+
 
 
 
@@ -256,23 +285,25 @@ function testConnection() {
 
 // Show Download Modal
 function modalDownload() {
-    $.get("/rufus/assets/templates/modalDownload.html", function (data, status) {
-        bootbox.dialog({
-            message: data,
-            title: "Workflow Dialog",
-        });
-    });
+    toJSON();
+    /*$.get("/rufus/assets/templates/modalDownload.html", function (data, status) {
+     bootbox.dialog({
+     message: data,
+     title: "Workflow Dialog",
+     });
+     });*/
 }
 
 // Show Upload Modal
 function modalUpload() {
-    $.get("/templates/modal/modalUpload.php", function (data, status) {
+    $.get("/rufus/modalUpload", function (data, status) {
         bootbox.dialog({
             message: data,
-            title: "Select File",
+            title: "Select File"
         });
     });
 }
+
 
 // Insert File
 function insertFile(customCode) {
@@ -324,6 +355,22 @@ function uploadFile() {
 //    xmlTextArea.value = JSON.stringify(graph.toJSON());
 //    postForm.submit();
 //}
+
+function downloadProvider(type) {
+    $.ajax({
+        type: "POST",
+        url: "/rufus/rufus/saveWorkflow",
+        dataType: "json",
+        data: {xmlTextArea: JSON.stringify(graph.toJSON()), workflowName: workflowName, xmlWorkflow: rufusToXML(), jsonWorkflow: rufusToJson()},
+        statusCode: {
+            200: function () {
+                $("#linksave").html("Saved");
+                $("#linksave").addClass("disabled");
+                window.location = "/rufus/rufus/"+workflowName+"/downloadWorkflowProvider/"+type;
+            }}
+    });
+    
+}
 
 function saveWorkflow() {
     $.ajax({
@@ -597,4 +644,5 @@ var myAdjustVertices = _.partial(adjustVertices, graph);
 graph.on('add remove change:source change:target', myAdjustVertices);
 // also when an user stops interacting with an element.
 paper.on('cell:pointerup', myAdjustVertices);
+
 

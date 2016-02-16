@@ -33,11 +33,14 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog fa-spin"></i> Options <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="#" onclick="modalDownload()" ><i class="fa fa-fw fa-download"></i> Download File</a>
+                                <a href="#" onclick="downloadProvider('json')" ><i class="fa fa-fw fa-download"></i> Workflow Recovery File</a>
+
                             </li>
                             <li>
-                                <a href="#" onclick="modalUpload()"><i class="fa fa-fw fa-upload"></i> Upload File</a>
+                                <a href="#" onclick="downloadProvider('xml')" ><i class="fa fa-fw fa-download"></i> Download xml </a>
                             </li>
+
+
                             <li class="divider"></li>
                             <li>
                                 <a href="#" onclick="testConnection()"><i class="fa fa-fw fa-arrows-h"></i> Test Nodes</a>

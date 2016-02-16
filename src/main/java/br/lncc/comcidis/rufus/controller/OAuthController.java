@@ -10,6 +10,7 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
+import br.com.caelum.vraptor.environment.Property;
 import br.com.caelum.vraptor.view.Results;
 import br.lncc.comcidis.rufus.model.Me;
 import br.lncc.comcidis.rufus.model.UserSession;
@@ -38,12 +39,39 @@ import org.slf4j.LoggerFactory;
  *
  * @author jonatan
  */
+
+
 @Controller
 @SessionScoped
 public class OAuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuthController.class);
 
+    @Inject
+    @Property
+    private String argusIp;
+    
+    @Inject
+    @Property
+    private String portDefaultRufus;
+    
+    @Inject
+    @Property
+    private String argusPort;
+    
+    
+    @Inject
+    @Property
+    private String  appId;   
+    
+    @Inject
+    @Property
+    private String secret;
+            
+    @Inject
+    @Property
+    private String redirectUri;
+    
     @Inject
     private Result result;
     @Inject
@@ -78,9 +106,9 @@ public class OAuthController {
     public void getOauthCode() throws OAuthSystemException {
         
         OAuthClientRequest request = OAuthClientRequest
-                .authorizationLocation("http://auth.comcidis.lncc.br:3000/oauth/authorize")
-                .setClientId("c10f7006ade104e70895b9c5d88f8043dd92f7af9a0492a92417ceab5e375371")
-                .setRedirectURI("http://rufus.comcidis.lncc.br:8084/rufus/oauth/callback")
+                .authorizationLocation("http://"+argusIp+":"+argusPort+"/oauth/authorize")
+                .setClientId(appId)
+                .setRedirectURI(redirectUri)
                 .setResponseType("code")
                 .buildQueryMessage();
 
@@ -92,11 +120,11 @@ public class OAuthController {
     public void authToken(String code, String requestUri) throws OAuthSystemException, OAuthProblemException {
         
         OAuthClientRequest request = OAuthClientRequest
-                .tokenLocation("http://auth.comcidis.lncc.br:3000/oauth/token")
+                .tokenLocation("http://"+argusIp+":"+argusPort+"/oauth/token")
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
-                .setClientId("c10f7006ade104e70895b9c5d88f8043dd92f7af9a0492a92417ceab5e375371")
-                .setClientSecret("1eaf400ad8f2c0c98cb09efb2d8a3e764e5a08ea046a2aca890bbe7c7d14a767")
-                .setRedirectURI("http://rufus.comcidis.lncc.br:8084/rufus/oauth/callback")
+                .setClientId(appId)
+                .setClientSecret(secret)
+                .setRedirectURI(redirectUri)
                 .setCode(code)
                 .buildQueryMessage();
 
@@ -128,7 +156,7 @@ public class OAuthController {
 
         }
 
-        result.redirectTo("http://rufus.comcidis.lncc.br:8084"+httpServletRequest.getSession().getAttribute("requestUri"));
+        result.redirectTo("http://rufus.comcidis.lncc.br:"+portDefaultRufus+httpServletRequest.getSession().getAttribute("requestUri"));
     }
     
     @Post("/newUser")
