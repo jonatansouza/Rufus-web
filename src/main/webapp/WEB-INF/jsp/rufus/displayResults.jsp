@@ -4,7 +4,7 @@
         <c:forEach items="${workflowFiles}" var="file">
 
             <div class="col-xs-4 col-md-2">
-                <a href="${linkTo[RufusController].downloadWorkflowFile}?requiredFile=${file.path.replaceAll("/var/rufus-dev/users","")}" class="thumbnail">
+                <a href="${linkTo[RufusController].downloadWorkflowFile}?requiredFile=${file.path.replaceAll("/var/rufus/users","")}" class="thumbnail">
                     <c:if test="${fn:containsIgnoreCase(file.name, '.xml')}">
                         <img src="${pageContext.request.contextPath}/assets/img/xml.png" alt="Workflow" class="img-responsive">
                     </c:if>

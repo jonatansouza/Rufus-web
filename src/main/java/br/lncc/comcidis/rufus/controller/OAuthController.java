@@ -13,11 +13,12 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
 import br.lncc.comcidis.rufus.model.Me;
 import br.lncc.comcidis.rufus.model.UserSession;
+import br.lncc.comcidis.rufus.service.EditInitFile;
 import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
 import br.lncc.comcidis.rufus.service.OauthService;
 import com.google.gson.Gson;
+import javax.enterprise.context.RequestScoped;
 
-import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.oltu.oauth2.client.OAuthClient;
@@ -37,38 +38,48 @@ import org.slf4j.LoggerFactory;
  *
  * @author jonatan
  */
-
-
 @Controller
-@SessionScoped
+@RequestScoped
 public class OAuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuthController.class);
 
-    @Inject
-    @Property
     private String AUTH_URI;
-    
-    @Inject
-    @Property
+
     private String RUFUS_WEB_URI;
-    
+
     @Inject
     @Property
-    private String  APP_ID;   
-    
+    private String DOTS;
+
+    @Inject
+    @Property
+    private String WEB_PROTOCOL;
+
+    @Inject
+    @Property
+    private String AUTH_REDIRECT_END_POINT;
+
+    @Inject
+    @Property
+    private String AUTH_CLIENT_REQUEST_END_POINT;
+
+    @Inject
+    @Property
+    private String APP_ID;
+
     @Inject
     @Property
     private String APP_SECRET;
-            
+
     @Inject
     @Property
-    private String AUTH_REDIRECT_URI;
-    
+    private String AUTH_PORT;
+
     @Inject
-    @Property
-    private String AUTH_CLIENT_REQUEST_URI;
-    
+    @Property("RUFUS_WEB_PORT")
+    private String RUFUS_WEB_PORT;
+
     @Inject
     private Result result;
     @Inject
@@ -77,19 +88,28 @@ public class OAuthController {
     private HttpServletRequest httpServletRequest;
     @Inject
     private OauthService oauthService;
-   
 
-    @Path("/teste")
-    public void teste() {
+    @Deprecated
+    public OAuthController() {
 
+    }
+
+    public void startStrings() {
+        EditInitFile eif = new EditInitFile();
+        String tmpAuth = eif.getHost("auth").getIp();
+        String tmpWeb = eif.getHost("web").getIp();
+
+        AUTH_URI = WEB_PROTOCOL + tmpAuth + DOTS + AUTH_PORT;
+        RUFUS_WEB_URI = WEB_PROTOCOL + tmpWeb + DOTS + RUFUS_WEB_PORT;
     }
 
     @Path("/login")
     public void login() throws OAuthSystemException {
         result.redirectTo(this).getOauthCode();
     }
+
     @Path("oauth/logout")
-    public void logout(){
+    public void logout() {
         userSession.logout();
         result.redirectTo(RufusController.class).index();
     }
@@ -101,11 +121,11 @@ public class OAuthController {
 
     @Get("oauth/login")
     public void getOauthCode() throws OAuthSystemException {
-        
+        startStrings();
         OAuthClientRequest request = OAuthClientRequest
-                .authorizationLocation(AUTH_URI+"/oauth/authorize")
+                .authorizationLocation(AUTH_URI + "/oauth/authorize")
                 .setClientId(APP_ID)
-                .setRedirectURI(AUTH_REDIRECT_URI)
+                .setRedirectURI(RUFUS_WEB_URI + "/rufus/oauth/callback")
                 .setResponseType("code")
                 .buildQueryMessage();
 
@@ -115,13 +135,13 @@ public class OAuthController {
 
     @Get("oauth/callback")
     public void authToken(String code, String requestUri) throws OAuthSystemException, OAuthProblemException {
-        
+        startStrings();
         OAuthClientRequest request = OAuthClientRequest
-                .tokenLocation(AUTH_URI+"/oauth/token")
+                .tokenLocation(AUTH_URI + "/oauth/token")
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
                 .setClientId(APP_ID)
                 .setClientSecret(APP_SECRET)
-                .setRedirectURI(AUTH_REDIRECT_URI)
+                .setRedirectURI(RUFUS_WEB_URI + "/rufus/oauth/callback")
                 .setCode(code)
                 .buildQueryMessage();
 
@@ -132,45 +152,46 @@ public class OAuthController {
 
         String accessToken = oAuthResponse.getAccessToken();
         Long expiresIn = oAuthResponse.getExpiresIn();
-       
-        
-         OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest(AUTH_CLIENT_REQUEST_URI)
+
+        OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest(AUTH_URI + AUTH_CLIENT_REQUEST_END_POINT)
                 .setAccessToken(oAuthResponse.getAccessToken()).buildQueryMessage();
 
         OAuthResourceResponse resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
 
         Me me = new Gson().fromJson(resourceResponse.getBody(), Me.class);
-        for(String user: oauthService.getRootUsers()){
-            if(user.equalsIgnoreCase(me.getEmail())){
+        for (String user : oauthService.getRootUsers()) {
+            if (user.equalsIgnoreCase(me.getEmail())) {
                 me.setAdmin(true);
             }
         }
-        logger.info(me.toString()+" ***********");
-      
+        logger.info(me.toString() + " ***********");
+
         try {
             session.authenticate(me);
         } catch (NaoAutenticadoException ex) {
 
         }
 
-        result.redirectTo(RUFUS_WEB_URI+httpServletRequest.getSession().getAttribute("requestUri"));
+        result.redirectTo(RUFUS_WEB_URI + httpServletRequest.getSession().getAttribute("requestUri"));
     }
-    
+
     @Post("/newUser")
-    public void registerNewRootUser(String email){
+    public void registerNewRootUser(String email) {
         oauthService.registerNewRootUser(email);
-        result.include("message", "User "+email+" has been added to the admin group.");
+        result.include("message", "User " + email + " has been added to the admin group.");
         result.redirectTo(RufusController.class).account();
     }
+
     @Path("/oauth/getRootUsers")
-    public void listRootUsers(){
-        
+    public void listRootUsers() {
+
         result.include("admins", oauthService.getRootUsers());
     }
+
     @Get("/oauth/deleteRootUser/{name}")
-    public void deleteRootUser(String name){
+    public void deleteRootUser(String name) {
         oauthService.deleteRootUser(name);
         result.redirectTo(RufusController.class).account();
     }
-    
+
 }

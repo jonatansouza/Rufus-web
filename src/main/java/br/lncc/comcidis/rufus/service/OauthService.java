@@ -5,15 +5,9 @@
  */
 package br.lncc.comcidis.rufus.service;
 
-import br.com.caelum.vraptor.Get;
-import br.com.caelum.vraptor.Path;
-import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Property;
-import br.lncc.comcidis.rufus.controller.RufusController;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,7 +17,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,7 +28,7 @@ public class OauthService {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(OauthService.class);
     @Property
     @Inject
-    String pathRootUsers;
+    String USERS_NFS_DIR;
     
     @Deprecated
     public OauthService() {
@@ -44,7 +37,7 @@ public class OauthService {
    
     public List<String> getRootUsers() {
         List<String> users = new ArrayList<>();
-        File file = new File(pathRootUsers);
+        File file = new File(USERS_NFS_DIR);
         FileReader fr;
         try {
             fr = new FileReader(file);
@@ -62,7 +55,7 @@ public class OauthService {
     }
 
     public synchronized void registerNewRootUser(String email) {
-        File file = new File(pathRootUsers);
+        File file = new File(USERS_NFS_DIR);
         FileWriter fw;
         try {
             fw = new FileWriter(file, true);
@@ -76,7 +69,7 @@ public class OauthService {
     }
     
     public synchronized void rewriteListRootUsers(List<String> users){
-        File file = new File(pathRootUsers);
+        File file = new File(USERS_NFS_DIR);
         FileWriter fw;
         try {
             fw = new FileWriter(file);

@@ -26,16 +26,12 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
@@ -52,10 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WorkflowService {
 
-    @Inject
-    @Property
     private String RUFUS_CORE_URI;
-
 
     @Inject
     @Property
@@ -63,7 +56,23 @@ public class WorkflowService {
 
     @Inject
     @Property
-    private String pathNfsDirectory;
+    private String INIT_FILE_LOCATION;
+
+    @Inject
+    @Property
+    private String USERS_NFS_DIR;
+
+    @Inject
+    @Property
+    private String WEB_PROTOCOL;
+
+    @Inject
+    @Property
+    private String DOTS;
+
+    @Inject
+    @Property
+    private String RUFUS_CORE_PORT;
 
     @Inject
     UserSession userSession;
@@ -80,11 +89,22 @@ public class WorkflowService {
 
     @Deprecated
     public WorkflowService() {
+        String tmpCore = new EditInitFile().getHost("core").getIp();
 
+        RUFUS_CORE_URI = WEB_PROTOCOL + tmpCore + DOTS + RUFUS_CORE_PORT + "/" + RUFUS_CORE_VERSION;
+
+    }
+
+    public void initLocations() {
+        String tmpCore = new EditInitFile().getHost("core").getIp();
+
+        RUFUS_CORE_URI = WEB_PROTOCOL + tmpCore + DOTS + RUFUS_CORE_PORT + "/" + RUFUS_CORE_VERSION;
     }
 
     public String workflowValidate(Cells cells) {
         //check if links exists
+        
+        
         if (cells.getLinks().isEmpty()) {
             return "<div class='text-center'>\n"
                     + "<h4>No association have been found</h4>\n"
@@ -159,9 +179,9 @@ public class WorkflowService {
     }
 
     public void saveFilesOnDirectory(List<LxcInput> containers, String resultId) {
-        File workflow = new File("/var/rufus/users/jonatan/" + resultId);
+        File workflow = new File(USERS_NFS_DIR + "/" + userSession + "/" + resultId);
         workflow.mkdir();
-        File directoryFile = new File("/var/rufus/users/jonatan/files/");
+        File directoryFile = new File(USERS_NFS_DIR + "/" + userSession + "/files/");
         directoryFile.mkdir();
         for (LxcInput lxcInput : containers) {
             if (lxcInput.getName().equalsIgnoreCase("input")) {
@@ -245,9 +265,9 @@ public class WorkflowService {
                             for (String sourceId : linksSourceInput) {
                                 if (lxcInput.getId().equals(sourceId)) {
                                     if (lxcInput.isContainer()) {
-                                        lxcInput.setNameJob(lxcInput.getName()+"-"+auxCount);
-                                        listInputs.add("job-"+lxcInput.getNameJob()+".out");
-                                        auxCount ++;
+                                        lxcInput.setNameJob(lxcInput.getName() + "-" + auxCount);
+                                        listInputs.add("job-" + lxcInput.getNameJob() + ".out");
+                                        auxCount++;
                                     } else {
                                         listInputs.add(lxcInput.getActivity());
                                     }
@@ -287,8 +307,10 @@ public class WorkflowService {
     }
 
     public PylxcResources getPylxcResources() {
+        initLocations();
+        
         httpClient = HttpClients.createDefault();
-        HttpGet hg = new HttpGet(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/resources");
+        HttpGet hg = new HttpGet(RUFUS_CORE_URI + "/resources");
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -336,10 +358,12 @@ public class WorkflowService {
 
         @Override
         public void run() {
+            initLocations();
+            
             httpClient = HttpClients.createDefault();
             String order = new Gson().toJson(workflow);
             logger.info(order + " ########");
-            HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/" + containerName + "/run");
+            HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/containers/" + containerName + "/run");
             StringEntity st = new StringEntity(order, "utf-8");
             st.setContentType("application/json");
             hp.setEntity(st);
@@ -395,11 +419,12 @@ public class WorkflowService {
     }
 
     public void executeWorkflow(Workflow workflow, String containerName) {
-
+        initLocations();
+        
         httpClient = HttpClients.createDefault();
         String order = new Gson().toJson(workflow);
         logger.info(order);
-        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/" + RUFUS_CORE_VERSION + "/containers/" + containerName + "/run");
+        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/containers/" + containerName + "/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -436,7 +461,7 @@ public class WorkflowService {
      }*/
     public List<File> getAllWorkflowResults() {
 
-        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail());
+        File raiz = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail());
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
@@ -462,7 +487,7 @@ public class WorkflowService {
 
     public List<File> getFilesFromWorkflow(String folder) {
 
-        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + folder);
+        File raiz = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/" + folder);
 
         List<File> list = new ArrayList<>();
 
@@ -500,7 +525,7 @@ public class WorkflowService {
     }
 
     public void saveJSON(String jsonWorkflow, String workflow) {
-        String path = "" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/." + workflow;
+        String path = "" + USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/." + workflow;
         logger.info(path + " path do file");
         File raiz = new File(path);
 
@@ -523,7 +548,7 @@ public class WorkflowService {
     }
 
     public void saveXML(String xmlWorkflow, String workflow) {
-        String path = "" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/" + workflow + ".xml";
+        String path = "" + USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/" + workflow + ".xml";
         logger.info(path + " path do file");
         File raiz = new File(path);
 
@@ -546,7 +571,7 @@ public class WorkflowService {
     }
 
     public String loadWorkflow(String workflow) {
-        String path = "" + pathNfsDirectory + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/." + workflow;
+        String path = "" + USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/" + workflow + "/." + workflow;
         File file = new File(path);
         FileReader fr;
         String result = "";
@@ -568,7 +593,7 @@ public class WorkflowService {
 
         return result;
     }
-    
+
     public String loadWorkflowFile(File file) {
         FileReader fr;
         String result = "";
@@ -594,7 +619,7 @@ public class WorkflowService {
     public List<FileModel> listWorkflowsToLoad() {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-        File raiz = new File(pathNfsDirectory + "/" + userSession.currentUser().getEmail());
+        File raiz = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail());
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
