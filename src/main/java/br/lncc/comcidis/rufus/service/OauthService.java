@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class OauthService {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(OauthService.class);
-    @Property
+    @Property("dir.admin")
     @Inject
     String USERS_NFS_DIR;
     

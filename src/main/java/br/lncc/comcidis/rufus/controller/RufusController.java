@@ -10,7 +10,7 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.environment.Property;
+import br.com.caelum.vraptor.environment.Environment;
 import br.com.caelum.vraptor.observer.download.Download;
 import br.com.caelum.vraptor.observer.download.FileDownload;
 import br.com.caelum.vraptor.observer.upload.UploadSizeLimit;
@@ -22,6 +22,7 @@ import br.com.caelum.vraptor.view.Results;
 import br.lncc.comcidis.rufus.intercepts.NeedLogin;
 import br.lncc.comcidis.rufus.model.Cells;
 import br.lncc.comcidis.rufus.model.FileModel;
+import br.lncc.comcidis.rufus.model.Hosts;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import br.lncc.comcidis.rufus.model.UserSession;
@@ -61,10 +62,7 @@ public class RufusController {
     private RufusService rufusService;
     private Validator validator;
     private WorkflowService workflowService;
-
-    @Inject
-    @Property
-    private String USERS_NFS_DIR;
+    private Environment environment;
 
     @Deprecated
     public RufusController() {
@@ -72,13 +70,13 @@ public class RufusController {
     }
 
     @Inject
-    public RufusController(Result result, RufusService rufusService, Validator validator, WorkflowService workflowService, UserSession userSession) {
+    public RufusController(Result result, RufusService rufusService, Validator validator, WorkflowService workflowService, UserSession userSession, Environment environment) {
         this.result = result;
         this.rufusService = rufusService;
         this.validator = validator;
         this.workflowService = workflowService;
         this.userSession = userSession;
-
+        this.environment = environment;
     }
 
     /**
@@ -223,7 +221,6 @@ public class RufusController {
     public void remoteAccess(LxcModel lxc) {
 
         String url = rufusService.remoteAccess(lxc.getIps().get(0).substring(1, lxc.getIps().get(0).length() - 1));
-        logger.info(url + " #########");
         result.redirectTo(url.replaceAll("\"", ""));
     }
 
@@ -265,11 +262,11 @@ public class RufusController {
      */
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
     public void saveFile(UploadedFile file) {
-        File firstUse = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/files");
+        File firstUse = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/files");
         if (!firstUse.exists()) {
             firstUse.mkdirs();
         }
-        File destino = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/files/" + file.getFileName());
+        File destino = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/files/" + file.getFileName());
         try {
 
             destino.createNewFile();
@@ -292,7 +289,7 @@ public class RufusController {
      */
     @Get("/rufus/{name}/deleteFile")
     public void deleteFile(String name) {
-        File tmpFile = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/files/" + name);
+        File tmpFile = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/files/" + name);
         tmpFile.delete();
         result.include("file-info", "File Deleted!");
         result.redirectTo(this).fileList();
@@ -317,7 +314,7 @@ public class RufusController {
     @Get("/deleteWorkflow/{name}")
     public void deleteWorkflow(String name) {
         logger.info(name + " workflow para deletar");
-        File tmpFile = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/" + name);
+        File tmpFile = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/" + name);
         try {
             FileUtils.deleteDirectory(tmpFile);
         } catch (IOException ex) {
@@ -351,7 +348,7 @@ public class RufusController {
     public void runWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow) {
 
         String user = userSession.currentUser().getEmail();
-        File fileWorkflow = new File(USERS_NFS_DIR + "/" + user + "/" + workflowName);
+        File fileWorkflow = new File(environment.get("dir.nfs") + "/" + user + "/" + workflowName);
         fileWorkflow.mkdir();
         workflowService.saveXML(xmlWorkflow, workflowName);
         workflowService.saveJSON(jsonWorkflow, workflowName);
@@ -372,7 +369,7 @@ public class RufusController {
     @Post
     public void saveWorkflow(String xmlTextArea, String workflowName, String xmlWorkflow, String jsonWorkflow) {
         String user = userSession.currentUser().getEmail();
-        File fileWorkflow = new File(USERS_NFS_DIR + "/" + user + "/" + workflowName);
+        File fileWorkflow = new File(environment.get("dir.nfs") + "/" + user + "/" + workflowName);
         fileWorkflow.mkdir();
         workflowService.saveXML(xmlWorkflow, workflowName);
         workflowService.saveJSON(jsonWorkflow, workflowName);
@@ -406,7 +403,7 @@ public class RufusController {
     }
 
     public Download downloadWorkflowFile(String requiredFile) {
-        File file = new File(USERS_NFS_DIR, requiredFile);
+        File file = new File(environment.get("USERS_NFS_DIR"), requiredFile);
         try {
             return new FileDownload(file, "application/text");
         } catch (IOException ex) {
@@ -414,9 +411,10 @@ public class RufusController {
         }
         return null;
     }
+
     @Get("/rufus/{name}/download")
     public Download downloadFile(String name) {
-        File file = new File(USERS_NFS_DIR+"/"+userSession.currentUser().getEmail()+"/files/"+name);
+        File file = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/files/" + name);
         try {
             return new FileDownload(file, "application/text");
         } catch (IOException ex) {
@@ -439,7 +437,7 @@ public class RufusController {
 
         //logger.debug(file.getFileName());
         //logger.debug("**********************************");
-        File destino = new File("" + USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/" + file.getFileName());
+        File destino = new File("" + environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/" + file.getFileName());
         try {
             destino.createNewFile();
             InputStream stream = file.getFile();
@@ -461,7 +459,7 @@ public class RufusController {
         ArrayList<String> list = new ArrayList<>();
         result.include("nodes", workflowService.getListCpuAvailables(cpus));
     }
-    
+
     @Post
     @UploadSizeLimit(sizeLimit = 1024 * 1024 * 1024, fileSizeLimit = 1024 * 1024 * 1024)
     public void loadWorkflow(UploadedFile file) {
@@ -473,38 +471,39 @@ public class RufusController {
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         result.use(Results.http()).body(workflowService.loadWorkflowFile(f));
-        
+
     }
-    
+
     @Get("/rufus/{workflowRequired}/downloadWorkflowProvider/{type}")
-    public Download downloadWorkflowProvider(String workflowRequired, String type){
+    public Download downloadWorkflowProvider(String workflowRequired, String type) {
         try {
             File f = null;
-            if(type.equals("json")){
-                 f = new File("" + USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/"
-                    + "" + workflowRequired +"/."+workflowRequired);
-                 return new FileDownload(f, "application/text", workflowRequired+".flow");
-            }else{
-                f = new File("" + USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/"
-                    + "" + workflowRequired +"/"+workflowRequired+".xml");
-                
-                 return new FileDownload(f, "application/text", workflowRequired+".xml");
+            if (type.equals("json")) {
+                f = new File("" + environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/"
+                        + "" + workflowRequired + "/." + workflowRequired);
+                return new FileDownload(f, "application/text", workflowRequired + ".flow");
+            } else {
+                f = new File("" + environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/"
+                        + "" + workflowRequired + "/" + workflowRequired + ".xml");
+
+                return new FileDownload(f, "application/text", workflowRequired + ".xml");
             }
-            
+
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
         return null;
     }
+
     @Get("/modalUpload")
-    public void modalUpload(){
+    public void modalUpload() {
         List<String> folders = new ArrayList<>();
         for (File file : workflowService.getAllWorkflowResults()) {
             folders.add(file.getName());
         }
-        
+
         result.include("folders", new Gson().toJson(folders));
 
     }

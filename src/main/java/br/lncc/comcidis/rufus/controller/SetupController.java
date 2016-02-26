@@ -9,12 +9,10 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.environment.Property;
+import br.lncc.comcidis.rufus.factory.HostInterface;
+import br.lncc.comcidis.rufus.factory.SetupRufus;
 import br.lncc.comcidis.rufus.model.Host;
-import br.lncc.comcidis.rufus.service.EditInitFile;
-import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.List;
+import br.lncc.comcidis.rufus.model.Hosts;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,40 +26,33 @@ public class SetupController {
 
     private static final Logger logger = LoggerFactory.getLogger(RufusController.class);
     private Result result;
+    private Hosts hosts;
+    private SetupRufus sr;
 
-    @Inject
-    @Property
-    private String INIT_FILE_LOCATION;
-   
-    private EditInitFile eif;
-    
     @Deprecated
     public SetupController() {
 
     }
-    
+
     @Inject
-    public SetupController(Result result) {
+    public SetupController(Result result, @HostInterface Hosts hosts, SetupRufus sr) {
         this.result = result;
-        this.eif = new EditInitFile();
+        this.hosts = hosts;
+        this.sr = sr;
+
     }
-    
-   
 
     @Get("/setup/")
     public void rufusSetup() {
-        
-        result.include("hosts", eif.readInitFile());
+        result.include("hosts", hosts);
     }
 
     @Post
     public void saveAddress(String web, String core, String auth) {
-        
-        List<Host> hosts = new ArrayList<Host>();
-        hosts.add(new Host("web", web));
-        hosts.add(new Host("core", core));
-        hosts.add(new Host("auth", auth));
-        eif.writeInitFile(new Gson().toJson(hosts));
+        hosts.get("web").setUrl(web);
+        hosts.get("core").setUrl(core);
+        hosts.get("auth").setUrl(auth);
+        sr.setHost(hosts);
         result.redirectTo(RufusController.class).index();
     }
 

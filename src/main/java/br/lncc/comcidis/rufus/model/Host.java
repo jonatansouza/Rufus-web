@@ -5,43 +5,68 @@
  */
 package br.lncc.comcidis.rufus.model;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Named;
+
 /**
  *
  * @author jonatan
  */
+
 public class Host {
     private String name;
-    private String ip;
+    private String url;
+    private AuthSetup authSetup;
+
+    public Host(String name, String url, AuthSetup authSetup) {
+        this.name = name;
+        this.url = url;
+        this.authSetup = authSetup;
+    }
 
     public Host() {
+    }
+
+    public AuthSetup getAuthSetup() {
+        return authSetup;
+    }
+
+    public void setAuthSetup(AuthSetup authSetup) {
+        this.authSetup = authSetup;
+    }
     
-    }
-
-    public Host(String name, String ip) {
-        this.name = name;
-        this.ip = ip;
-    }
-
+    
+    
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    } 
+    public URI getUrl() {
+        try {
+            return new URI(url);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Host.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            return null;
     }
 
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override
     public String toString() {
-        return "Host{" + "name=" + name + ", ip=" + ip + '}';
+        return "Host{" + "name=" + name + ", url=" + url + ", authSetup=" + authSetup + '}';
     }
+
     
-    
+
+     
 }

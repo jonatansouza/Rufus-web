@@ -5,9 +5,12 @@
  */
 package br.lncc.comcidis.rufus.service;
 
-import br.com.caelum.vraptor.environment.Property;
+import br.com.caelum.vraptor.environment.Environment;
 import br.lncc.comcidis.rufus.controller.RufusController;
+import br.lncc.comcidis.rufus.factory.HostInterface;
 import br.lncc.comcidis.rufus.model.FileModel;
+import br.lncc.comcidis.rufus.model.Host;
+import br.lncc.comcidis.rufus.model.Hosts;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import br.lncc.comcidis.rufus.model.UserSession;
@@ -22,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
@@ -40,63 +42,32 @@ import org.slf4j.LoggerFactory;
  *
  * @author jonatan
  */
-
 public class RufusService {
 
     private static final Logger logger = LoggerFactory.getLogger(RufusService.class);
 
-    private String RUFUS_CORE_URI;
-
-    @Inject
-    @Property
-    private String RUFUS_CORE_VERSION;
-
-   
-    
-    @Inject
-    @Property
-    private String RUFUS_CORE_PORT;
-    
-    @Inject
-    @Property
-    private String DOTS;
-    
-    @Inject
-    @Property
-    private String WEB_PROTOCOL;
-
-    
-    @Inject
-    UserSession userSession;
-
-    @Inject
-    @Property
-    private String USERS_NFS_DIR;
-
+    private UserSession userSession;
     private HttpClient httpClient;
 
-    
+    private Host core;
+    private Environment environment;
+
     @Deprecated
     public RufusService() {
-       
-        httpClient = HttpClients.createDefault();
-        
-    }
-    
-    public void initLocations(){
-        String tmpCore = new EditInitFile().getHost("core").getIp();
-        
-        RUFUS_CORE_URI = WEB_PROTOCOL+tmpCore+DOTS+RUFUS_CORE_PORT+"/"+RUFUS_CORE_VERSION;
-                
+
     }
 
-    
-    
+    @Inject
+    public RufusService(@HostInterface Hosts hosts, Environment environment, UserSession userSession) {
+        this.environment = environment;
+        core = hosts.get("core");
+        this.userSession = userSession;
+
+    }
 
     public List<LxcModel> list() {
-        initLocations();
-        
-        HttpGet hg = new HttpGet(RUFUS_CORE_URI+"/containers");
+        httpClient = HttpClients.createDefault();
+        HttpGet hg = new HttpGet(core.getUrl() + "/containers");
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -132,9 +103,9 @@ public class RufusService {
     }
 
     public List<String> getLxcTemplates() {
-        initLocations();
-        
-        HttpGet hg = new HttpGet(RUFUS_CORE_URI+ "/templates");
+        httpClient = HttpClients.createDefault();
+
+        HttpGet hg = new HttpGet(core.getUrl() + "/templates");
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -158,17 +129,13 @@ public class RufusService {
     }
 
     public void createLxc(String name, String template) {
-        initLocations();
-        
+        httpClient = HttpClients.createDefault();
+
         String order = "";
 
-        //if (template.equals("default")) {
         order = "{\"name\":\"" + name + "\"}";
-        //} else {
-        //  order = "{\"name\":\"" + name + "\", \"template\":\"" + template + "\"}";
-        //}
 
-        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/containers");
+        HttpPost hp = new HttpPost(core.getUrl() + "/containers");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -181,8 +148,8 @@ public class RufusService {
     }
 
     public void changeState(String name, String state) {
-        initLocations();
-        
+        httpClient = HttpClients.createDefault();
+
         String order = "";
 
         if (state.equals("STOPPED")) {
@@ -192,7 +159,7 @@ public class RufusService {
             order = "{\"state\":\"STOPPED\"}";
         }
 
-        HttpPut clientPut = new HttpPut(RUFUS_CORE_URI + "/containers/" + name + "");
+        HttpPut clientPut = new HttpPut(core.getUrl() + "/containers/" + name + "");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         clientPut.setEntity(st);
@@ -206,9 +173,9 @@ public class RufusService {
     }
 
     public void deleteLxc(String name) {
-        initLocations();
-        
-        String order = RUFUS_CORE_URI + "/containers/" + name;
+        httpClient = HttpClients.createDefault();
+
+        String order = core.getUrl() + "/containers/" + name;
         HttpDelete hd = new HttpDelete(order);
         try {
             httpClient.execute(hd);
@@ -221,10 +188,11 @@ public class RufusService {
     //UPLOAD Section
     //
     public List<FileModel> myFileList() {
+        httpClient = HttpClients.createDefault();
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-        File raiz = new File(USERS_NFS_DIR + "/" + userSession.currentUser().getEmail() + "/files");
+        File raiz = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/files");
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
                 String lowercaseName = name.toLowerCase();
@@ -252,11 +220,11 @@ public class RufusService {
     }
 
     public String operateLxc(LxcInput lxcInputs) {
-        initLocations();
-        
+        httpClient = HttpClients.createDefault();
+
         String order = "{\"command\" : \"" + lxcInputs.getActivity() + "\"}";
 
-        HttpPost hp = new HttpPost(RUFUS_CORE_URI  + "/containers/input/run");
+        HttpPost hp = new HttpPost(core.getUrl() + "/containers/input/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -283,9 +251,9 @@ public class RufusService {
     //WORKFLOW SERVICES
     //***********************************
     public void runOperations(String user, String app_id) {
-        initLocations();
-        
-        File inputs = new File(USERS_NFS_DIR + user + "/" + app_id + "/in/");
+        httpClient = HttpClients.createDefault();
+
+        File inputs = new File(environment.get("dir.nfs") + user + "/" + app_id + "/in/");
 
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {
@@ -307,7 +275,7 @@ public class RufusService {
 
         String order = "{\"username\":\"" + user + "\", \"app_id\":\"" + app_id + "\", \"args\":" + jsonFile + "}";
 
-        HttpPost hp = new HttpPost(RUFUS_CORE_URI + "/containers/Addition/run");
+        HttpPost hp = new HttpPost(core.getUrl() + "/containers/Addition/run");
         StringEntity st = new StringEntity(order, "utf-8");
         st.setContentType("application/json");
         hp.setEntity(st);
@@ -329,11 +297,11 @@ public class RufusService {
     }
 
     public String remoteAccess(String ipContainer) {
-       initLocations();
-        
-        HttpGet hg = new HttpGet(RUFUS_CORE_URI + "/console/" + ipContainer);
+        httpClient = HttpClients.createDefault();
+
+        HttpGet hg = new HttpGet(core.getUrl() + "/console/" + ipContainer);
         String url = "";
-        
+
         try {
             HttpResponse answer = httpClient.execute(hg);
             BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
@@ -344,7 +312,7 @@ public class RufusService {
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return url;
     }
 
