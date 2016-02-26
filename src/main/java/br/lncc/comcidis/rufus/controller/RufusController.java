@@ -403,7 +403,7 @@ public class RufusController {
     }
 
     public Download downloadWorkflowFile(String requiredFile) {
-        File file = new File(environment.get("USERS_NFS_DIR"), requiredFile);
+        File file = new File(environment.get("dir.nfs"), requiredFile);
         try {
             return new FileDownload(file, "application/text");
         } catch (IOException ex) {
