@@ -14,7 +14,7 @@
                 <div class="form-group">
                     <label for="rufusWeb" class="col-sm-4 control-label">Rufus-Web</label>
                     <div class="col-sm-8">
-                        <input value="${hosts.hosts[2].url}" required type="text" name="web" class="form-control" id="rufusWeb" placeholder="192.168.1.101">
+                        <input value="${hosts.hosts[0].url}" required type="text" name="web" class="form-control" id="rufusWeb" placeholder="192.168.1.101">
                     </div>
                 </div>
                 <div class="form-group">
@@ -26,7 +26,7 @@
                 <div class="form-group">
                     <label for="auth" class="col-sm-4 control-label">Auth</label>
                     <div class="col-sm-8">
-                        <input value="${hosts.hosts[0].url}" required type="text" name="auth" class="form-control" id="auth" placeholder="192.168.1.102">
+                        <input value="${hosts.hosts[2].url}" required type="text" name="auth" class="form-control" id="auth" placeholder="192.168.1.102">
                     </div>
                 </div>
                 <div class="form-group">

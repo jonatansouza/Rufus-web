@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 @Controller
 public class SetupController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RufusController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SetupController.class);
     private Result result;
     private Hosts hosts;
     private SetupRufus sr;
@@ -35,14 +35,14 @@ public class SetupController {
     }
 
     @Inject
-    public SetupController(Result result, @HostInterface Hosts hosts, SetupRufus sr) {
+    public SetupController(Result result, SetupRufus sr, @HostInterface Hosts hosts) {
         this.result = result;
-        this.hosts = hosts;
         this.sr = sr;
+        this.hosts = hosts;
 
     }
 
-    @Get("/setup/")
+    @Get("/setup")
     public void rufusSetup() {
         result.include("hosts", hosts);
     }

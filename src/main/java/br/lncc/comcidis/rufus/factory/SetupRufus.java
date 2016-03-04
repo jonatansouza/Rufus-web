@@ -7,6 +7,7 @@ package br.lncc.comcidis.rufus.factory;
 
 import br.com.caelum.vraptor.environment.Environment;
 import br.lncc.comcidis.rufus.controller.RufusController;
+import br.lncc.comcidis.rufus.model.GenericHosts;
 import br.lncc.comcidis.rufus.model.Host;
 import br.lncc.comcidis.rufus.model.Hosts;
 import com.google.gson.Gson;
@@ -51,6 +52,8 @@ public class SetupRufus {
         this.environment = environment;
 
     }
+
+    
 
     public Hosts initHosts() {
         String content = "";

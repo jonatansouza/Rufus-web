@@ -268,7 +268,7 @@ public class RufusController {
         }
         File destino = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail() + "/files/" + file.getFileName());
         try {
-
+            destino.getParentFile().mkdirs();
             destino.createNewFile();
             InputStream stream = file.getFile();
             IOUtils.copy(stream, new FileOutputStream(destino));

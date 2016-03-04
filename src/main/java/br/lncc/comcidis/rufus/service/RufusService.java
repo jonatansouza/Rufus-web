@@ -206,14 +206,18 @@ public class RufusService {
         List<FileModel> list = new ArrayList<>();
 
         if (!raiz.exists()) {
+
             raiz.mkdirs();
+
         }
 
-        for (File file : raiz.listFiles(filter)) {
-            FileModel fm = new FileModel();
-            fm.setName(file.getName());
-            fm.setDate(sdf.format(file.lastModified()));
-            list.add(fm);
+        if (raiz.exists()) {
+            for (File file : raiz.listFiles(filter)) {
+                FileModel fm = new FileModel();
+                fm.setName(file.getName());
+                fm.setDate(sdf.format(file.lastModified()));
+                list.add(fm);
+            }
         }
 
         return list;
