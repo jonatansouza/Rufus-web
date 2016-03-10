@@ -1,6 +1,19 @@
 <jsp:include page="../layout/menu.jsp"></jsp:include>
     <div id="page-wrapper">    
         <div class="container">
+        <c:if test="${not empty message}">
+            <script>
+                function hideMe(){
+                    setTimeout(function(){
+                        $("#message").fadeOut("slow");
+                    }, 3000);
+                }
+                hideMe();
+            </script>
+            <span id="message">
+                <h3 class="text-info">${message}</h3>
+            </span>    
+        </c:if>
             <div class="row" id="adminsArea">
 
             </div>

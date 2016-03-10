@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-md-9">
                 <c:forEach items="${errors}" var="error">
-                    
+
                     <div class="row">
                         <div class="col-sm-4">
                             <p class="alert-danger"><b>
@@ -12,11 +12,13 @@
                         </div>
                     </div>
                 </c:forEach>
-                
-                <div class="row">
-                    <form method="POST" action="${linkTo[RufusController].save}">
+
+                <div class="row" id="rowForm">
+                    <div class="col-sm-4">
+
                         <div class="form-group">
-                            <div class="col-sm-4">
+                            <form method="POST" action="${linkTo[RufusController].save}" id="containerForm">
+
                                 <label for="containername">Container: </label>
                                 <input class="form-control" type="text" name="name" id="containername" placeholder="Type Container name here">
                                 <br>
@@ -27,16 +29,31 @@
                                     </c:forEach>
                                 </select>
                                 <br>
-                                <button type="submit" class="btn btn-default">Create</button>
-                            </div>
+
+
+                            </form>
+                            <button onclick="creating()" class="btn btn-default">Create</button>
                         </div>
 
-                    </form>
+                    </div>
+
+
                 </div>
+                <div id="waiting"></div>
 
 
             </div>
         </div>
     </div>
 </div>
+<script>
+    function creating() {
+        $("#rowForm").hide();
+        $.get("/rufus/templates/save-waiting", function (data) {
+            $("#waiting").html(data);
+            $("#containerForm").submit();
+        });
+     
+    }
+</script>
 <jsp:include page="../layout/footer.jsp"></jsp:include>

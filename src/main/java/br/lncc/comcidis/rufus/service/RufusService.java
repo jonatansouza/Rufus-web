@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -317,6 +319,7 @@ public class RufusService {
             java.util.logging.Logger.getLogger(RufusController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        
         return url;
     }
 

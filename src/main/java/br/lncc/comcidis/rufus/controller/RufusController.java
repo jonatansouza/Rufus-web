@@ -36,6 +36,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,8 +100,13 @@ public class RufusController {
      * out
      */
     @Path("/account")
-    public void account() {
+    public void account(String message) {
+        result.include("message", message);
+    }
 
+    @Get("/containers/json/{name}")
+    public void getContainerStatus(String name) {
+        result.use(Results.json()).withoutRoot().from(rufusService.getContainerByName(name)).include("ips").serialize();
     }
 
     /**
@@ -159,6 +168,7 @@ public class RufusController {
      */
     @Post
     public void save(String template, String name) {
+
         if (!Strings.isNullOrEmpty(name)) {
             validator.addIf(name.contains(" "), new SimpleMessage("Error", "Name cannot have white space."));
 
@@ -167,7 +177,13 @@ public class RufusController {
         validator.onErrorForwardTo(this).create();
 
         rufusService.createLxc(name, template);
-        result.redirectTo(this).dashboard();
+        result.redirectTo(this).containers();
+
+    }
+
+    @Get("/templates/save-waiting")
+    public void saveWaiting() {
+
     }
 
     /**
@@ -217,11 +233,10 @@ public class RufusController {
         result.include("fileList", rufusService.myFileList());
     }
 
-    @Get("/rufus/remoteAccess/{lxc.ips}")
-    public void remoteAccess(LxcModel lxc) {
+    @Get("/rufus/remoteAccess/{ip}")
+    public void remoteAccess(String ip) {
 
-        String url = rufusService.remoteAccess(lxc.getIps().get(0).substring(1, lxc.getIps().get(0).length() - 1));
-        result.redirectTo(url.replaceAll("\"", ""));
+        result.redirectTo(rufusService.remoteAccess(ip).replaceAll("\"", ""));
     }
 
     /**

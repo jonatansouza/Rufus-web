@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/docs.css">
         <script src="${pageContext.request.contextPath}/assets/js/menu.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
         <title>Rufus</title>
     </head>
     <body>

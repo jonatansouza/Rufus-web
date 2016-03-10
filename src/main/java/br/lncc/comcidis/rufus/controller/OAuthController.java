@@ -10,6 +10,7 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
+import br.lncc.comcidis.rufus.factory.HTMLSanitizer;
 import br.lncc.comcidis.rufus.factory.HostInterface;
 import br.lncc.comcidis.rufus.model.Host;
 import br.lncc.comcidis.rufus.model.Hosts;
@@ -51,14 +52,14 @@ public class OAuthController {
     private OauthService oauthService;
     private Host auth;
     private Host web;
-    
+
     @Deprecated
     public OAuthController() {
 
     }
-   
+
     @Inject
-    public OAuthController(Result result, UserSession session, HttpServletRequest httpServletRequest, OauthService oauthService, HttpServletRequest rq, UserSession userSession,@HostInterface Hosts hosts) {
+    public OAuthController(Result result, UserSession session, HttpServletRequest httpServletRequest, OauthService oauthService, HttpServletRequest rq, UserSession userSession, @HostInterface Hosts hosts) {
         this.result = result;
         this.session = session;
         this.httpServletRequest = httpServletRequest;
@@ -68,20 +69,17 @@ public class OAuthController {
         this.auth = hosts.get("auth");
         this.web = hosts.get("web");
     }
-    
+
     @Path("/login")
     public void login() throws OAuthSystemException {
         result.redirectTo(this).getOauthCode();
     }
-    
 
     @Path("oauth/logout")
     public void logout() {
         session.logout();
         result.redirectTo(RufusController.class).index();
     }
-
-   
 
     @Get("oauth/login")
     public void getOauthCode() throws OAuthSystemException {
@@ -115,7 +113,7 @@ public class OAuthController {
         String accessToken = oAuthResponse.getAccessToken();
         Long expiresIn = oAuthResponse.getExpiresIn();
 
-        OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest(auth.getUrl()+ auth.getAuthSetup().getClientEndPoint())
+        OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest(auth.getUrl() + auth.getAuthSetup().getClientEndPoint())
                 .setAccessToken(oAuthResponse.getAccessToken()).buildQueryMessage();
 
         OAuthResourceResponse resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
@@ -133,14 +131,24 @@ public class OAuthController {
         } catch (NaoAutenticadoException ex) {
 
         }
-        result.redirectTo(web.getUrl()+""+ httpServletRequest.getSession().getAttribute("requestUri"));
+        result.redirectTo(web.getUrl() + "" + httpServletRequest.getSession().getAttribute("requestUri"));
     }
 
     @Post("/newUser")
     public void registerNewRootUser(String email) {
-        oauthService.registerNewRootUser(email);
-        result.include("message", "User " + email + " has been added to the admin group.");
-        result.redirectTo(RufusController.class).account();
+        logger.info(email);
+        String register = HTMLSanitizer.saniteze(email);
+        logger.info(register);
+        String msg = "";
+        if (!register.isEmpty()) {
+            oauthService.registerNewRootUser(register);
+            msg = "User added!";
+        }else{
+            msg = "Email not valid!";
+        }
+
+        result.redirectTo(RufusController.class).account(msg);
+
     }
 
     @Path("/oauth/getRootUsers")
@@ -151,8 +159,9 @@ public class OAuthController {
 
     @Get("/oauth/deleteRootUser/{name}")
     public void deleteRootUser(String name) {
-        oauthService.deleteRootUser(name);
-        result.redirectTo(RufusController.class).account();
+        
+        oauthService.deleteRootUser(HTMLSanitizer.saniteze(name));
+        result.redirectTo(RufusController.class).account("User deleted!!");
     }
 
 }
