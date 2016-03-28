@@ -20,23 +20,21 @@
                         </div>
                     </div>
                     <div id="cloneSuccess" style="display: none">
-                        <h3 class="text-info text-center">Container Created!</h3>
+                        <h3 class="text-info text-center">Container Cloned!</h3>
                     </div>
+
 
                     <div class="row" id="rowForm">
                         <div class="col-sm-4">
-
-                            <div class="form-group">
-                                <form method="POST" action="${linkTo[RufusController].save}" id="containerForm">
+                            <h3>Clone from ${baseContainer}</h3>
+                        <div class="form-group">
+                            <form method="POST" action="${linkTo[RufusController].save}" id="containerForm">
 
                                 <label for="containername">Container: </label>
-                                <input class="form-control" type="text" name="name" id="containername" placeholder="Type Container name here">
+                                <input class="form-control" type="text" name="name" value="${baseContainer}" id="containername" placeholder="Type Container name here">
                                 <br>
-                                <br>
-
-
                             </form>
-                            <button id="buttonClone" onclick="creating()" class="btn btn-default">Create</button>
+                            <button id="buttonClone" onclick="clone('${baseContainer}')" class="btn btn-default">Create</button>
                         </div>
 
                     </div>
@@ -51,36 +49,38 @@
     </div>
 </div>
 <script>
-    function creating() {
-
+    function clone(baseContainer) {
         $("#buttonClone").hide();
-        $.get("/rufus/templates/save-waiting/Creating", function (data) {
+        $.get("/rufus/templates/save-waiting/Cloning", function (data) {
             $("#waiting").html(data);
         });
 
         $.ajax({
             method: "POST",
-            url: '/rufus/rufus/save',
+            url: '/rufus/rufus/saveClone',
             data: {
-                name: $("#containername").val()
+                baseContainer: baseContainer,
+                newContainer: $("#containername").val()
             }
 
         }).done(function (data) {
-            $("#cloneSuccess").show();
-            $("#buttonClone").show();
-            $("#waiting").hide();
-            setTimeout(function () {
-                $("#cloneSuccess").fadeOut();
-            }, 5000);
+             $("#cloneSuccess").show();
+             $("#buttonClone").show();
+             $("#waiting").hide();
+             setTimeout(function (){
+             $("#cloneSuccess").fadeOut();
+             }, 5000);
             console.log("done");
         }).fail(function () {
-            $("#buttonClone").show();
-            $("#waiting").fadeOut();
-            $("#error").show();
-            setTimeout(function () {
-                $("#error").fadeOut();
-            }, 10000);
+             $("#buttonClone").show();
+             $("#waiting").fadeOut();
+             $("#error").show();
+             setTimeout(function (){
+             $("#error").fadeOut();
+             }, 10000);
         });
+
     }
+
 </script>
 <jsp:include page="../layout/footer.jsp"></jsp:include>

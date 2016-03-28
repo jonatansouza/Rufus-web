@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -130,7 +131,7 @@ public class RufusService {
 
     }
 
-    public void createLxc(String name, String template) {
+    public StatusLine createLxc(String name, String template) {
         httpClient = HttpClients.createDefault();
 
         String order = "";
@@ -142,11 +143,11 @@ public class RufusService {
         st.setContentType("application/json");
         hp.setEntity(st);
         try {
-            httpClient.execute(hp);
+            return httpClient.execute(hp).getStatusLine();
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+            return null;
     }
 
     public void changeState(String name, String state) {
@@ -321,6 +322,27 @@ public class RufusService {
 
         
         return url;
+    }
+
+    public StatusLine clone(String newContainer, String baseContainer) {
+        logger.info("trying clone "+newContainer+" "+baseContainer);
+        httpClient = HttpClients.createDefault();
+
+        String order = "";
+
+        order = "{\"name\":\"" + newContainer + "\"}";
+
+        HttpPost hp = new HttpPost(core.getUrl() + "/containers/"+baseContainer);
+        StringEntity st = new StringEntity(order, "utf-8");
+        st.setContentType("application/json");
+        hp.setEntity(st);
+        try {
+            return httpClient.execute(hp).getStatusLine();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
     }
 
 }

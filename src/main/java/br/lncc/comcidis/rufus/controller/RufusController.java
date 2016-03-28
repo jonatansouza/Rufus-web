@@ -48,6 +48,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.StatusLine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,22 +168,44 @@ public class RufusController {
      * @param name
      */
     @Post
-    public void save(String template, String name) {
-
+    public void save(String name) {
         if (!Strings.isNullOrEmpty(name)) {
             validator.addIf(name.contains(" "), new SimpleMessage("Error", "Name cannot have white space."));
 
         }
         validator.addIf(Strings.isNullOrEmpty(name), new SimpleMessage("Error", "Name cannot be blank."));
-        validator.onErrorForwardTo(this).create();
+        validator.onErrorSendBadRequest();
+        StatusLine sl = rufusService.createLxc(name, "");
+        if (sl.getStatusCode() == 201) {
+            result.use(Results.status()).created();
+        } else {
+            validator.add(new SimpleMessage("error", "badrequest"));
+            validator.onErrorSendBadRequest();
+        }
 
-        rufusService.createLxc(name, template);
-        result.redirectTo(this).containers();
 
     }
 
-    @Get("/templates/save-waiting")
-    public void saveWaiting() {
+    @Get("/templates/save-waiting/{status}")
+    public void saveWaiting(String status) {
+        result.include("status", status);
+    }
+
+    @Post
+    public void saveClone(String newContainer, String baseContainer) {
+        if (!Strings.isNullOrEmpty(newContainer)) {
+            validator.addIf(newContainer.contains(" "), new SimpleMessage("Error", "Name cannot have white space."));
+
+        }
+        validator.addIf(Strings.isNullOrEmpty(newContainer), new SimpleMessage("Error", "Name cannot be blank."));
+        validator.onErrorSendBadRequest();
+        StatusLine sl = rufusService.clone(newContainer, baseContainer);
+        if (sl.getStatusCode() == 201) {
+            result.use(Results.status()).created();
+        } else {
+            validator.add(new SimpleMessage("error", "badrequest"));
+            validator.onErrorSendBadRequest();
+        }
 
     }
 
@@ -196,6 +219,11 @@ public class RufusController {
     public void update(LxcModel lxc) {
         rufusService.changeState(lxc.getName(), lxc.getState());
         result.redirectTo(this).containerEdit(lxc);
+    }
+
+    @Get("/clone/{name}")
+    public void clone(String name) {
+        result.include("baseContainer", name);
     }
 
     /**

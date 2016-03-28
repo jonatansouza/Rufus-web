@@ -51,7 +51,7 @@
                                     <span class="glyphicon glyphicon-off"></span>
                                 </a>   
 
-                                <a class="btn-default" href="${pageContext.request.contextPath}/rufus/remoteAccess/${lxc.ips[0]}" title="Remote access" data-toggle="tooltip" data-placement="left" target="_blank">
+                                <a id="remoteHref" class="btn-default" href="#"  title="Remote access" data-toggle="tooltip" data-placement="left">
                                     <span class="fa-stack fa-lg">
                                         <span id="iconTerminal"></span>
                                     </span>
@@ -69,7 +69,8 @@
                                                     $('#iconTerminal').html("<i class='fa fa-square fa-stack-2x'></i><i class='fa fa-terminal fa-stack-1x fa-inverse'></i>");
                                                     $('#updateIp').html(ipFromServer);
                                                     $('#buttonOff').show();
-                                                    
+                                                    $('#remoteHref').attr("href", "/rufus/rufus/remoteAccess/"+ipFromServer);
+                                                    $('#remoteHref').attr("target", "_blank");
                                                 } else {
 
                                                     ipAvailable(name, ip);
@@ -87,6 +88,10 @@
                                 <a class="btn btn-primary" href="${pageContext.request.contextPath}/rufus/${lxc.name}/update/${lxc.state}"  data-toggle="tooltip" data-placement="right" title="Turn on"  >
                                     <span class="glyphicon glyphicon-off"></span>
                                 </a>
+                                <a class="btn btn-default" href="${pageContext.request.contextPath}/clone/${lxc.name}"  data-toggle="tooltip" data-placement="down" title="Clone this Container"  >
+                                    <i class="fa fa-clone"></i>
+                                </a>
+                               
                                 <a class="btn btn-danger" onclick="tools('${lxc.name}')" data-toggle="tooltip" data-placement="left" title="Delete this Container">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </a>

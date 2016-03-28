@@ -190,23 +190,30 @@ paper.$el.on('contextmenu', function (evt) {
                         label: "Custom code",
                         className: "btn-info",
                         callback: function () {
-                            bootbox.prompt("Input custom code", function (customCode) {
-                                if (customCode === null) {
-                                } else {
-                                    if (selected)
-                                        selected.set('activity', customCode);
-                                }
-                            });
-                        }
-                    },
-                    danger: {
-                        label: "Delete node",
-                        className: "btn-danger",
-                        callback: function () {
-                            if (selected)
-                                selected.remove();
-                        }
-                    }
+                            bootbox.prompt({
+
+                            title: "Input custom code",
+                                    value: selected.get('activity'),
+                                    callback: function (customCode) {
+
+                                        if (customCode === null) {
+
+                                        } else {
+                                            if (selected)
+                                                selected.set('activity', customCode);
+                                            }
+                                        }
+                                    });
+                            }
+                            },
+                                    danger: {
+                                    label: "Delete node",
+                                            className: "btn-danger",
+                                            callback: function () {
+                                            if (selected)
+                                                selected.remove();
+                                        }
+                            }
                 }
             });
         }// End Else
@@ -366,10 +373,10 @@ function downloadProvider(type) {
             200: function () {
                 $("#linksave").html("Saved");
                 $("#linksave").addClass("disabled");
-                window.location = "/rufus/rufus/"+workflowName+"/downloadWorkflowProvider/"+type;
+                window.location = "/rufus/rufus/" + workflowName + "/downloadWorkflowProvider/" + type;
             }}
     });
-    
+
 }
 
 function saveWorkflow() {

@@ -3,7 +3,7 @@
     <head>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sb-admin.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/font-awesome/css/font-awesome.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/docs.css">
         <script src="${pageContext.request.contextPath}/assets/js/menu.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
