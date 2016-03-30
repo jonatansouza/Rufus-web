@@ -7,7 +7,6 @@ package br.lncc.comcidis.rufus.service;
 
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.environment.Environment;
-import br.com.caelum.vraptor.environment.Property;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.lncc.comcidis.rufus.controller.RufusController;
@@ -33,12 +32,17 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -219,11 +223,13 @@ public class WorkflowService {
      * //testes com concorrencia //////////////////////////////
      *
      */
-    public void runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
+    public int runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
         List<String> listInputs = new ArrayList<>();
         List<String> linksSourceInput = new ArrayList<>();
-        List<Thread> threadPool = new ArrayList();
-
+        List<ExecuteWorkflow> threadPool = new ArrayList();
+        List<Future<HttpResponse>> futures = null;
+        ExecutorService executorService;
+        
         int qtdSteps = 0;
         for (LxcInput container : containers) {
             if (qtdSteps < container.getStep()) {
@@ -257,29 +263,39 @@ public class WorkflowService {
                                 container.getActivity(), container.getNodes());
 
                         listInputs.clear();
-                        Thread t = new Thread(new ExecuteWorkflow(w, container.getName()));
-                        t.start();
-                        threadPool.add(t);
+                        threadPool.add(new ExecuteWorkflow(w, container.getName()));
                         countContainers++;
-
+            
                     }
                 }
 
             }
-
-            for (Thread t : threadPool) {
+            executorService = Executors.newCachedThreadPool();
+            try {
+                futures = executorService.invokeAll(threadPool);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            for(Future f: futures){
                 try {
-                    if (t.isAlive()) {
-                        t.join();
+                    HttpResponse sl = (HttpResponse)f.get();
+                    logger.info(sl.getStatusLine().getReasonPhrase());
+                    if(sl.getStatusLine().getStatusCode() != 200){
+                        executorService.shutdownNow();
+                        return 500;
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
+            executorService.shutdown();
             threadPool.clear();
 
         }
+        return 200;
 
     }
 
@@ -322,7 +338,7 @@ public class WorkflowService {
         return list;
     }
 
-    public class ExecuteWorkflow implements Runnable {
+/*    public class ExecuteWorkflow implements Runnable {
 
         private Workflow workflow;
         private String containerName;
@@ -337,7 +353,6 @@ public class WorkflowService {
             
             httpClient = HttpClients.createDefault();
             String order = new Gson().toJson(workflow);
-            logger.info(order + " ########");
             HttpPost hp = new HttpPost(core.getUrl() + "/containers/" + containerName + "/run");
             StringEntity st = new StringEntity(order, "utf-8");
             st.setContentType("application/json");
@@ -354,6 +369,7 @@ public class WorkflowService {
                 while ((output = br.readLine()) != null) {
                     json += output;
                 }
+               
                 logger.info(json);
                 validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>" + json + "</p>"));
                 validator.onErrorSendBadRequest();
@@ -365,7 +381,48 @@ public class WorkflowService {
         }
 
     }
+*/
+    
+     public class ExecuteWorkflow implements Callable<HttpResponse>{
 
+        private Workflow workflow;
+        private String containerName;
+
+        public ExecuteWorkflow(Workflow workflow, String containerName) {
+            this.workflow = workflow;
+            this.containerName = containerName;
+        }
+        
+        @Override
+        public HttpResponse call() throws Exception {
+            httpClient = HttpClients.createDefault();
+            String order = new Gson().toJson(workflow);
+            HttpPost hp = new HttpPost(core.getUrl() + "/containers/" + containerName + "/run");
+            StringEntity st = new StringEntity(order, "utf-8");
+            st.setContentType("application/json");
+            hp.setEntity(st);
+            String json = "";
+
+            HttpResponse answer = null;
+            try {
+                answer = httpClient.execute(hp);
+                
+                BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+                String output = "";
+                while ((output = br.readLine()) != null) {
+                    json += output;
+                }
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            logger.info(json);
+            return answer;
+        }
+
+    }
+    
+    
+    
     /**
      * TESTS PROPOSAL
      */

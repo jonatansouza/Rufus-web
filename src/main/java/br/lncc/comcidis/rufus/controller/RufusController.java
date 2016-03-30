@@ -401,8 +401,15 @@ public class RufusController {
         String validate = workflowService.workflowValidate(cells);
         if (validate.isEmpty()) {
             containers = workflowService.organizeToRun(cells);
-            workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflowName, user);
-            result.use(Results.status()).ok();
+            
+            int status = workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflowName, user);
+            if(status == 200){
+                result.use(Results.status()).ok();
+            }else{
+                validator.add(new SimpleMessage("error", "Server Error! please check the reason on the Results"));
+                validator.onErrorSendBadRequest();
+            }
+                
         } else {
             validator.add(new SimpleMessage("error", validate));
             validator.onErrorSendBadRequest();

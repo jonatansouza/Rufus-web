@@ -16,7 +16,6 @@ import br.lncc.comcidis.rufus.model.Host;
 import br.lncc.comcidis.rufus.model.Hosts;
 import br.lncc.comcidis.rufus.model.Me;
 import br.lncc.comcidis.rufus.model.UserSession;
-import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
 import br.lncc.comcidis.rufus.service.OauthService;
 import com.google.gson.Gson;
 import javax.enterprise.context.RequestScoped;
@@ -126,11 +125,8 @@ public class OAuthController {
         }
         logger.info(me.toString() + " ***********");
 
-        try {
-            session.authenticate(me);
-        } catch (NaoAutenticadoException ex) {
+        session.authenticate(me);
 
-        }
         result.redirectTo(web.getUrl() + "" + httpServletRequest.getSession().getAttribute("requestUri"));
     }
 
@@ -143,7 +139,7 @@ public class OAuthController {
         if (!register.isEmpty()) {
             oauthService.registerNewRootUser(register);
             msg = "User added!";
-        }else{
+        } else {
             msg = "Email not valid!";
         }
 
@@ -159,7 +155,7 @@ public class OAuthController {
 
     @Get("/oauth/deleteRootUser/{name}")
     public void deleteRootUser(String name) {
-        
+
         oauthService.deleteRootUser(HTMLSanitizer.saniteze(name));
         result.redirectTo(RufusController.class).account("User deleted!!");
     }

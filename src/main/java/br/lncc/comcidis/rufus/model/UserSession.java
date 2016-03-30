@@ -5,7 +5,7 @@
  */
 package br.lncc.comcidis.rufus.model;
 
-import br.lncc.comcidis.rufus.service.NaoAutenticadoException;
+
 import java.io.Serializable;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
@@ -22,7 +22,7 @@ public class UserSession implements Serializable {
     
     public void authenticate(Me me) {
         if (me == null) {
-            throw new NaoAutenticadoException();
+            
         }
         this.me = me;
     }
