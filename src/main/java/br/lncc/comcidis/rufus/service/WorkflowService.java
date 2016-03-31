@@ -19,6 +19,7 @@ import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.PylxcResources;
 import br.lncc.comcidis.rufus.model.UserSession;
 import br.lncc.comcidis.rufus.model.Workflow;
+import br.lncc.comcidis.rufus.model.WorkflowNodeResult;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -69,8 +70,9 @@ public class WorkflowService {
     public WorkflowService() {
 
     }
+
     @Inject
-    public WorkflowService(UserSession userSession, Result result, Validator validator, Environment environment,@HostInterface Hosts hosts) {
+    public WorkflowService(UserSession userSession, Result result, Validator validator, Environment environment, @HostInterface Hosts hosts) {
         this.userSession = userSession;
         this.result = result;
         this.validator = validator;
@@ -79,13 +81,9 @@ public class WorkflowService {
         this.httpClient = HttpClients.createDefault();
     }
 
-    
-
-    
     public String workflowValidate(Cells cells) {
         //check if links exists
-        
-        
+
         if (cells.getLinks().isEmpty()) {
             return "<div class='text-center'>\n"
                     + "<h4>No association have been found</h4>\n"
@@ -223,13 +221,13 @@ public class WorkflowService {
      * //testes com concorrencia //////////////////////////////
      *
      */
-    public int runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
+    public WorkflowNodeResult runContainers(List<LxcInput> containers, List<LxcInput> inputs, List<LxcInput> links, String workflow, String user) {
         List<String> listInputs = new ArrayList<>();
         List<String> linksSourceInput = new ArrayList<>();
         List<ExecuteWorkflow> threadPool = new ArrayList();
-        List<Future<HttpResponse>> futures = null;
+        List<Future<WorkflowNodeResult>> futures = null;
         ExecutorService executorService;
-        
+
         int qtdSteps = 0;
         for (LxcInput container : containers) {
             if (qtdSteps < container.getStep()) {
@@ -261,29 +259,31 @@ public class WorkflowService {
                         Workflow w = new Workflow(userSession.currentUser().getEmail(),
                                 workflow, container.getNameJob(), new ArrayList<String>(listInputs),
                                 container.getActivity(), container.getNodes());
-
-                        listInputs.clear();
+                        logger.info(w.toString()+ "Order");
                         threadPool.add(new ExecuteWorkflow(w, container.getName()));
                         countContainers++;
-            
+                        listInputs.clear();
+                        
                     }
                 }
 
             }
+            
             executorService = Executors.newCachedThreadPool();
             try {
                 futures = executorService.invokeAll(threadPool);
             } catch (InterruptedException ex) {
                 Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            for(Future f: futures){
+
+            for (Future f : futures) {
                 try {
-                    HttpResponse sl = (HttpResponse)f.get();
-                    logger.info(sl.getStatusLine().getReasonPhrase());
-                    if(sl.getStatusLine().getStatusCode() != 200){
+                    WorkflowNodeResult wnr = (WorkflowNodeResult) f.get();
+                    logger.info(wnr.toString()+" *******");
+                           
+                    if (wnr.getStatusCode() != 200) {
                         executorService.shutdownNow();
-                        return 500;
+                        return wnr;
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
@@ -295,12 +295,12 @@ public class WorkflowService {
             threadPool.clear();
 
         }
-        return 200;
+        return new WorkflowNodeResult("", 200, "", "");
 
     }
 
     public PylxcResources getPylxcResources() {
-        
+
         httpClient = HttpClients.createDefault();
         HttpGet hg = new HttpGet(core.getUrl() + "/resources");
         try {
@@ -338,52 +338,51 @@ public class WorkflowService {
         return list;
     }
 
-/*    public class ExecuteWorkflow implements Runnable {
+    /*    public class ExecuteWorkflow implements Runnable {
 
-        private Workflow workflow;
-        private String containerName;
+     private Workflow workflow;
+     private String containerName;
 
-        public ExecuteWorkflow(Workflow workflow, String containerName) {
-            this.workflow = workflow;
-            this.containerName = containerName;
-        }
+     public ExecuteWorkflow(Workflow workflow, String containerName) {
+     this.workflow = workflow;
+     this.containerName = containerName;
+     }
 
-        @Override
-        public void run() {
+     @Override
+     public void run() {
             
-            httpClient = HttpClients.createDefault();
-            String order = new Gson().toJson(workflow);
-            HttpPost hp = new HttpPost(core.getUrl() + "/containers/" + containerName + "/run");
-            StringEntity st = new StringEntity(order, "utf-8");
-            st.setContentType("application/json");
-            hp.setEntity(st);
-            String json = "";
+     httpClient = HttpClients.createDefault();
+     String order = new Gson().toJson(workflow);
+     HttpPost hp = new HttpPost(core.getUrl() + "/containers/" + containerName + "/run");
+     StringEntity st = new StringEntity(order, "utf-8");
+     st.setContentType("application/json");
+     hp.setEntity(st);
+     String json = "";
 
-            HttpResponse answer;
-            try {
-                answer = httpClient.execute(hp);
-                String testStatus = answer.getStatusLine().getStatusCode() + "";
+     HttpResponse answer;
+     try {
+     answer = httpClient.execute(hp);
+     String testStatus = answer.getStatusLine().getStatusCode() + "";
 
-                BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
-                String output = "";
-                while ((output = br.readLine()) != null) {
-                    json += output;
-                }
+     BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
+     String output = "";
+     while ((output = br.readLine()) != null) {
+     json += output;
+     }
                
-                logger.info(json);
-                validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>" + json + "</p>"));
-                validator.onErrorSendBadRequest();
+     logger.info(json);
+     validator.addIf(testStatus.equals("500"), new SimpleMessage("message", "<h4 class='text-danger'>Server error</h4><p><strong>Reason: </strong>" + json + "</p>"));
+     validator.onErrorSendBadRequest();
 
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
-            }
+     } catch (IOException ex) {
+     java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+     }
 
-        }
+     }
 
-    }
-*/
-    
-     public class ExecuteWorkflow implements Callable<HttpResponse>{
+     }
+     */
+    public class ExecuteWorkflow implements Callable<WorkflowNodeResult> {
 
         private Workflow workflow;
         private String containerName;
@@ -392,37 +391,30 @@ public class WorkflowService {
             this.workflow = workflow;
             this.containerName = containerName;
         }
-        
+
         @Override
-        public HttpResponse call() throws Exception {
-            httpClient = HttpClients.createDefault();
+        public WorkflowNodeResult call(){
+            HttpClient threadRequest = HttpClients.createDefault();
+            logger.info("#thread#");
             String order = new Gson().toJson(workflow);
             HttpPost hp = new HttpPost(core.getUrl() + "/containers/" + containerName + "/run");
             StringEntity st = new StringEntity(order, "utf-8");
             st.setContentType("application/json");
             hp.setEntity(st);
-            String json = "";
-
             HttpResponse answer = null;
             try {
-                answer = httpClient.execute(hp);
-                
-                BufferedReader br = new BufferedReader(new InputStreamReader((answer.getEntity().getContent())));
-                String output = "";
-                while ((output = br.readLine()) != null) {
-                    json += output;
-                }
+                answer = threadRequest.execute(hp);
             } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(RufusService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            logger.info(json);
-            return answer;
+            WorkflowNodeResult wnr = new WorkflowNodeResult(workflow.getApp_id(), answer.getStatusLine().getStatusCode(), answer.getStatusLine().getReasonPhrase(), 
+                    UtilsService.readBodyHttpResponse(answer));
+            logger.info(wnr.toString()+" ***THREAD**");
+            return wnr;
         }
 
     }
-    
-    
-    
+
     /**
      * TESTS PROPOSAL
      */
@@ -490,7 +482,6 @@ public class WorkflowService {
      resultWorkflow
      }*/
     public List<File> getAllWorkflowResults() {
-        logger.info(environment.get("dir.nfs")+"%%%%%%%%%%");
         File raiz = new File(environment.get("dir.nfs") + "/" + userSession.currentUser().getEmail());
         FilenameFilter filter = new FileFileFilter() {
             public boolean accept(File dir, String name) {

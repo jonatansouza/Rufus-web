@@ -26,6 +26,7 @@ import br.lncc.comcidis.rufus.model.Hosts;
 import br.lncc.comcidis.rufus.model.LxcInput;
 import br.lncc.comcidis.rufus.model.LxcModel;
 import br.lncc.comcidis.rufus.model.UserSession;
+import br.lncc.comcidis.rufus.model.WorkflowNodeResult;
 import br.lncc.comcidis.rufus.service.RufusService;
 
 import br.lncc.comcidis.rufus.service.WorkflowService;
@@ -402,11 +403,11 @@ public class RufusController {
         if (validate.isEmpty()) {
             containers = workflowService.organizeToRun(cells);
             
-            int status = workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflowName, user);
-            if(status == 200){
+            WorkflowNodeResult wnr = workflowService.runContainers(containers, cells.getInputs(), cells.getLinks(), workflowName, user);
+            if(wnr.getStatusCode()== 200){
                 result.use(Results.status()).ok();
             }else{
-                validator.add(new SimpleMessage("error", "Server Error! please check the reason on the Results"));
+                validator.add(new SimpleMessage("error", new Gson().toJson(wnr)));
                 validator.onErrorSendBadRequest();
             }
                 

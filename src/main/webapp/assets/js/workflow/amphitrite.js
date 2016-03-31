@@ -447,11 +447,13 @@ function sendXML() {
                         }
                     });
                 } else {
-                    var notify = error.errors[0].message;
+                    var notify = JSON.parse(error.errors[0].message);
+                    console.log(JSON.stringify(notify));
+                    var msg = "<span class='text-danger text-center'>Container "+notify.containerName+" failed, returns code "+JSON.parse(notify.result).returncodes[0]+"<br>for more details check error file on workflow directory!</span>";
                     bootbox.hideAll();
                     bootbox.alert({
                         title: "<span class='text-danger'><h3>Error</h3>",
-                        message: notify
+                        message: msg
                     })
                 }
 
