@@ -93,13 +93,13 @@
                     <h1 class="page-header">Rufus</h1>
                     <h3 class="page-header">The Project</h3>
                     <p>Development on COMCIDIS group at LNCC, The project Rufus is an entire environment which the 
-                        user may process complex 
+                        user can process complex 
                         scientific workflow with a friendly interface, he may also upload files on server and
                         create,manage and change as need.</p>
 
                     <h3 class="page-header">Account</h3>
-                    <p>To access Rufus, you need to a <a class="active" href="#">VirtualLS</a> account, once logged there,
-                        you may access the Rufus.</p>
+                    <p>To access Rufus, you need to a <a class="active">Argus</a> account, once logged,
+                        you can access the Rufus.</p>
                     <h3 class="page-header">LXC-containers</h3>
                     <p>LXC-containers is a userspace interface for the Linux kernel containment features. 
                         Through a powerful API and simple tools, it lets Linux users easily create 
@@ -108,23 +108,10 @@
                         a full fledged virtual machine. The goal of LXC is to create an environment as close as possible 
                         to a standard Linux installation but without the need for a separate kernel.
                     </p>
-                    <p>On the left menu user may manage lxc - containers , and he Also may create a customize one with a specific list of templates 					available from pylxc ,
-                        the once created the user may use the container on workflow , the dashboard tab, the user may check all lxc - containers 						status , its not all, the user may ssh to container to setup or change something on lxc-container. </p>
-
-                    <h3 class="page-header">Files and Upload</h3>
-
-                    <p>On the first access to Rufus the user will have a folder which he will upload files, this files may be used
-                        on the workflow, in this directory you also have the workflows executed and the results, both of then can be downloaded</p>
-
+                   
                     <h3 class="page-header">Scientific Workflow</h3>
-                    <p>The Workflow Drawing board is where the user may develop complex workflow to be executed on clusters by PYLXC, 
-                        after running there are some ways to get result:
-                    <ul>
-                        <li>The file with the result can be downloaded from user's directory, the user just have to click in results at workflow 								tab on side menu, then go to workflow desired and click to open and download.
-                            <strong>the workflow results</strong>, available on the side menu, the user not only can check and download the workflows results, but 								he can also delete a non desired workflow.
-                        </li>
-                        <li>If is required, the workflow's XML also can be downloaded, click at files on the top menu.</li>
-                    </ul></p>
+                    <p>The Rufus Project has a Composer environment, where the users develop scientific Workflows 
+                        to be executed on Rufus-core.
                     <p>
 
 
