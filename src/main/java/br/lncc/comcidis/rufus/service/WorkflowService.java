@@ -44,6 +44,7 @@ import javax.inject.Inject;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -395,7 +396,7 @@ public class WorkflowService {
         @Override
         public WorkflowNodeResult call(){
             HttpClient threadRequest = HttpClients.createDefault();
-            logger.info("#thread#");
+            logger.info("Iniciou a thread##");
             String order = new Gson().toJson(workflow);
             HttpPost hp = new HttpPost(core.getUrl() + "/containers/" + containerName + "/run");
             StringEntity st = new StringEntity(order, "utf-8");
@@ -405,11 +406,12 @@ public class WorkflowService {
             try {
                 answer = threadRequest.execute(hp);
             } catch (IOException ex) {
+                logger.info("IO Exception thread!!"+ order);
                 Logger.getLogger(WorkflowService.class.getName()).log(Level.SEVERE, null, ex);
             }
             WorkflowNodeResult wnr = new WorkflowNodeResult(workflow.getApp_id(), answer.getStatusLine().getStatusCode(), answer.getStatusLine().getReasonPhrase(), 
                     UtilsService.readBodyHttpResponse(answer));
-            logger.info(wnr.toString()+" ***THREAD**");
+            logger.info(wnr.toString()+" ***Terminou a Thread**");
             return wnr;
         }
 

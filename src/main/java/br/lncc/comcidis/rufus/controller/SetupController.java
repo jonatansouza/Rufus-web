@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 @Controller
 public class SetupController {
 
-    /*private static final Logger logger = LoggerFactory.getLogger(SetupController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SetupController.class);
     private Result result;
     private Hosts hosts;
     private SetupRufus sr;
@@ -54,6 +54,6 @@ public class SetupController {
         hosts.get("auth").setUrl(auth);
         sr.setHost(hosts);
         result.redirectTo(RufusController.class).index();
-    }*/
+    }
 
 }
