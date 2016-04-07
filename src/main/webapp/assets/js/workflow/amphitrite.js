@@ -458,6 +458,15 @@ function sendXML() {
                 }
 
             },
+            500: function(data){
+                console.log(data);
+                bootbox.hideAll();
+                bootbox.alert({
+                    title: "<span class='text-danger'><h3>Workflow</h3>",
+                    message: "workflow processed!"
+                });
+            },
+
             200: function () {
 
                 bootbox.hideAll();
